@@ -1,12 +1,11 @@
-// import statements 
-// package view
-// import scalafxml.core.macros.sfxml
-// import scalafx.application.Platform
-// import MainApp
+package view
+import scalafxml.core.macros.sfxml
+import scalafx.application.Platform
+import Main.scala
 
-// @sfxml
-// class RootLayoutController() {
-//     def handleClose() {
-//         Platform.exit()
-//     }
-// }
+@sfxml
+class RootLayoutController() {
+    def handleClose() {
+        Platform.exit()
+    }
+}
