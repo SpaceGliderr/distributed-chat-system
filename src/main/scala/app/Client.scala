@@ -57,5 +57,6 @@ object ClientManager {
 }
 
 object Client extends App {
+    // When a main client is spawned, it will (1) Create the ActorRef for the client and (2) Trigger Client.start
     val greeterMain: ActorSystem[ClientManager.Command] = ActorSystem(ClientManager(), "HelloSystem")
 }
