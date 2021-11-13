@@ -5,6 +5,9 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.receptionist.{Receptionist,ServiceKey}
 import ClientManager.Command
 
+// Documentation regarding the Actor Receptionist, Listing, etc.
+// https://alvinalexander.com/scala/akka-typed-how-lookup-find-actor-receptionist/
+
 object ClientManager {
     sealed trait Command
     final case object FindServer extends Command
