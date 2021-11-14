@@ -4,7 +4,7 @@ import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.receptionist.{ Receptionist, ServiceKey }
 import com.typesafe.config.ConfigFactory
-import ClientManager.Command
+import models.{ User }
 
 // Documentation regarding the Actor Receptionist, Listing, etc.
 // https://alvinalexander.com/scala/akka-typed-how-lookup-find-actor-receptionist/
