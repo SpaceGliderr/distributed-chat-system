@@ -3,6 +3,7 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.receptionist.{Receptionist,ServiceKey}
+import com.typesafe.config.ConfigFactory
 import ClientManager.Command
 
 // Documentation regarding the Actor Receptionist, Listing, etc.
@@ -58,5 +59,13 @@ object ClientManager {
 
 object Client extends App {
     // When a main client is spawned, it will (1) Create the ActorRef for the client and (2) Trigger Client.start
-    val greeterMain: ActorSystem[ClientManager.Command] = ActorSystem(ClientManager(), "HelloSystem")
+    val greeterMain: ActorSystem[ClientManager.Command] = ActorSystem(ClientManager(), "HelloSystem", ConfigFactory.load("client"))
+    println("Client started")
+    var text = scala.io.StdIn.readLine("command=")
+    while (text != "end"){
+        greeterMain ! ClientManager.Start
+        println("Variable text ", text)
+        text = scala.io.StdIn.readLine("command=")
+    }
+    greeterMain.terminate
 }
