@@ -5,6 +5,9 @@ import akka.cluster.pubsub.DistributedPubSub
 import akka.cluster.pubsub.DistributedPubSubMediator.{ Subscribe, SubscribeAck, Publish }
 import java.lang.Thread
 
+// More on PubSub using Akka clusters
+// https://doc.akka.io/docs/akka/current/distributed-pub-sub.html
+
 class Subscriber extends Actor with ActorLogging {
     val mediator = DistributedPubSub(context.system).mediator
     mediator ! Subscribe("content", self)
