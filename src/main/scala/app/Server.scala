@@ -23,6 +23,10 @@ object ServerManager {
     // https://stackoverflow.com/questions/11203268/what-is-a-sealed-trait
     sealed trait Command
     case class Message(value: String, from: ActorRef[ClientManager.Command]) extends Command
+    case class CreateUser(user: User) extends Command
+    case class GetListings() extends Command // TODO: This needs to be triggered first
+    case class CreateChatSession(from: ActorRef[ClientManager.Command], participants: Array[ActorRef[ClientManager.Command]]) extends Command
+    case class SendMessage(from: ActorRef[ClientManager.Command], topicName: String, message: String) extends Command // topicName must be a unique ID
 
     // ServiceKeys are unique keys to identify an actor
     // It will be used by the receptionist to look up the specific actor references
@@ -47,6 +51,18 @@ object ServerManager {
                     case Message(value, from) =>
                         println(s"Server received message '${value}'")
                         // from ! ClientManager.Message("how are you", context.self)
+                        Behaviors.same
+                    case CreateUser(value) =>
+                        println("Server received create user")
+                        Behaviors.same
+                    case CreateChatSession(from, participants) =>
+                        println("Server received create chat session")
+                        Behaviors.same
+                    case GetListings() =>
+                        println("Server received get listings")
+                        Behaviors.same
+                    case SendMessage(from, topicName, message) =>
+                        println("Server received send message")
                         Behaviors.same
                 }
             }
