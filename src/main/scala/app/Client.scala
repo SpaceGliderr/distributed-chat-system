@@ -2,7 +2,7 @@ import akka.actor.typed.ActorRef
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.receptionist.{Receptionist,ServiceKey}
+import akka.actor.typed.receptionist.{ Receptionist, ServiceKey }
 import com.typesafe.config.ConfigFactory
 import ClientManager.Command
 
@@ -32,7 +32,13 @@ object ClientManager {
             // Subscribe to events related to the Server actor
             context.system.receptionist ! Receptionist.Subscribe(ServerManager.ServerKey, listingAdapter)
 
+            // Register Client actor to Recepionist with ServiceKey to search for Listings
+            // Helps Server to find ActorRef of Client
+            val ClientKey: ServiceKey[ClientManager.Command] = ServiceKey("Client")
+
             Behaviors.receiveMessage { message =>
+                context.system.receptionist ! Receptionist.Register(ClientKey, context.self)
+
                 message match {
                     case FindServer =>
                         // Send a message to the Receptionist to find any/all listings with ServerKey
