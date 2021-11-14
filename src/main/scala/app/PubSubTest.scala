@@ -29,7 +29,7 @@ object Publisher extends Actor {
     }
 }
 
-object PubSub extends App {
+object PubSubTest extends App {
     val system: ActorSystem = ActorSystem("HelloSystem")
     val pubActor = system.actorOf(Props(Publisher), "pub")
     val subActor1 = system.actorOf(Props[Subscriber], "sub1")
