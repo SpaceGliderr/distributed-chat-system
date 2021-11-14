@@ -1,8 +1,10 @@
 import akka.actor.typed.ActorRef
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.Behavior
+import akka.actor.typed.pubsub.Topic
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.receptionist.{Receptionist,ServiceKey}
+import akka.actor.typed.receptionist.{ Receptionist, ServiceKey }
+import models.{ User, Session }
 
 // Concept of Actor Discoverability
 // - Gives centralized solution for retrieving any actor existing in the actor system
