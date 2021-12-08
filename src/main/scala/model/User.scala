@@ -5,20 +5,24 @@
 // The password should be a string.
 
 package model
-import scalafx.beans.property.{StringProperty, ObjectProperty}
+import scalafx.beans.property.{ObjectProperty, StringProperty}
 import scalafx.collections.ObservableBuffer
+
 import scala.util.Try
 import util.Database
 import scalikejdbc._
+// import jsr310._
+import java.time._
 
 
-class User(_uuid: String, _username: String, _password: String) extends Database{
+class User(_uuid: String, _username: String, _password: String) extends Database {
 
     // properties
     var id = ObjectProperty[Long](-1)
     var uuid = new StringProperty(_uuid)
     var username = new StringProperty(_username)
     var password = new StringProperty(_password)
+    val createdAt = new StringProperty(ZonedDateTime.now().toString) // only on initialization, not on update
 
     def isExist: Boolean = {
 
@@ -75,11 +79,13 @@ object User extends Database{
     def initializeTable() = {
         DB autoCommit { implicit session =>
             sql"""
-                create table chat_user (
-                    id int not null GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
-                    uuid UUID not null,
+                create table users (
+                    id int not null,
+                    uuid varchar(64) not null,
                     username varchar(64),
-                    password varchar(64)
+                    password varchar(64),
+                    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    primary key (id)
                 )
             """.execute.apply()
 
