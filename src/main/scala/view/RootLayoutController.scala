@@ -1,7 +1,7 @@
-package view
+package chat.view
 import scalafxml.core.macros.sfxml
 import scalafx.application.Platform
-import Main.scala
+import chat.Main
 
 @sfxml
 class RootLayoutController() {
