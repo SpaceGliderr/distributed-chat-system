@@ -1,7 +1,7 @@
 package util
 
 import scalikejdbc._
-import model.{User}
+import model.{ChatSession, Message, User, UserChatSession}
 
 
 trait Database {
@@ -12,7 +12,7 @@ trait Database {
     Class.forName(derbyDriverClassname)
 
     // user is username, 1234 is password -> create connection to database
-    ConnectionPool.singleton(dbURL, "user", "1234")
+    ConnectionPool.singleton(dbURL, "", "")
 
     // ad-hoc session provider on the REPL
     implicit val session: DBSession = AutoSession
@@ -23,8 +23,11 @@ object Database extends Database{
     // create all tables needed
     def setupDB() = {
         // initialize the table todo_list
-        if (!hasDBInitialize("chat_user"))
-            User.initializeTable()
+        // if (!hasDBInitialize("chat_user"))
+        User.initializeTable()
+        ChatSession.initializeTable()
+        Message.initializeTable()
+        UserChatSession.initializeTable()
     }
 
 
