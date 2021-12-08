@@ -18,6 +18,7 @@ libraryDependencies ++= Seq(
   "org.scalafx" %% "scalafxml-core-sfx8" % "0.5",
   "org.apache.derby" % "derby" % "10.12.1.1",
   "org.scalikejdbc" %% "scalikejdbc"       % "3.5.0",
+  // "org.scalikejdbc" %% "scalikejdbc-jsr310" % "2.5.2", // Initially used for DateTime, don't think need anymore. Remove if not needed in the end.
   "com.h2database"  %  "h2"                % "1.4.200",
   "ch.qos.logback"  %  "logback-classic"   % "1.2.3"
 )
