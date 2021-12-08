@@ -15,5 +15,9 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-cluster-tools" % AkkaVersion,
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "org.scalafx" %% "scalafx" % "8.0.192-R14",
-  "org.scalafx" %% "scalafxml-core-sfx8" % "0.5"
+  "org.scalafx" %% "scalafxml-core-sfx8" % "0.5",
+  "org.apache.derby" % "derby" % "10.12.1.1",
+  "org.scalikejdbc" %% "scalikejdbc"       % "3.5.0",
+  "com.h2database"  %  "h2"                % "1.4.200",
+  "ch.qos.logback"  %  "logback-classic"   % "1.2.3"
 )
