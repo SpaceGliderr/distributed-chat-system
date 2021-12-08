@@ -1,12 +1,14 @@
+
+
 import akka.actor.typed.ActorRef
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.receptionist.{Receptionist,ServiceKey}
 import com.typesafe.config.ConfigFactory
-import scalafx.beans.property.StringProperty
-import ClientManager.Command
-import model.{User}
+// import scalafx.beans.property.StringProperty
+// import ClientManager.Command
+// import model.{User}
 import java.util.UUID.randomUUID
 
 // Documentation regarding the Actor Receptionist, Listing, etc.
@@ -17,7 +19,7 @@ object ClientManager {
     private case class ListingResponse(listing: Receptionist.Listing) extends Command
     case class Start(user: User) extends Command
     case class Message(message: String) extends Command
-    case class CreateSession(participants: Array[StringProperty]) extends Command
+    case class CreateSession(participants: Array[String]) extends Command
     case class SendMessage(sessionId: String, message: String) extends Command
     // case class User(id: String, username: String, password: String) extends Command
 
@@ -68,7 +70,7 @@ object ClientManager {
                             remote ! ServerManager.CreateUser(context.self, user)
                         }
                         Behaviors.same
-                    case CreateSession(participants: Array[StringProperty]) =>
+                    case CreateSession(participants: Array[String]) =>
                         // context.self ! FindServer
                         for (remote <- remoteOpt) {
                             remote ! ServerManager.CreateSession(participants)
@@ -101,7 +103,7 @@ object NewClient extends App {
     val password = scala.io.StdIn.readLine("password=")
 
     // val user = ClientManager.User(randomUUID.toString, username, password)
-    val user = User(randomUUID.toString, username, password)
+    val user = new User(randomUUID.toString, username, password)
 
     greeterMain ! ClientManager.Start(user)
 

@@ -3,16 +3,16 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.receptionist.{Receptionist,ServiceKey}
-import scalafx.beans.property.StringProperty
+// import scalafx.beans.property.StringProperty
 import java.util.UUID.randomUUID
-import model.{User}
-import util.Database
+// import model.{User}
+// import util.Database
 
 object ServerManager {
     sealed trait Command
     case class Message(value: String, from: ActorRef[ClientManager.Command]) extends Command
-    case class CreateSession(participants: Array[StringProperty]) extends Command
-    case class JoinSession(sessionId: String, participants: Array[StringProperty]) extends Command
+    case class CreateSession(participants: Array[String]) extends Command
+    case class JoinSession(sessionId: String, participants: Array[String]) extends Command
     case class SendMessage(sessionId: String, message: String) extends Command
     case class CreateUser(from: ActorRef[ClientManager.Command], user: User) extends Command
     // case object TestCreateSession extends Command
@@ -20,7 +20,7 @@ object ServerManager {
     // case class TestSendMessage(sessionId: String, message: String) extends Command
 
     var chatSessionMap: Map[String, ActorRef[ChatRoom.Command]] = Map()
-    var userMap: Map[StringProperty, ActorRef[ClientManager.Command]] = Map()
+    var userMap: Map[String, ActorRef[ClientManager.Command]] = Map()
 
     val ServerKey: ServiceKey[ServerManager.Command] = ServiceKey("Server")
 
@@ -76,7 +76,6 @@ object ServerManager {
 
                         Behaviors.same
                     case SendMessage(sessionId, message) =>
-                        println("send msg")
                         println(s"Server received message '${message}'")
 
                         chatSessionMap.get(sessionId).foreach(room => {
@@ -85,6 +84,7 @@ object ServerManager {
 
                         Behaviors.same
                     case CreateUser(from, user) =>
+                        println(s"username: ${user.username}, password: ${user.password}")
                         println(s"Server received request to create user")
 
                         // Add User to userMap

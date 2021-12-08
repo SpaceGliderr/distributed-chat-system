@@ -4,21 +4,24 @@
 // The username should be a string.
 // The password should be a string.
 
-package model
 import scalafx.beans.property.{StringProperty, ObjectProperty}
 import scalafx.collections.ObservableBuffer
 import scala.util.Try
-import util.Database
+// import util.Database
 import scalikejdbc._
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
-class User(_uuid: String, _username: String, _password: String) extends Database{
+// @SerialVersionUID(100L)
+case class User(_uuid: String, _username: String, _password: String) extends Database with Serializable{
 
     // properties
-    var id = ObjectProperty[Long](-1)
-    var uuid = new StringProperty(_uuid)
-    var username = new StringProperty(_username)
-    var password = new StringProperty(_password)
+    var id: Long = -1
+    var uuid: String = _uuid
+    var username: String = _username
+    var password: String = _password
 
     def isExist: Boolean = {
 
@@ -26,7 +29,7 @@ class User(_uuid: String, _username: String, _password: String) extends Database
             implicit session =>
                 sql"""
                     select * from chat_user
-                    where id = ${id.value}
+                    where id = ${id}
                 """.map(result => result.int("id")).single.apply()
 
         } match {
@@ -41,11 +44,11 @@ class User(_uuid: String, _username: String, _password: String) extends Database
         if (!(isExist)){
             Try (DB autoCommit {
                 implicit session =>
-                    id.value = sql"""
+                    id = sql"""
                         insert into chat_user(uuid, username, password)
-                        values (${uuid.value}, ${username.value}, ${password.value})
+                        values (${uuid}, ${username}, ${password})
                     """.updateAndReturnGeneratedKey.apply()
-                    id.value
+                    id
 
             })
 
@@ -56,20 +59,40 @@ class User(_uuid: String, _username: String, _password: String) extends Database
                 sql"""
                     update chat_user
                     set
-                    username = ${username.value},
-                    password = ${password.value}
-                    where id = ${id.value}
+                    username = ${username},
+                    password = ${password}
+                    where id = ${id}
                 """.update.apply().toLong
             })
         }
     }
+
+    // @throws(classOf[IOException])
+    // def writeObject(output: ObjectOutputStream) = {
+    //     output.defaultWriteObject()
+    //     output.writeLong(id.value)
+    //     output.writeUTF(uuid.value)
+    //     output.writeUTF(username.value)
+    //     output.writeUTF(password.value)
+    // }
+
+    // @throws(classOf[IOException])
+    // def readObject(input: ObjectInputStream) = {
+    //     input.defaultReadObject()
+    //     id.value = input.readLong()
+    //     uuid.value = input.readUTF()
+    //     username.value = input.readUTF()
+    //     password.value = input.readUTF()
+    // }
 }
 
 object User extends Database{
     val users = new ObservableBuffer[User]()
 
-    def apply(_id: String, _username: String, _password: String): User = {
-        new User(_id, _username, _password)
+    def apply(_id: Long, _uuid: String, _username: String, _password: String): User = {
+        new User(_uuid, _username, _password){
+            id = _id
+        }
     }
 
     def initializeTable() = {
@@ -77,12 +100,21 @@ object User extends Database{
             sql"""
                 create table chat_user (
                     id int not null GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
-                    uuid UUID not null,
+                    uuid varchar(64) not null,
                     username varchar(64),
                     password varchar(64)
                 )
             """.execute.apply()
 
+        }
+    }
+
+    def selectAll: List[User] = {
+        DB readOnly {
+            implicit session =>
+                sql"""select * from user""".map(r =>
+                    User(r.int("id"), r.string("uuid"), r.string("username"), r.string("password"))
+                ).list.apply()
         }
     }
 }
