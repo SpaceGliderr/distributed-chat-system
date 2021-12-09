@@ -18,7 +18,8 @@ trait Database {
     implicit val session: DBSession = AutoSession
 }
 
-object Database extends Database{
+object Database extends Database {
+    val seed: Boolean = true
 
     // create all tables needed
     def setupDB() = {
@@ -34,6 +35,13 @@ object Database extends Database{
         
         if (!hasDBInitialize("user_chat_sessions"))
             UserChatSession.initializeTable()
+
+        if (seed) {
+            User.seed()
+            ChatSession.seed()
+            Message.seed()
+            UserChatSession.seed()
+        }
     }
 
 
