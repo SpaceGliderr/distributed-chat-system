@@ -97,12 +97,34 @@ object ChatSession extends Database {
                     id int not null,
                     name varchar(255) not null,
                     description varchar(255),
+                    creatorId int not null,
                     created_at timestamp not null,
                     updated_at timestamp,
-                    deleted_at timestamp,
                     primary key (id)
+                    foreign key (creatorId) references users(id)
                 )
             """.execute().apply()
+        }
+    }
+
+    def getMessages(chatSessionId: Int): List[Message] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select * from messages
+                where chatSessionId = ${chatSessionId}
+            """.map(result => Message(result.int("id"), result.string("content"), result.int("chatSessionId"), result.int("userId"), result.timestamp("created_at"))).list.apply()
+        }
+    }
+
+    def seed() = {
+        DB autoCommit { implicit session =>
+            sql"""
+                insert into chat_session (id, name, description, created_at)
+                values (1, 'general', 'general chat', 1, now())
+                
+                insert into chat_session (id, name, description, created_at)
+                values (2, 'private', 'private chat', 2, now())
+            """.update().apply()
         }
     }
 }

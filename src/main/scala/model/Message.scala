@@ -69,4 +69,21 @@ object Message extends Database {
         }
     }
 
+    def seed() = {
+        DB autoCommit { implicit session =>
+            sql"""
+                insert into chat_session (id, content, sender_id, chat_session_id, created_at)
+                values (1, 'Hello everyone from Shi Qi', 2, 1, now())
+
+                insert into chat_session (id, content, sender_id, chat_session_id, created_at)
+                values (2, 'Hello everyone from Nick', 1, 1, now())
+
+                insert into chat_session (id, content, sender_id, chat_session_id, created_at)
+                values (3, 'Hello John from Shi Qi', 2, 2, now())
+
+                insert into chat_session (id, content, sender_id, chat_session_id, created_at)
+                values (4, 'Hello Shi Qi from John', 3, 2, now())
+            """.update().apply()
+        }
+    }
 }

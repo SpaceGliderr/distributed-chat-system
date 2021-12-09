@@ -82,7 +82,7 @@ object User extends Database{
                     uuid varchar(64) not null,
                     username varchar(64),
                     password varchar(64),
-                    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     primary key (id)
                 )
             """.execute.apply()
@@ -106,6 +106,21 @@ object User extends Database{
                 select * from users
                 where uuid = ${id}
             """.map(result => User(result.string("uuid"), result.string("username"), result.string("password"))).single.apply()
+        }
+    }
+
+    def seed() = {
+        DB autoCommit { implicit session =>
+            sql"""
+                insert into users (id, uuid, username, password, created_at)
+                values (1, 'something', 'nick', '1234', now())
+                
+                insert into users (id, uuid, username, password, created_at)
+                values (2, 'something', 'shi qi', '5678', now())
+
+                insert into users (id, uuid, username, password, created_at)
+                values (3, 'something', 'john', '9101', now())
+            """.update().apply()
         }
     }
 }

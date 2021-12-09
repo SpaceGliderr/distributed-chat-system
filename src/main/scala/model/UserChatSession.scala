@@ -101,11 +101,33 @@ object UserChatSession extends Database {
                     user_id int,
                     chat_session_id int,
                     role varchar(64) check (role in ('ADMIN', 'MEMBER')),
+                    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     foreign key (user_id) references users(id),
                     foreign key (chat_session_id) references chat_sessions(id),
                     primary key (id)
                 )
             """.execute().apply()
+        }
+    }
+
+    def seed() = {
+        DB autoCommit { implicit session =>
+            sql"""
+                insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
+                values (1, 1, 1, 'ADMIN', now())
+
+                insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
+                values (1, 2, 1, 'MEMBER', now())
+
+                insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
+                values (1, 3, 1, 'MEMBER', now())
+
+                insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
+                values (1, 2, 2, 'ADMIN', now())
+
+                insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
+                values (1, 3, 2, 'MEMBER', now())
+            """.update().apply()
         }
     }
 }
