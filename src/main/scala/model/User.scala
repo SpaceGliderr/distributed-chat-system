@@ -15,7 +15,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 // @SerialVersionUID(100L)
-case class User(_uuid: String, _username: String, _password: String) extends Database with Serializable{
+case class User(_uuid: String, _username: String, _password: String) {
 
     // properties
     var id: Long = -1
@@ -39,7 +39,6 @@ case class User(_uuid: String, _username: String, _password: String) extends Dat
     }
 
     def save(): Try[Long] = {
-
         //  for new records, save it into database
         if (!(isExist)){
             Try (DB autoCommit {
@@ -112,7 +111,7 @@ object User extends Database{
     def selectAll: List[User] = {
         DB readOnly {
             implicit session =>
-                sql"""select * from user""".map(r =>
+                sql"""select * from chat_user""".map(r =>
                     User(r.int("id"), r.string("uuid"), r.string("username"), r.string("password"))
                 ).list.apply()
         }

@@ -99,13 +99,14 @@ object NewClient extends App {
     //     println("Variable text ", text)
     //     text = scala.io.StdIn.readLine("command=")
     // }
+
     val username = scala.io.StdIn.readLine("username=")
     val password = scala.io.StdIn.readLine("password=")
 
-    // val user = ClientManager.User(randomUUID.toString, username, password)
     val user = new User(randomUUID.toString, username, password)
-
     greeterMain ! ClientManager.Start(user)
+
+    // val user = ClientManager.User(randomUUID.toString, username, password)
 
     greeterMain ! ClientManager.CreateSession(Array(user.uuid))
 

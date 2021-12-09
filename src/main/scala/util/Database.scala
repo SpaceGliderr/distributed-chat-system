@@ -3,15 +3,14 @@
 import scalikejdbc._
 // import model.{User}
 
-
 trait Database {
     val derbyDriverClassname = "org.apache.derby.jdbc.EmbeddedDriver"
-    val dbURL = "jdbc:derby:ChatSystem;create=true;";
+    val dbURL = "jdbc:derby:ChatSystem;create=true;"
 
     // initialize JDBC driver & connection pool
     Class.forName(derbyDriverClassname)
 
-    // user is username, 1234 is password -> create connection to database
+    // create connection to database
     ConnectionPool.singleton(dbURL, "", "")
 
     // ad-hoc session provider on the REPL

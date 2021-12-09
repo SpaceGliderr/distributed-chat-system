@@ -84,8 +84,10 @@ object ServerManager {
 
                         Behaviors.same
                     case CreateUser(from, user) =>
-                        println(s"username: ${user.username}, password: ${user.password}")
                         println(s"Server received request to create user")
+
+                        user.save()
+                        println(s"USERS >>>>>>>>>>.. ${User.selectAll}")
 
                         // Add User to userMap
                         userMap += (user.uuid -> from)
