@@ -127,16 +127,4 @@ object ChatSession extends Database {
             """.update().apply()
         }
     }
-
-    // def seed() = {
-    //     DB autoCommit { implicit session =>
-    //         sql"""
-    //             insert into chat_session (id, name, description, created_at)
-    //             values (1, 'general', 'general chat', 1, now());
-                
-    //             insert into chat_session (id, name, description, created_at)
-    //             values (2, 'private', 'private chat', 2, now());
-    //         """.update().apply()
-    //     }
-    // }
 }

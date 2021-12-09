@@ -124,25 +124,4 @@ object UserChatSession extends Database {
             """.update().apply()
         }
     }
-
-    // def seed() = {
-    //     DB autoCommit { implicit session =>
-    //         sql"""
-    //             insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
-    //             values (1, 1, 1, 'ADMIN', now());
-
-    //             insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
-    //             values (1, 2, 1, 'MEMBER', now());
-
-    //             insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
-    //             values (1, 3, 1, 'MEMBER', now());
-
-    //             insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
-    //             values (1, 2, 2, 'ADMIN', now());
-
-    //             insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
-    //             values (1, 3, 2, 'MEMBER', now());
-    //         """.update().apply()
-    //     }
-    // }
 }

@@ -120,22 +120,4 @@ object User extends Database{
             """.update().apply()
         }
     }
-
-    // def seed() = {
-    //     DB autoCommit { implicit session =>
-    //         sql"""
-    //             insert into users (id, uuid, username, password, created_at)
-    //             values (1, 'something', 'nick', '1234', now());
-                
-    //             insert into users (id, uuid, username, password, created_at)
-    //             values (2, 'something', 'shi qi', '5678', now());
-
-    //             insert into users (id, uuid, username, password, created_at)
-    //             values (3, 'something', 'john', '9101', now());
-    //         """.update().apply()
-    //     }
-    // }
 }
-
-
-// case class Session(id: String, topicName: String, messages: Array[String])
