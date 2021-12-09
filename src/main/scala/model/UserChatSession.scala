@@ -67,6 +67,32 @@ case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles
 }
 
 object UserChatSession extends Database {
+    // Get Users in ChatSession with ID x
+    // def getUsersInChatSession(chatSessionId: Long): Try[List[User]] = {
+    //     Try (DB readOnly { implicit session =>
+            // TODO: Problems with list conversion at the end
+            // var users = sql"""
+            //     select u.* from users u
+            //     join user_chat_sessions ucs on u.id = ucs.user_id
+            //     where ucs.chat_session_id = ${chatSessionId.intValue()}
+            // """.map(result => User(result.long("id"), result.string("username"), result.string("email"), result.string("password"), result.string("first_name"), result.string("last_name"), result.string("avatar_url"), result.string("role"))).list.apply()
+            // users
+    //     })
+    // }
+
+    // Get Users not in ChatSession with ID x
+    // def getUsersNotInChatSession(chatSessionId: Long): Try[List[User]] = {
+    //     Try (DB readOnly { implicit session =>
+            // TODO: Problems with list conversion at the end
+            // var users = sql"""
+            //     select u.* from users u
+            //     left join user_chat_sessions ucs on ucs.user_id = u.id
+            //     where ucs.chat_session_id = ${chatSessionId.intValue()}
+            // """.map(result => User.fromResultSet(result)).list.apply()
+            // users
+    //     })
+    // }
+
     def initializeTable() = {
         DB autoCommit { implicit session =>
             sql"""
