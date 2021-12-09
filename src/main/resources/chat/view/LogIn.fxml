@@ -39,7 +39,7 @@
                         <Font name="Kristen ITC" size="14.666666984558105" />
                      </font>
                   </Text>
-                  <TextField fx:id="phoneNumTextField" minWidth="235.0" prefHeight="31.0" prefWidth="283.0" />
+                  <TextField fx:id="phoneNumTextField" minWidth="235.0" prefHeight="31.0" prefWidth="283.0" promptText="0123456789 or 01234567890" />
                </children>
             </VBox>
             <VBox spacing="5.0">
