@@ -7,6 +7,7 @@ import java.util.Date
 import java.util.UUID
 
 case class Message(_content: String, _senderId: String, _chatSessionId: String) extends Database {
+    var id: Long = 0
     var content: String = _content
     var senderId: String = _senderId
     var chatSessionId: String = _chatSessionId
@@ -14,11 +15,37 @@ case class Message(_content: String, _senderId: String, _chatSessionId: String) 
     var updatedAt: Date = null // if we allow messages to be updated
     var deletedAt: Date = null // if we allow messages to be deleted
 
-    def save(): Try[Long] = {
-        Try (DB autoCommit { implicit session =>
+    def isExist: Boolean = {
+        DB readOnly { implicit session =>
             sql"""
-            """.update().apply()
-        })
+                select * from messages
+                where id = ${id.intValue()}
+            """.map(result => result.int("id")).single.apply()
+
+        } match {
+            case Some(x) => true
+            case None => false
+        }
+    }
+
+    def save(): Try[Long] = {
+        if (!isExist) {
+            Try (DB autoCommit { implicit session =>
+                id = sql"""
+                    insert into messages (content, sender_id, chat_session_id, created_at, updated_at, deleted_at)
+                    values (${content}, ${senderId}, ${chatSessionId}, ${createdAt}, ${updatedAt}, ${deletedAt})
+                """.updateAndReturnGeneratedKey.apply()
+                id.intValue
+            })
+        } else {
+            Try (DB autoCommit { implicit session =>
+                sql"""
+                    update messages
+                    set content = ${content}, sender_id = ${senderId}, chat_session_id = ${chatSessionId}, created_at = ${createdAt}, updated_at = ${updatedAt}, deleted_at = ${deletedAt}
+                    where id = ${id.intValue()}
+                """.update().apply()
+            })
+        }
     }
 }
 
