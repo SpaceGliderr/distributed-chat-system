@@ -91,6 +91,25 @@ object User extends Database{
 
         }
     }
+
+    def login(username: String, password: String): Option[User] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select * from users
+                where username = ${username}
+                and password = ${password}
+            """.map(result => User(result.string("uuid"), result.string("username"), result.string("password"))).single.apply()
+        }
+    }
+
+    def getUser(id: String): Option[User] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select * from users
+                where uuid = ${id}
+            """.map(result => User(result.string("uuid"), result.string("username"), result.string("password"))).single.apply()
+        }
+    }
 }
 
 
