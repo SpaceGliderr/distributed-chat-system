@@ -47,6 +47,23 @@ case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles
             })
         }
     }
+
+    def joinSession(): Try[Long] = {
+        Try (DB autoCommit { implicit session =>
+            id = sql"""
+                insert into user_chat_sessions (user_id, chat_session_id, role)
+                values (${userId.intValue()}, ${chatSessionId.intValue()}, ${role.toString})
+            """.updateAndReturnGeneratedKey.apply()
+            id.intValue
+        })
+    }
+
+    def leaveSession(): Try[Long] = {
+        Try (DB autoCommit { implicit session =>
+            sql"""
+                delete from user_chat_sessions where user_id = ${userId.intValue()} and chat_session_id = ${chatSessionId.intValue()}
+            """.update().apply()
+    }
 }
 
 object UserChatSession extends Database {
