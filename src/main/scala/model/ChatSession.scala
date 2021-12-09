@@ -33,8 +33,8 @@ case class ChatSession(_name: String, _description: String, _creatorId: Int) ext
         if (!isExist) {
             Try (DB autoCommit { implicit session =>
                 id = sql"""
-                    insert into chat_session (name, description, created_at, updated_at, deleted_at)
-                    values (${name}, ${description}, ${createdAt}, ${updatedAt}, ${deletedAt})
+                    insert into chat_session (name, description, created_at)
+                    values (${name}, ${description}, ${createdAt})
                 """.updateAndReturnGeneratedKey.apply()
                 id.intValue
             })
