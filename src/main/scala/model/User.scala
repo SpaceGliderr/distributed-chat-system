@@ -25,7 +25,6 @@ class User(_uuid: String, _username: String, _password: String) extends Database
     val createdAt = new StringProperty(ZonedDateTime.now().toString) // only on initialization, not on update
 
     def isExist: Boolean = {
-
         DB readOnly {
             implicit session =>
                 sql"""
@@ -39,8 +38,7 @@ class User(_uuid: String, _username: String, _password: String) extends Database
         }
     }
 
-    def save(): Try[Long] = {
-
+    def upsert(): Try[Long] = {
         //  for new records, save it into database
         if (!(isExist)){
             Try (DB autoCommit {

@@ -28,7 +28,7 @@ case class Message(_content: String, _senderId: String, _chatSessionId: String) 
         }
     }
 
-    def save(): Try[Long] = {
+    def upsert(): Try[Long] = {
         if (!isExist) {
             Try (DB autoCommit { implicit session =>
                 id = sql"""

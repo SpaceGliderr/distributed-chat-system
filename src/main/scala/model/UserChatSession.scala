@@ -25,7 +25,7 @@ case class UserChatSession() extends Database {
         }
     }
 
-    def save(): Try[Long] = {
+    def upsert(): Try[Long] = {
         if (!isExist) {
             Try (DB autoCommit { implicit session =>
                 id = sql"""
