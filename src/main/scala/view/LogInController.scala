@@ -14,30 +14,31 @@ class LogInController(
 ) extends AlertMessage{
 
     def login(): Unit = {
+        //input checking
         var errorMessage = ""
-        if (phoneNumTextField.text().length == 0)
-            errorMessage += "No valid username\n"
-        else if(phoneNumTextField.text().length != 10 && phoneNumTextField.text().length != 11)
-            errorMessage += "Incorrect format for phone number\n"
-        else if(phoneNumTextField.text.value.substring(0,1) != "01")
-            errorMessage += "Incorrect format for phone number\n"
-        if (passwordTextField.text().length == 0)
-            errorMessage += "No valid password"
+        errorMessage += phoneNumPwdChecking(phoneNumTextField.text, passwordTextField.text)
         if (errorMessage.length() > 0)
             alertError("Invalid Fields", "Please check invalid fields", errorMessage)
         else{
             //uncomment this
             // val tempUserList = User.users.toList
-            // //see if yall want to change the User's username change to phone number or not
+            // //see if yall want to add phone number variable for User class or not 
             // val index = tempUserList.indexWhere(user => user.phoneNum.value == phoneNumTextField.text.value)
             // if (index == -1)
             //     alertError("Login Fail", "Fail to login", "This account does not exist.")
             // else{
-            //     if(User.users.apply(index).password.value == passwordTextField.text.value)
-            //         //jump to chatroom page
+            //     if(User.users.apply(index).password.value == passwordTextField.text.value){
+            //         Main.showPages("view/ChatList.fxml")
+            //         Main.stage.resizable_=(true)
+            //     }
             //     else
             //         alertError("Login Fail", "Fail to login", "Incorrect password, please try again.")
             // }
+
+            //========================= to test run, need delete
+            Main.showPages("view/ChatList.fxml")
+            Main.stage.resizable_=(true)
+            //=========================
         }
     }
 

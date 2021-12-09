@@ -31,16 +31,14 @@ object Main extends JFXApp {
     //resizable = false
   }
 
-  //load unresizable pages
   def showPages(fileName: String) = {
     val resource = getClass.getResourceAsStream(fileName)
     val loader = new FXMLLoader(null, NoDependencyResolver)
     loader.load(resource);
     val roots = loader.getRoot[jfxs.layout.AnchorPane]()
     this.roots.setCenter(roots)
-    stage.resizable_=(false)
   }
 
   showPages("view/Home.fxml")
-
+  stage.resizable_=(false)
 }
