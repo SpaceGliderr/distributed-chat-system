@@ -23,11 +23,17 @@ object Database extends Database{
     // create all tables needed
     def setupDB() = {
         // initialize the table todo_list
-        // if (!hasDBInitialize("chat_user"))
-        User.initializeTable()
-        ChatSession.initializeTable()
-        Message.initializeTable()
-        UserChatSession.initializeTable()
+        if (!hasDBInitialize("users"))
+            User.initializeTable()
+
+        if (!hasDBInitialize("chat_sessions"))
+            ChatSession.initializeTable()
+
+        if (!hasDBInitialize("messages"))
+            Message.initializeTable()
+        
+        if (!hasDBInitialize("user_chat_sessions"))
+            UserChatSession.initializeTable()
     }
 
 
