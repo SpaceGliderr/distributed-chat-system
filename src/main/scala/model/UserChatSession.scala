@@ -4,15 +4,18 @@ import util.Database
 import scalikejdbc._
 import model.{ User, ChatSession }
 import java.util.UUID
+import java.util.Date
 import util.UserRoles
 
-case class UserChatSession() extends Database {
+case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles.UserRole = UserRoles.MEMBER) extends Database {
     var id: Long = 0
-    var userId: List[User] = List()
-    var chatSessionId: List[ChatSession] = List()
-    var role: UserRoles.UserRole = UserRoles.MEMBER
+    var userId: Long = 0
+    var chatSessionId: Long = 0
+    var role: UserRoles.UserRole = _role
+    var joinedAt: Date = new Date()
 
     def isExist: Boolean = {
+        // TODO CHECK IF USER IS ALREADY IN CHAT
         DB readOnly { implicit session =>
             sql"""
                 select * from user_chat_sessions
@@ -30,7 +33,7 @@ case class UserChatSession() extends Database {
             Try (DB autoCommit { implicit session =>
                 id = sql"""
                     insert into user_chat_sessions (user_id, chat_session_id, role)
-                    values (${userId.map(_.id.value)}, ${chatSessionId.map(_.id.intValue())}, ${role.toString})
+                    values (${userId.intValue()}, ${chatSessionId.intValue()}, ${role.toString})
                 """.updateAndReturnGeneratedKey.apply()
                 id.intValue
             })
@@ -38,7 +41,7 @@ case class UserChatSession() extends Database {
             Try (DB autoCommit { implicit session =>
                 sql"""
                     update user_chat_sessions
-                    set user_id = ${userId.map(_.id.value)}, chat_session_id = ${chatSessionId.map(_.id.intValue())}, role = ${role.toString}
+                    set user_id = ${userId.intValue()}, chat_session_id = ${chatSessionId.intValue()}, role = ${role.toString}
                     where id = ${id.intValue()}
                 """.update().apply()
             })
