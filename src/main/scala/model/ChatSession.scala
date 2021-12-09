@@ -5,14 +5,15 @@ import scalikejdbc._
 import model.{ User, Message }
 import java.util.Date
 import java.util.UUID
+import util.UserRoles
 
-case class ChatSession(_name: String, _description: String) extends Database {
+case class ChatSession(_name: String, _description: String, _creatorId: Int) extends Database {
     var id: Long = 0
     var name: String = _name
     var description: String = _description
+    var creatorId: Int = _creatorId
     var createdAt: Date = new Date()
-    var updatedAt: Date = null // if we allow messages to be updated
-    var deletedAt: Date = null // if we allow messages to be deleted
+    var updatedAt: Date = new Date()
     var messages: List[Message] = List() // message log
 
     def isExist: Boolean = {
@@ -46,6 +47,45 @@ case class ChatSession(_name: String, _description: String) extends Database {
                 """.update().apply()
             })
         }
+    }
+
+    def create(): Try[Long] = {
+        Try (
+            DB autoCommit { implicit session => 
+                id = sql"""
+                    insert into chat_session (name, description, creatorId, created_at)
+                    values (${name}, ${description}, ${creatorId}, ${createdAt})
+                """.updateAndReturnGeneratedKey.apply()
+
+                var userChatSession = new UserChatSession(creatorId, id.intValue, UserRoles.ADMIN)
+                userChatSession.upsert()
+
+                id.intValue
+            }
+        )
+    }
+
+    def update(): Try[Long] = {
+        Try (
+            DB autoCommit { implicit session =>
+                sql"""
+                    update chat_session
+                    set name = ${name}, description = ${description}, updated_at = ${updatedAt}
+                    where id = ${id.intValue}
+                """.update().apply()
+            }
+        )
+    }
+
+    def delete(): Try[Long] = {
+        Try (
+            DB autoCommit { implicit session =>
+                sql"""
+                    delete from chat_session where id = ${id.intValue}
+                """.update().apply()
+                id.intValue
+            }
+        )
     }
 }
 
