@@ -63,6 +63,7 @@ case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles
             sql"""
                 delete from user_chat_sessions where user_id = ${userId.intValue()} and chat_session_id = ${chatSessionId.intValue()}
             """.update().apply()
+        })
     }
 }
 
@@ -113,21 +114,35 @@ object UserChatSession extends Database {
     def seed() = {
         DB autoCommit { implicit session =>
             sql"""
-                insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
-                values (1, 1, 1, 'ADMIN', now())
-
-                insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
-                values (1, 2, 1, 'MEMBER', now())
-
-                insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
-                values (1, 3, 1, 'MEMBER', now())
-
-                insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
-                values (1, 2, 2, 'ADMIN', now())
-
-                insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
-                values (1, 3, 2, 'MEMBER', now())
+                insert into user_chat_sessions (id, user_id, chat_session_id, role)
+                values 
+                    (1, 1, 1, 'ADMIN'), 
+                    (2, 2, 1, 'MEMBER'),
+                    (3, 3, 1, 'MEMBER'),
+                    (4, 2, 2, 'ADMIN'),
+                    (5, 3, 2, 'MEMBER')
             """.update().apply()
         }
     }
+
+    // def seed() = {
+    //     DB autoCommit { implicit session =>
+    //         sql"""
+    //             insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
+    //             values (1, 1, 1, 'ADMIN', now());
+
+    //             insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
+    //             values (1, 2, 1, 'MEMBER', now());
+
+    //             insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
+    //             values (1, 3, 1, 'MEMBER', now());
+
+    //             insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
+    //             values (1, 2, 2, 'ADMIN', now());
+
+    //             insert into user_chat_sessions (id, user_id, chat_session_id, role, joined_at)
+    //             values (1, 3, 2, 'MEMBER', now());
+    //         """.update().apply()
+    //     }
+    // }
 }

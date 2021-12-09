@@ -33,7 +33,7 @@ case class ChatSession(_name: String, _description: String, _creatorId: Int) ext
         if (!isExist) {
             Try (DB autoCommit { implicit session =>
                 id = sql"""
-                    insert into chat_session (name, description, created_at)
+                    insert into chat_sessions (name, description, created_at)
                     values (${name}, ${description}, ${createdAt})
                 """.updateAndReturnGeneratedKey.apply()
                 id.intValue
@@ -41,7 +41,7 @@ case class ChatSession(_name: String, _description: String, _creatorId: Int) ext
         } else {
             Try (DB autoCommit { implicit session =>
                 sql"""
-                    update chat_session
+                    update chat_sessions
                     set name = ${name}, description = ${description}, updated_at = ${updatedAt}
                     where id = ${id.intValue}
                 """.update().apply()
@@ -53,7 +53,7 @@ case class ChatSession(_name: String, _description: String, _creatorId: Int) ext
         Try (
             DB autoCommit { implicit session => 
                 id = sql"""
-                    insert into chat_session (name, description, creatorId, created_at)
+                    insert into chat_sessions (name, description, creatorId, created_at)
                     values (${name}, ${description}, ${creatorId}, ${createdAt})
                 """.updateAndReturnGeneratedKey.apply()
 
@@ -69,7 +69,7 @@ case class ChatSession(_name: String, _description: String, _creatorId: Int) ext
         Try (
             DB autoCommit { implicit session =>
                 sql"""
-                    update chat_session
+                    update chat_sessions
                     set name = ${name}, description = ${description}, updated_at = ${updatedAt}
                     where id = ${id.intValue}
                 """.update().apply()
@@ -81,7 +81,7 @@ case class ChatSession(_name: String, _description: String, _creatorId: Int) ext
         Try (
             DB autoCommit { implicit session =>
                 sql"""
-                    delete from chat_session where id = ${id.intValue}
+                    delete from chat_sessions where id = ${id.intValue}
                 """.update().apply()
                 id.intValue
             }
@@ -98,33 +98,45 @@ object ChatSession extends Database {
                     name varchar(255) not null,
                     description varchar(255),
                     creatorId int not null,
-                    created_at timestamp not null,
+                    created_at timestamp not null default current_timestamp,
                     updated_at timestamp,
-                    primary key (id)
+                    primary key (id),
                     foreign key (creatorId) references users(id)
                 )
             """.execute().apply()
         }
     }
 
-    def getMessages(chatSessionId: Int): List[Message] = {
-        DB readOnly { implicit session =>
-            sql"""
-                select * from messages
-                where chatSessionId = ${chatSessionId}
-            """.map(result => Message(result.int("id"), result.string("content"), result.int("chatSessionId"), result.int("userId"), result.timestamp("created_at"))).list.apply()
-        }
-    }
+    // TODO Problem with Lists
+    // def getMessages(chatSessionId: Int): List[Message] = {
+    //     DB readOnly { implicit session =>
+    //         sql"""
+    //             select * from messages
+    //             where chatSessionId = ${chatSessionId}
+    //         """.map(result => Message(result.int("id"), result.string("content"), result.int("chatSessionId"), result.int("userId"), result.timestamp("created_at"))).list.apply()
+    //     }
+    // }
 
     def seed() = {
         DB autoCommit { implicit session =>
             sql"""
-                insert into chat_session (id, name, description, created_at)
-                values (1, 'general', 'general chat', 1, now())
-                
-                insert into chat_session (id, name, description, created_at)
-                values (2, 'private', 'private chat', 2, now())
+                insert into chat_sessions (id, name, description, creatorId)
+                values 
+                    (1, 'general', 'general chat', 1), 
+                    (2, 'private', 'private chat', 2)
             """.update().apply()
         }
     }
+
+    // def seed() = {
+    //     DB autoCommit { implicit session =>
+    //         sql"""
+    //             insert into chat_session (id, name, description, created_at)
+    //             values (1, 'general', 'general chat', 1, now());
+                
+    //             insert into chat_session (id, name, description, created_at)
+    //             values (2, 'private', 'private chat', 2, now());
+    //         """.update().apply()
+    //     }
+    // }
 }

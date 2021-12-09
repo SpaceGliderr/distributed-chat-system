@@ -112,17 +112,29 @@ object User extends Database{
     def seed() = {
         DB autoCommit { implicit session =>
             sql"""
-                insert into users (id, uuid, username, password, created_at)
-                values (1, 'something', 'nick', '1234', now())
-                
-                insert into users (id, uuid, username, password, created_at)
-                values (2, 'something', 'shi qi', '5678', now())
-
-                insert into users (id, uuid, username, password, created_at)
-                values (3, 'something', 'john', '9101', now())
+                insert into users (id, uuid, username, password)
+                values 
+                    (1, 'something', 'nick', '1234'),
+                    (2, 'something', 'shi qi', '5678'),
+                    (3, 'something', 'john', '9101')
             """.update().apply()
         }
     }
+
+    // def seed() = {
+    //     DB autoCommit { implicit session =>
+    //         sql"""
+    //             insert into users (id, uuid, username, password, created_at)
+    //             values (1, 'something', 'nick', '1234', now());
+                
+    //             insert into users (id, uuid, username, password, created_at)
+    //             values (2, 'something', 'shi qi', '5678', now());
+
+    //             insert into users (id, uuid, username, password, created_at)
+    //             values (3, 'something', 'john', '9101', now());
+    //         """.update().apply()
+    //     }
+    // }
 }
 
 
