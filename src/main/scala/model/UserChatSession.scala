@@ -7,16 +7,42 @@ import java.util.UUID
 import util.UserRoles
 
 case class UserChatSession() extends Database {
-    var id: String = ""
+    var id: Long = 0
     var userId: List[User] = List()
     var chatSessionId: List[ChatSession] = List()
     var role: UserRoles.UserRole = UserRoles.MEMBER
 
-    def save(): Try[Long] = {
-        Try (DB autoCommit { implicit session =>
+    def isExist: Boolean = {
+        DB readOnly { implicit session =>
             sql"""
-            """.update().apply()
-        })
+                select * from user_chat_sessions
+                where id = ${id.intValue()}
+            """.map(result => result.int("id")).single.apply()
+
+        } match {
+            case Some(x) => true
+            case None => false
+        }
+    }
+
+    def save(): Try[Long] = {
+        if (!isExist) {
+            Try (DB autoCommit { implicit session =>
+                id = sql"""
+                    insert into user_chat_sessions (user_id, chat_session_id, role)
+                    values (${userId.map(_.id.value)}, ${chatSessionId.map(_.id.intValue())}, ${role.toString})
+                """.updateAndReturnGeneratedKey.apply()
+                id.intValue
+            })
+        } else {
+            Try (DB autoCommit { implicit session =>
+                sql"""
+                    update user_chat_sessions
+                    set user_id = ${userId.map(_.id.value)}, chat_session_id = ${chatSessionId.map(_.id.intValue())}, role = ${role.toString}
+                    where id = ${id.intValue()}
+                """.update().apply()
+            })
+        }
     }
 }
 
