@@ -20,7 +20,7 @@ class LogInController(
         if (errorMessage.length() > 0)
             alertError("Invalid Fields", "Please check invalid fields", errorMessage)
         else{
-            //uncomment this
+            //========================= uncomment this later
             // val tempUserList = User.users.toList
             // //see if yall want to add phone number variable for User class or not 
             // val index = tempUserList.indexWhere(user => user.phoneNum.value == phoneNumTextField.text.value)

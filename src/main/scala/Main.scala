@@ -25,10 +25,8 @@ object Main extends JFXApp {
     scene = new Scene {
       root = roots
       stylesheets += getClass.getResource("view/css.css").toString()
-
     }
-    //icons += new Image(getClass.getResourceAsStream("/images/icon.jpg"))
-    //resizable = false
+    icons += new Image(getClass.getResourceAsStream("view/chatIcon.png"))
   }
 
   def showPages(fileName: String) = {

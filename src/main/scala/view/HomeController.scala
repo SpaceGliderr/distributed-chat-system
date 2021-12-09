@@ -1,5 +1,4 @@
 package chat.view
-import java.io.FileInputStream
 import scalafxml.core.macros.sfxml
 import scalafx.Includes._
 import chat.Main

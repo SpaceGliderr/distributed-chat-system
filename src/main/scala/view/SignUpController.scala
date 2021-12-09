@@ -21,6 +21,7 @@ class SignUpController(
         if (errorMessage.length() > 0)
             alertError("Invalid Fields", "Please check invalid fields", errorMessage)
         else{
+            //================ uncomment this later
             //val account = new User(......)
             //User.users += account
             //account.saveUser()

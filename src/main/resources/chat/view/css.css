@@ -1,7 +1,6 @@
 .backgroundColour{
-    -fx-background-color: linear-gradient(to right bottom, RGB(135,182,239),RGB(170,201,445),RGB(224,240,252))
+    -fx-background-color: linear-gradient(to right bottom, RGB(135,182,239),RGB(167,199,253),RGB(224,240,252))
 }
-    /* -fx-background-color: linear-gradient(to right bottom, RGB(52,38,114),RGB(116,89,187),RGB(176,151,225)) */
 
 .button{
     -fx-background-color: white;
