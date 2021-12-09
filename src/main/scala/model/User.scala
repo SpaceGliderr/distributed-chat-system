@@ -29,7 +29,7 @@ class User(_uuid: String, _username: String, _password: String) extends Database
         DB readOnly {
             implicit session =>
                 sql"""
-                    select * from chat_user
+                    select * from users
                     where id = ${id.value}
                 """.map(result => result.int("id")).single.apply()
 
@@ -46,7 +46,7 @@ class User(_uuid: String, _username: String, _password: String) extends Database
             Try (DB autoCommit {
                 implicit session =>
                     id.value = sql"""
-                        insert into chat_user(uuid, username, password)
+                        insert into users(uuid, username, password)
                         values (${uuid.value}, ${username.value}, ${password.value})
                     """.updateAndReturnGeneratedKey.apply()
                     id.value
@@ -58,7 +58,7 @@ class User(_uuid: String, _username: String, _password: String) extends Database
         } else {
             Try (DB autoCommit { implicit session =>
                 sql"""
-                    update chat_user
+                    update users
                     set
                     username = ${username.value},
                     password = ${password.value}
