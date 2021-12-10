@@ -1,5 +1,5 @@
 package chat.util
-import scalafx.scene.control.{Alert, TextArea}
+import scalafx.scene.control.{Alert, TextArea, ButtonType}
 import scalafx.Includes._
 import chat.Main
 import scalafx.beans.property.StringProperty
@@ -34,5 +34,19 @@ trait AlertMessage{
             headerText  = _headerText
             contentText = _contextText
         }.showAndWait()
+    }
+
+    def alertConfirmation(_title: String, _headerText: String, _contextText: String): Boolean = {
+        val alert = new Alert(Alert.AlertType.Confirmation){
+            initOwner(Main.stage)
+            title       = _title
+            headerText  = _headerText
+            contentText = _contextText
+        }.showAndWait()
+
+        alert match{
+            case Some(ButtonType.OK) => return true
+            case _ => return false
+        }
     }
 }

@@ -22,7 +22,7 @@ class NewChatOrGroupController(
     private val imageView1: ImageView,
     private val imageView2: ImageView,
     private val menuItem: MenuItem,
-    private val contactList: ListView[String]   //not sure the type
+    private val contactList: ListView[String]   //-- not sure the type
 
 ) extends AlertMessage{
     val searchIcon = new Image(getClass().getResourceAsStream("searchIcon.png"))
@@ -34,9 +34,10 @@ class NewChatOrGroupController(
 
     var dialogStage: Stage = null
     var okClicked: Boolean = false
-    var contacts: Array[String] = null  //not sure the type
+    var contacts: Array[String] = null  //-- not sure the type
     var title: String = ""
 
+    // --
     // def showContactList(){
     //      /* FOR ADD NEW CHAT: if the contact is already in contact list (the contacts variable), 
     //     if yes then disable the cell, but i think is a bit mafan to do this so maybe can jus remove 
@@ -51,7 +52,7 @@ class NewChatOrGroupController(
             searchBar.requestFocus()
         }
         else{
-            //filter contact list
+            //-- filter contact list
 
             searchBar.visible_=(false)
         }
@@ -121,7 +122,7 @@ class NewChatOrGroupController(
                 null
         val result = dialog.showAndWait()
         result match{
-            case Some(Result(name, num)) => //use the name and num to create contact obj? or user obj? & save to database
+            case Some(Result(name, num)) => //-- use the name and num to create contact obj? or user obj? & save to database
             case None => dialog.close()
         }
     }
@@ -129,7 +130,7 @@ class NewChatOrGroupController(
     //================================ try run, remove later
     contacts = Array("1","2","3")
     val tryy = new ObservableBuffer[String]()
-    tryy ++= contacts.toList
+    tryy ++= contacts
     contactList.items = tryy
     //=================================
 
@@ -145,7 +146,7 @@ class NewChatOrGroupController(
                 dialogStage.close()
                 Main.showPages("view/ChatRoom.fxml")
                 
-                //pass in name
+                //-- pass name to chatroom page
             }
         }
         else {
@@ -155,7 +156,7 @@ class NewChatOrGroupController(
                 dialogStage.close()
                 Main.showPages("view/ChatRoom.fxml")
 
-                //pass in name
+                //-- pass name to chatroom page
             }
         }
     }

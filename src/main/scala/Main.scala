@@ -64,6 +64,14 @@ object Main extends JFXApp {
     controller.okClicked
   }
 
+  def showChatRoomPage() = {
+    val resource = getClass.getResourceAsStream("view/ChatRoom.fxml")
+    val loader = new FXMLLoader(null, NoDependencyResolver)
+    loader.load(resource);
+    val roots = loader.getRoot[jfxs.layout.AnchorPane]()
+    this.roots.setCenter(roots)
+  }
+
   showPages("view/Home.fxml")
   stage.resizable_=(false)
 }

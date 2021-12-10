@@ -3,7 +3,7 @@ import scalafxml.core.macros.sfxml
 import scalafx.scene.control.TextField
 import scalafx.Includes._
 import chat.Main
-import chat.util.AlertMessage   // <-- directory different
+import chat.util.AlertMessage   // -- directory different
 //import chat.model.User    <-- don't know if yall will change the directory for User class
 
 @sfxml
@@ -34,8 +34,9 @@ class LogInController(
             //     else
             //         alertError("Login Fail", "Fail to login", "Incorrect password, please try again.")
             // }
+            //==============================
 
-            //========================= to test run, need delete
+            //========================= to test run, later delete
             Main.showPages("view/ChatList.fxml")
             Main.stage.resizable_=(true)
             //=========================

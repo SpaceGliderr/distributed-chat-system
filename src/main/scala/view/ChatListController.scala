@@ -4,6 +4,8 @@ import scalafx.scene.control.{TextField, ListView}
 import scalafx.Includes._
 import scalafx.scene.image.{ImageView, Image}
 import chat.Main
+import chat.util.AlertMessage
+import scalafx.collections.ObservableBuffer
 
 @sfxml
 class ChatListController(
@@ -13,8 +15,9 @@ class ChatListController(
     private val imageView2: ImageView,
     private val imageView3: ImageView,
     private val imageView4: ImageView,
-    private val conversationList: ListView[String]  //not sure the type 
-){
+    private val conversationList: ListView[String]  //-- not sure the type 
+
+)extends AlertMessage{
     val searchIcon = new Image(getClass().getResourceAsStream("searchIcon.png"))
     imageView.image_=(searchIcon)
     val newChatIcon = new Image(getClass().getResourceAsStream("newChatIcon.png"))
@@ -26,11 +29,12 @@ class ChatListController(
     val deleteIcon = new Image(getClass().getResourceAsStream("deleteIcon.png"))
     imageView4.image_=(deleteIcon)
 
-    val contacts: Array[String] = null  /*not sure if is to use string, 
+    val contacts: Array[String] = null  /* -- not sure if is to use string, 
     if not please chg the data type of 
     1. Main's showNewChatOrNewGroupPage method's parameter's type
     2. NewChatOrGroupController's "contacts"" variable's type*/
 
+    // --
     // def showConversationList(){
 
     // }
@@ -41,7 +45,7 @@ class ChatListController(
             searchBar.requestFocus()
         }
         else{
-            //filter conversation list
+            //-- filter conversation list
 
             searchBar.visible_=(false)
         }
@@ -56,14 +60,27 @@ class ChatListController(
     }
 
     def viewConversation: Unit = {
-        //try
-        println("view")
+        //-- need to pass in messages and names also
+        Main.show
     }
 
+    //================================ try run, remove later
+    val tryy = new ObservableBuffer[String]()
+    tryy ++= Array("1","2","3")
+    conversationList.items = tryy
+    //=================================
+
     def deleteConversation: Unit = {
-        if (contactList.selectionModel().selectedItem.value == null) 
-                alertError("Creation Fail", "Fail to create chat", "You must select one contact")
-        else
-            //pop confirm
+        if (conversationList.selectionModel().selectedItem.value == null) 
+            alertError("Delete Fail", "Fail to delete conversation", "You must select one conversation")
+        else{
+            val confirm = alertConfirmation("Delete Confirmation", null, "Are you sure you want to delete this conversation?")
+            if (confirm)
+                //-- remove from list and database & show updated list
+
+                //======================= try run, remove later
+                println("deleted")
+                //========================
+        }
     }
 }
