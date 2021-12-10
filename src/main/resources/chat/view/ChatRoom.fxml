@@ -2,13 +2,12 @@
 
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
 
 <AnchorPane minHeight="400.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chat.view.ChatRoomController">
    <children>
@@ -22,11 +21,6 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
-            <Text layoutX="70.0" layoutY="40.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Chatty">
-               <font>
-                  <Font name="Century Gothic" size="30.0" />
-               </font>
-            </Text>
             <TextField fx:id="searchBar" layoutX="248.0" layoutY="15.0" prefHeight="31.0" prefWidth="295.0" visible="false" AnchorPane.leftAnchor="248.0" AnchorPane.rightAnchor="63.0" AnchorPane.topAnchor="15.0" />
             <Button cancelButton="true" layoutX="6.0" layoutY="7.0" mnemonicParsing="false" onAction="#cancel" prefHeight="44.0" prefWidth="38.0" AnchorPane.bottomAnchor="10.0" AnchorPane.topAnchor="9.0">
                <graphic>
@@ -36,6 +30,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
+            <Label fx:id="names" layoutX="66.0" layoutY="9.0" prefHeight="41.0" prefWidth="468.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="66.0" AnchorPane.rightAnchor="66.0" AnchorPane.topAnchor="9.0" />
          </children>
       </AnchorPane>
       <HBox layoutX="19.0" layoutY="343.0" spacing="20.0" AnchorPane.bottomAnchor="13.0" AnchorPane.leftAnchor="19.0" AnchorPane.rightAnchor="23.0">

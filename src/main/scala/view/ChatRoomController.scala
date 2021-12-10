@@ -1,12 +1,12 @@
 package chat.view
 import scalafxml.core.macros.sfxml
-import scalafx.scene.control.{TextField, ListView}
+import scalafx.scene.control.{TextField, ListView, Label, Button}
 import scalafx.Includes._
 import scalafx.scene.image.{ImageView, Image}
 import chat.Main
 import scalafx.scene.control.SelectionMode
-import scalafx.scene.Node
-import chat.view.
+import chat.util.AlertMessage
+import scalafx.collections.ObservableBuffer
 
 @sfxml
 class ChatRoomController(
@@ -14,13 +14,19 @@ class ChatRoomController(
     private val imageView: ImageView,
     private val imageView1: ImageView,
     private val imageView2: ImageView,
-    private val sendButton: Node,
+    private val sendButton: Button,
+    private val names: Label,
     private val messageList: ListView[String]   //-- not sure the type
 
 ) extends AlertMessage{
+    //pass in from Main
+    var messages: Array[String] = null    //-- not sure the type
+    var nameList: Array[String] = null    //-- not sure the type
+
+    //-- use the passed in "nameList" to update the "names" Label (chat/group memeber)
 
     val deleteIcon = new Image(getClass().getResourceAsStream("deleteIcon.png"))
-    imageView.image_=(newGroupIcon)
+    imageView.image_=(deleteIcon)
     val sendIcon = new Image(getClass().getResourceAsStream("sendIcon.png"))
     imageView1.image_=(sendIcon)
     val backIcon = new Image(getClass().getResourceAsStream("backIcon.png"))
@@ -50,10 +56,9 @@ class ChatRoomController(
     }
 
     //================================ try run, remove later
-    contacts = Array("1","2","3")
     val tryy = new ObservableBuffer[String]()
-    tryy ++= contacts
-    contactList.items = tryy
+    tryy ++= Array("1","2","3")
+    messageList.items = tryy
     //=================================
 
     def deleteChat() : Unit = {
