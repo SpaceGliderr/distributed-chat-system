@@ -23,6 +23,12 @@ class ChatRoomController(
     var messages: Array[String] = null    //-- not sure the type
     var nameList: Array[String] = null    //-- not sure the type
 
+    //======================== to test run, later delete
+    nameList = Array("aaaaaaaaaaaaaaaaaa","bbbbbbbbbbbbbbbbbbbbb","ccccccccccccccccccc")
+    val list = nameList.toList
+    names.text=(list.mkString(", "))
+    //========================
+
     //-- use the passed in "nameList" to update the "names" Label (chat/group memeber)
 
     val deleteIcon = new Image(getClass().getResourceAsStream("deleteIcon.png"))
@@ -80,7 +86,8 @@ class ChatRoomController(
         // 1. update message list
         // 2. update database
 
-        //disable the button again after sending
+        //disable the button again & empty the text field after sending message
+        messageTextField.text_=("")
         sendButton.disable_=(true)
     }
 }

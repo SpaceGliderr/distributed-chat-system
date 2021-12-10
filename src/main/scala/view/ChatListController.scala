@@ -60,7 +60,10 @@ class ChatListController(
     }
 
     def viewConversation: Unit = {
-        Main.showChatRoomPage(null, null)   //-- pass in messages and names
+        if (conversationList.selectionModel().selectedItem.value == null) 
+            alertError("Open Fail", "Fail to open conversation", "You must select a conversation")
+        else
+            Main.showChatRoomPage(null, null)   //-- pass in messages and names
     }
 
     //================================ try run, remove later
