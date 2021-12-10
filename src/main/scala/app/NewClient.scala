@@ -17,7 +17,7 @@ object ClientManager {
     private case class ListingResponse(listing: Receptionist.Listing) extends Command
     case class Start(user: User) extends Command
     case class Message(message: String) extends Command
-    case class CreateSession(participants: Array[StringProperty]) extends Command
+    case class CreateSession(participants: Array[String]) extends Command
     case class SendMessage(sessionId: String, message: String) extends Command
     // case class User(id: String, username: String, password: String) extends Command
 
@@ -68,7 +68,7 @@ object ClientManager {
                             remote ! ServerManager.CreateUser(context.self, user)
                         }
                         Behaviors.same
-                    case CreateSession(participants: Array[StringProperty]) =>
+                    case CreateSession(participants: Array[String]) =>
                         // context.self ! FindServer
                         for (remote <- remoteOpt) {
                             remote ! ServerManager.CreateSession(participants)
@@ -101,7 +101,7 @@ object NewClient extends App {
     val password = scala.io.StdIn.readLine("password=")
 
     // val user = ClientManager.User(randomUUID.toString, username, password)
-    val user = User(randomUUID.toString, username, password)
+    val user = new User(randomUUID.toString, username, password)
 
     greeterMain ! ClientManager.Start(user)
 
