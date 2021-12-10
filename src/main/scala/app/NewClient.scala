@@ -4,8 +4,9 @@ import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.receptionist.{Receptionist,ServiceKey}
 import com.typesafe.config.ConfigFactory
+import scalafx.beans.property.StringProperty
 import ClientManager.Command
-// import models.{ User }
+import model.{User}
 import java.util.UUID.randomUUID
 
 // Documentation regarding the Actor Receptionist, Listing, etc.
@@ -18,28 +19,28 @@ object ClientManager {
     case class Message(message: String) extends Command
     case class CreateSession(participants: Array[String]) extends Command
     case class SendMessage(sessionId: String, message: String) extends Command
-    case class User(id: String, username: String, password: String) extends Command
+    // case class User(id: String, username: String, password: String) extends Command
 
     var user: User = null
 
     def apply(): Behavior[ClientManager.Command] =
-        Behaviors.setup { context => 
-            // The program can't initially get a reference to the Server actor 
+        Behaviors.setup { context =>
+            // The program can't initially get a reference to the Server actor
             // Therefore, this variable is a var and uses Option / None
             var remoteOpt: Option[ActorRef[ServerManager.Command]] = None
             // Creates an ActorRef of Receptionist.Listing "adapter"
             // - Adapter is a wrapper of a class that allows another class to interact with it
-            val listingAdapter: ActorRef[Receptionist.Listing] = 
+            val listingAdapter: ActorRef[Receptionist.Listing] =
                 context.messageAdapter {
                     listing => ClientManager.ListingResponse(listing)
                     // This code tells the Receptionist how to get back in touch after the message
                 }
-            
+
             // Subscribe to events related to the Server actor
             context.system.receptionist ! Receptionist.Subscribe(ServerManager.ServerKey, listingAdapter)
             Behaviors.receiveMessage { message =>
                 message match {
-                    case FindServer => 
+                    case FindServer =>
                         // Send a message to the Receptionist to find any/all listings with ServerKey
                         context.system.receptionist ! Receptionist.Find(ServerManager.ServerKey, listingAdapter)
                         Behaviors.same
@@ -85,6 +86,7 @@ object ClientManager {
 }
 
 object NewClient extends App {
+
     // When a main client is spawned, it will (1) Create the ActorRef for the client and (2) Trigger Client.start
     // val greeterMain: ActorSystem[ClientManager.Command] = ActorSystem(ClientManager(), "HelloSystem")
     val greeterMain: ActorSystem[ClientManager.Command] = ActorSystem(ClientManager(), "HelloSystem", ConfigFactory.load("client"))
@@ -97,17 +99,20 @@ object NewClient extends App {
     // }
     val username = scala.io.StdIn.readLine("username=")
     val password = scala.io.StdIn.readLine("password=")
-    
-    val user = ClientManager.User(randomUUID.toString, username, password)
+
+    // val user = ClientManager.User(randomUUID.toString, username, password)
+    val user = new User(randomUUID.toString, username, password)
 
     greeterMain ! ClientManager.Start(user)
 
-    greeterMain ! ClientManager.CreateSession(Array(user.id))
+    greeterMain ! ClientManager.CreateSession(Array(user.uuid))
 
     val sessionId = scala.io.StdIn.readLine("sessionId=")
-    val message = scala.io.StdIn.readLine("message=")
-
-    greeterMain ! ClientManager.SendMessage(sessionId, message)
+    var message = scala.io.StdIn.readLine("message=")
+    while (message != "end"){
+        greeterMain ! ClientManager.SendMessage(sessionId, message)
+        message = scala.io.StdIn.readLine("message=")
+    }
 
     greeterMain.terminate
 }

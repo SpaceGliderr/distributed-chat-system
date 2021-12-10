@@ -3,8 +3,10 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.receptionist.{Receptionist,ServiceKey}
+import scalafx.beans.property.StringProperty
 import java.util.UUID.randomUUID
-import models.{User}
+import model.{User}
+import util.Database
 
 object ServerManager {
     sealed trait Command
@@ -12,7 +14,7 @@ object ServerManager {
     case class CreateSession(participants: Array[String]) extends Command
     case class JoinSession(sessionId: String, participants: Array[String]) extends Command
     case class SendMessage(sessionId: String, message: String) extends Command
-    case class CreateUser(from: ActorRef[ClientManager.Command], user: ClientManager.User) extends Command
+    case class CreateUser(from: ActorRef[ClientManager.Command], user: User) extends Command
     // case object TestCreateSession extends Command
     // case class TestJoinSession(sessionId: String) extends Command
     // case class TestSendMessage(sessionId: String, message: String) extends Command
@@ -26,7 +28,7 @@ object ServerManager {
         Behaviors.setup { context =>
             context.system.receptionist ! Receptionist.Register(ServerKey, context.self)
 
-            Behaviors.receiveMessage { message => 
+            Behaviors.receiveMessage { message =>
                 message match {
                     case Message(value, from) =>
                         println(s"Server received message '${value}'")
@@ -52,7 +54,7 @@ object ServerManager {
 
                         chatRoom ! ChatRoom.Subscribe(p)
 
-                        chatRoom ! ChatRoom.Publish("Hello World")
+                        chatRoom ! ChatRoom.Publish("Welcome to Hello System!")
 
                         Behaviors.same
                     case JoinSession(sessionId, participants) =>
@@ -74,6 +76,7 @@ object ServerManager {
 
                         Behaviors.same
                     case SendMessage(sessionId, message) =>
+                        println("send msg")
                         println(s"Server received message '${message}'")
 
                         chatSessionMap.get(sessionId).foreach(room => {
@@ -85,7 +88,7 @@ object ServerManager {
                         println(s"Server received request to create user")
 
                         // Add User to userMap
-                        userMap += (user.id -> from)
+                        userMap += (user.uuid -> from)
 
                         Behaviors.same
                     // case TestCreateSession =>
@@ -120,6 +123,7 @@ object ServerManager {
 }
 
 object NewServer extends App {
+    Database.setupDB()
     val greeterMain: ActorSystem[ServerManager.Command] = ActorSystem(ServerManager(), "HelloSystem")
 
     // greeterMain ! ServerManager.TestCreateSession
