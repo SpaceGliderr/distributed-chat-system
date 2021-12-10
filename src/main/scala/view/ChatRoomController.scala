@@ -85,6 +85,7 @@ class ChatRoomController(
         //-- 
         // 1. update message list
         // 2. update database
+        // 3. rmb to update the latest message for ChatListPage (if yall got put the latest message la)
 
         //disable the button again & empty the text field after sending message
         messageTextField.text_=("")
