@@ -63,7 +63,9 @@ object Main extends JFXApp {
     window.showAndWait()
   }
 
-  def showChatRoomPage(_nameList: Array[String], _messages: Array[String]) = {
+  var group: Boolean = false
+  def showChatRoomPage(_nameList: Array[String], _messages: Array[String], _group: Boolean) = {
+    this.group = _group
     val resource = getClass.getResourceAsStream("view/ChatRoom.fxml")
     val loader = new FXMLLoader(null, NoDependencyResolver)
     loader.load(resource);

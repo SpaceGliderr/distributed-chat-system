@@ -7,6 +7,8 @@ import chat.Main
 import scalafx.scene.control.SelectionMode
 import chat.util.AlertMessage
 import scalafx.collections.ObservableBuffer
+import java.net.URL
+import java.util.ResourceBundle
 
 @sfxml
 class ChatRoomController(
@@ -15,21 +17,40 @@ class ChatRoomController(
     private val imageView1: ImageView,
     private val imageView2: ImageView,
     private val sendButton: Button,
-    private val names: Label,
+    private val groupOrChatName: Label,
+    private val statusOrGrpMemNames: Label,
     private val messageList: ListView[String]   //-- not sure the type
 
 ) extends AlertMessage{
     //pass in from Main
     var messages: Array[String] = null    //-- not sure the type
     var nameList: Array[String] = null    //-- not sure the type
+    var group: Boolean = Main.group
 
     //======================== to test run, later delete
-    nameList = Array("aaaaaaaaaaaaaaaaaa","bbbbbbbbbbbbbbbbbbbbb","ccccccccccccccccccc")
-    val list = nameList.toList
-    names.text=(list.mkString(", "))
+    if(group){
+        groupOrChatName.text_=("buat assignment")
+        nameList = Array("john","nick","wenyi", "shiqi", "peini")
+        val list = nameList.toList
+        statusOrGrpMemNames.text=(list.mkString(", "))
+    }
+    else{
+        groupOrChatName.text_=("john")
+        statusOrGrpMemNames.text=("available")
+    }
     //========================
 
-    //-- use the passed in "nameList" to update the "names" Label (chat/group memeber)
+    //-- use the passed in "nameList" to update the "statusOrGrpMemNames" Label
+    //  if is group chat -> show group name and member names
+    //  if is personal chat -> show that person's name and status
+    // if (group){
+    //     groupOrChatName -> //grp name
+    //     statusOrGrpMemNames -> //member names
+    // }
+    // else{
+    //     groupOrChatName -> //that ppl name
+    //     statusOrGrpMemNames -> //status
+    // }
 
     val deleteIcon = new Image(getClass().getResourceAsStream("deleteIcon.png"))
     imageView.image_=(deleteIcon)

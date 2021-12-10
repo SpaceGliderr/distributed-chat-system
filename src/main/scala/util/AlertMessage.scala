@@ -1,5 +1,5 @@
 package chat.util
-import scalafx.scene.control.{Alert, TextArea, ButtonType}
+import scalafx.scene.control.{Alert, TextArea, ButtonType,TextInputDialog}
 import scalafx.Includes._
 import chat.Main
 import scalafx.beans.property.StringProperty
@@ -47,6 +47,20 @@ trait AlertMessage{
         alert match{
             case Some(ButtonType.OK) => return true
             case _ => return false
+        }
+    }
+
+    def textInputDialog(_title: String, _headerText: String, _contextText: String): String = {
+        val dialog = new TextInputDialog(){
+            initOwner(Main.stage)
+            title       = _title
+            headerText  = _headerText
+            contentText = _contextText
+        }.showAndWait()
+
+        dialog match{
+            case Some(input) => return (input.asInstanceOf[String])
+            case _ => return ""
         }
     }
 }

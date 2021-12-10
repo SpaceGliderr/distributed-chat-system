@@ -144,15 +144,21 @@ class NewChatOrGroupController(
                 alertError("Creation Fail", "Fail to create chat", "You can only select one contact")
             else{
                 dialogStage.close()
-                Main.showChatRoomPage(null, null)   //-- pass name to chatroom page
+                Main.showChatRoomPage(null, null, false)   //-- pass name to chatroom page
             }
         }
         else {
             if (contactList.selectionModel().getSelectedIndices.length <= 1)
                 alertError("Creation Fail", "Fail to create chat", "You must select at least two contacts")
             else{
+                var grpname = textInputDialog("Create Group", "Create a group", "Please enter the group name: ")
+                while (grpname == ""){
+                    alertError("Creation Fail", "Fail to create group", "Invalid group name")
+                    grpname = textInputDialog("Create Group", "Create a group", "Please enter the group name: ")
+                }
+                //-- create grp obj? or save the name?? ...
                 dialogStage.close()
-                Main.showChatRoomPage(null, null)   //-- pass name to chatroom page
+                Main.showChatRoomPage(null, null, true)   //-- pass name to chatroom page
             }
         }
     }
