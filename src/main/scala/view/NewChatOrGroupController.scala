@@ -1,5 +1,6 @@
 package chat.view
 import scalafxml.core.macros.sfxml
+import javafx.scene.layout.ColumnConstraints
 import scalafx.scene.control.{TextField, ListView, MenuItem, Dialog, ButtonType, Label}
 import scalafx.Includes._
 import scalafx.scene.image.{ImageView, Image}
@@ -11,6 +12,7 @@ import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.geometry.Insets
 import scalafx.scene.Node
 import scalafx.application.Platform
+import scalafx.collections.ObservableBuffer
 
 @sfxml
 class NewChatOrGroupController(
@@ -52,26 +54,34 @@ class NewChatOrGroupController(
         }
     }
 
-    def setMenuItemName: Unit = {
-        if (title == "Add New Chat")
+    def setMenuItemName(): Unit = {
+        println("hi")
+        if (title == "Add New Chat"){
             menuItem.text_=("Create Chat")
+            println("hiiii")}
         else
             menuItem.text_=("Create Group")
     }
 
-    def addNewContact: Unit = {
+    def addNewContact(): Unit = {
         //dialog box,popup
+        case class Result(contactName: String, contactNum: String)
         val dialog = new Dialog[Result]()
         dialog.initOwner(Main.stage)
         dialog.title_=("Add New Contact")
         dialog.headerText_=("Please enter the contact name and contact number")
-        dialog.graphic_=(new ImageView(getClass.getResource("addContact.png").toString()))
+        val imageView = new ImageView(getClass.getResource("addContact.png").toString())
+        imageView.fitWidth_=(44)
+        imageView.fitHeight_=(44)
+        dialog.graphic_=(imageView)
         val saveButtonType: ButtonType = new ButtonType("Save", ButtonData.OKDone)
-        dialog.dialogPane.buttonTypes ++= new ObservableBuffer[ButtonType](saveButtonType, ButtonData.CancelClose)
+        dialog.dialogPane().buttonTypes = Seq(ButtonType.Cancel,saveButtonType)
         val grid: GridPane = new GridPane()
         grid.hgap_=(10)
         grid.vgap_=(10)
-        grid.padding_=(new Insets(20,150,10,10))
+        grid.padding_=(Insets(20,150,10,10))
+        grid.getColumnConstraints().add(new ColumnConstraints(127))
+        grid.getColumnConstraints().add(new ColumnConstraints(210))
         val contactName: TextField = new TextField()
         val contactNum: TextField = new TextField()
         contactNum.promptText_=("0123456789 or 01234567890")
@@ -79,21 +89,29 @@ class NewChatOrGroupController(
         grid.add(contactName,1,0)
         grid.add(new Label("Contact Number: "),0,1)
         grid.add(contactNum,1,1)
-        val saveButton: Node = dialog.dialogPane.lookupButton(saveButtonType)
+        val saveButton: Node = dialog.dialogPane().lookupButton(saveButtonType)
         saveButton.disable_=(true)
-        val disable = false
-        contactName.text.onChange{(_, _, newValue) =>
-            saveButton.disable = newValue.trim().isEmpty
-        }
-        contactNum.text.onChange{(_, _, newValue1) => {
-            if (newValue1.trim().isEmpty || newValue1.length != 10 && newValue1.length != 11)
-                saveButton.disable_=(true)
+        contactName.text.onChange{(_, _, newValue) => {
+            if (contactNum.text.value.length != 0 && !newValue.trim().isEmpty){
+                if ((contactNum.text.value.length == 10 || contactNum.text.value.length == 11) && (contactNum.text.value.substring(0,2) == "01"))
+                    saveButton.disable_=(false)
+                else
+                    saveButton.disable_=(true)
+            }
             else
-                saveButton.disable_=(false)
+                saveButton.disable_=(true)
             }
         }
-        contactNum.text.onChange
-        dialog.dialogPane.content_=(grid)
+        contactNum.text.onChange{(_, _, newValue1) => {
+            if (contactName.text.value.length != 0 && !newValue1.trim().isEmpty){
+                if ((newValue1.length == 10 || newValue1.length == 11) && (newValue1.substring(0,2) == "01"))
+                    saveButton.disable_=(false)
+                else
+                    saveButton.disable_=(true)
+            }
+            } 
+        }        
+        dialog.dialogPane().content_=(grid)
         Platform.runLater(contactName.requestFocus())
         dialog.resultConverter = buttonType => 
             if (buttonType == saveButtonType)
@@ -102,11 +120,12 @@ class NewChatOrGroupController(
                 null
         val result = dialog.showAndWait()
         result match{
-            case Some(Result(name, num)) => //to the name and num to create contact obj? or user obj? 
+            case Some(Result(name, num)) => //use the name and num to create contact obj? or user obj? & save to database
+            case None => dialog.close()
         }
     }
 
-    def addNewChatOrGroup: Unit = {
+    def addNewChatOrGroup(): Unit = {
         if (title == "Add New Chat"){
             if (contactList.selectionModel().selectedItem.value.length > 1)
                 alertError("Creation Fail", "Fail to create chat", "You can only select one contact")
