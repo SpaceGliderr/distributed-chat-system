@@ -101,7 +101,7 @@ object NewClient extends App {
     val password = scala.io.StdIn.readLine("password=")
 
     // val user = ClientManager.User(randomUUID.toString, username, password)
-    val user = User(randomUUID.toString, username, password)
+    val user = new User(randomUUID.toString, username, password)
 
     greeterMain ! ClientManager.Start(user)
 
