@@ -7,12 +7,12 @@ import java.util.Date
 import java.util.UUID
 import util.UserRoles
 
-case class ChatSession(_name: String, _description: String, _creatorId: Int) extends Database {
-    var id: Long = 0
+case class ChatSession(_name: String, _description: String, _creatorId: Long) extends Database {
+    var id: Long = -1
     var name: String = _name
     var description: String = _description
-    var creatorId: Int = _creatorId
-    var createdAt: Date = new Date()
+    var creatorId: Long = _creatorId
+    var createdAt: Date = null
     var updatedAt: Date = new Date()
     var messages: List[Message] = List() // message log
 
@@ -53,8 +53,8 @@ case class ChatSession(_name: String, _description: String, _creatorId: Int) ext
         Try (
             DB autoCommit { implicit session => 
                 id = sql"""
-                    insert into chat_sessions (name, description, creatorId, created_at)
-                    values (${name}, ${description}, ${creatorId}, ${createdAt})
+                    insert into chat_sessions (name, description, creator_id)
+                    values (${name}, ${description}, ${creatorId})
                 """.updateAndReturnGeneratedKey.apply()
 
                 var userChatSession = new UserChatSession(creatorId, id.intValue, UserRoles.ADMIN)
@@ -73,6 +73,7 @@ case class ChatSession(_name: String, _description: String, _creatorId: Int) ext
                     set name = ${name}, description = ${description}, updated_at = ${updatedAt}
                     where id = ${id.intValue}
                 """.update().apply()
+                id.intValue
             }
         )
     }
@@ -90,40 +91,70 @@ case class ChatSession(_name: String, _description: String, _creatorId: Int) ext
 }
 
 object ChatSession extends Database {
+    def apply(_id: Long, _name: String, _description: String, _creatorId: Long, _createdAt: Date, _updatedAt: Date): ChatSession = {
+        new ChatSession(_name, _description, _creatorId) {
+            id = _id
+            createdAt = _createdAt
+            updatedAt = _updatedAt
+        }
+    }
+
     def initializeTable() = {
         DB autoCommit { implicit session =>
             sql"""
                 create table chat_sessions (
-                    id int not null,
+                    id int GENERATED ALWAYS AS IDENTITY,
                     name varchar(255) not null,
                     description varchar(255),
-                    creatorId int not null,
+                    creator_id int not null,
                     created_at timestamp not null default current_timestamp,
                     updated_at timestamp,
                     primary key (id),
-                    foreign key (creatorId) references users(id)
+                    foreign key (creator_id) references users(id)
                 )
             """.execute().apply()
         }
     }
 
-    // TODO Problem with Lists
-    // def getMessages(chatSessionId: Int): List[Message] = {
-    //     DB readOnly { implicit session =>
-    //         sql"""
-    //             select * from messages
-    //             where chatSessionId = ${chatSessionId}
-    //         """.map(result => Message(result.int("id"), result.string("content"), result.int("chatSessionId"), result.int("userId"), result.timestamp("created_at"))).list.apply()
-    //     }
-    // }
+    def findOne(id: Long): Option[ChatSession] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select * from chat_sessions
+                where id = ${id.intValue()}
+            """.map(res => ChatSession(
+                res.long("id"),
+                res.string("name"),
+                res.string("description"),
+                res.long("creator_id"),
+                res.timestamp("created_at"),
+                res.timestamp("updated_at")
+            )).single.apply()
+        }
+    }
+
+    def getMessages(chatSessionId: Int): List[Message] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select * from messages
+                where chat_session_id = ${chatSessionId}
+            """.map(res => Message(
+                res.int("id"), 
+                res.string("content"), 
+                res.int("sender_id"), 
+                res.int("chat_session_id"), 
+                res.timestamp("created_at"), 
+                res.timestamp("updated_at")
+            )).list.apply()
+        }
+    }
 
     def seed() = {
         DB autoCommit { implicit session =>
             sql"""
-                insert into chat_sessions (id, name, description, creatorId)
+                insert into chat_sessions (name, description, creator_id)
                 values 
-                    (1, 'general', 'general chat', 1), 
-                    (2, 'private', 'private chat', 2)
+                    ('general', 'general chat', 1), 
+                    ('private', 'private chat', 2)
             """.update().apply()
         }
     }
