@@ -9,13 +9,12 @@ import util.UserRoles
 
 case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles.UserRole = UserRoles.MEMBER) extends Database {
     var id: Long = 0
-    var userId: Long = 0
-    var chatSessionId: Long = 0
+    var userId: Long = _userId
+    var chatSessionId: Long = _chatSessionId
     var role: UserRoles.UserRole = _role
     var joinedAt: Date = new Date()
 
     def isExist: Boolean = {
-        // TODO CHECK IF USER IS ALREADY IN CHAT
         DB readOnly { implicit session =>
             sql"""
                 select * from user_chat_sessions
@@ -28,6 +27,20 @@ case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles
         }
     }
 
+    def inChat: Boolean = {
+        DB readOnly { implicit session =>
+            sql"""
+                select * from user_chat_sessions
+                where user_id = ${userId.intValue()} and chat_session_id = ${chatSessionId.intValue()}
+            """.map(result => result.int("id")).single.apply()
+
+        } match {
+            case Some(x) => true
+            case None => false
+        }
+    }
+
+    // ! Not sure whether we need upsert for this one or maybe upsert can be updateRole?
     def upsert(): Try[Long] = {
         if (!isExist) {
             Try (DB autoCommit { implicit session =>
@@ -58,47 +71,70 @@ case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles
         })
     }
 
-    def leaveSession(): Try[Long] = {
-        Try (DB autoCommit { implicit session =>
-            sql"""
-                delete from user_chat_sessions where user_id = ${userId.intValue()} and chat_session_id = ${chatSessionId.intValue()}
-            """.update().apply()
-        })
+    def updateRole(): Try[Long] = {
+        if (inChat) {
+            Try (DB autoCommit { implicit session =>
+                sql"""
+                    update user_chat_sessions
+                    set role = ${role.toString}
+                    where user_id = ${userId.intValue()} and chat_session_id = ${chatSessionId.intValue()}
+                """.update().apply()
+                id.intValue
+            })
+        } else {
+            joinSession
+            Try(id)
+        }
     }
 }
 
 object UserChatSession extends Database {
+    def apply(_id: Long, _userId: Long, _chatSessionId: Long, _role: UserRoles.UserRole, _joinedAt: Date): UserChatSession = {
+        new UserChatSession(_userId, _chatSessionId, _role) {
+            id = _id
+            joinedAt = _joinedAt
+        }
+    }
+
     // Get Users in ChatSession with ID x
-    // def getUsersInChatSession(chatSessionId: Long): Try[List[User]] = {
-    //     Try (DB readOnly { implicit session =>
-            // TODO: Problems with list conversion at the end
-            // var users = sql"""
-            //     select u.* from users u
-            //     join user_chat_sessions ucs on u.id = ucs.user_id
-            //     where ucs.chat_session_id = ${chatSessionId.intValue()}
-            // """.map(result => User(result.long("id"), result.string("username"), result.string("email"), result.string("password"), result.string("first_name"), result.string("last_name"), result.string("avatar_url"), result.string("role"))).list.apply()
-            // users
-    //     })
-    // }
+    def getUsersInChatSession(chatSessionId: Long): List[User] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select u.* from users u
+                join user_chat_sessions ucs on u.id = ucs.user_id
+                where ucs.chat_session_id = ${chatSessionId.intValue()}
+            """.map(res => User(
+                res.int("id"), 
+                res.string("uuid"), 
+                res.string("username"), 
+                res.string("password"), 
+                res.timestamp("created_at"), 
+                res.timestamp("updated_at")
+            )).list.apply()
+        }
+    }
 
     // Get Users not in ChatSession with ID x
-    // def getUsersNotInChatSession(chatSessionId: Long): Try[List[User]] = {
-    //     Try (DB readOnly { implicit session =>
-            // TODO: Problems with list conversion at the end
-            // var users = sql"""
-            //     select u.* from users u
-            //     left join user_chat_sessions ucs on ucs.user_id = u.id
-            //     where ucs.chat_session_id = ${chatSessionId.intValue()}
-            // """.map(result => User.fromResultSet(result)).list.apply()
-            // users
-    //     })
-    // }
+    def getUsersNotInChatSession(chatSessionId: Long): List[User] = {
+        val users = User.selectAll
+        val usersInSession = getUsersInChatSession(chatSessionId).toSet
+        users.filterNot(usersInSession)
+    }
+
+    def leaveSession(userId: Long, chatSessionId: Long): Long = {
+        DB autoCommit { implicit session =>
+            sql"""
+                delete from user_chat_sessions where user_id = ${userId.intValue()} and chat_session_id = ${chatSessionId.intValue()}
+            """.update().apply()
+        }
+        userId
+    }
 
     def initializeTable() = {
         DB autoCommit { implicit session =>
             sql"""
                 create table user_chat_sessions (
-                    id int not null,
+                    id int GENERATED ALWAYS AS IDENTITY,
                     user_id int,
                     chat_session_id int,
                     role varchar(64) check (role in ('ADMIN', 'MEMBER')),
@@ -114,13 +150,13 @@ object UserChatSession extends Database {
     def seed() = {
         DB autoCommit { implicit session =>
             sql"""
-                insert into user_chat_sessions (id, user_id, chat_session_id, role)
+                insert into user_chat_sessions (user_id, chat_session_id, role)
                 values 
-                    (1, 1, 1, 'ADMIN'), 
-                    (2, 2, 1, 'MEMBER'),
-                    (3, 3, 1, 'MEMBER'),
-                    (4, 2, 2, 'ADMIN'),
-                    (5, 3, 2, 'MEMBER')
+                    (1, 1, 'ADMIN'), 
+                    (2, 1, 'MEMBER'),
+                    (3, 1, 'MEMBER'),
+                    (2, 2, 'ADMIN'),
+                    (3, 2, 'MEMBER')
             """.update().apply()
         }
     }
