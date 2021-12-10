@@ -23,7 +23,8 @@ class User(_uuid: String, _username: String, _password: String) extends Database
     var uuid: String = _uuid
     var username: String = _username
     var password: String = _password
-    val createdAt: Date = new Date()
+    var createdAt: Date = null
+    var updatedAt: Date = new Date()
 
     def isExist: Boolean = {
         DB readOnly {
@@ -71,19 +72,24 @@ class User(_uuid: String, _username: String, _password: String) extends Database
 object User extends Database{
     val users = new ObservableBuffer[User]()
 
-    def apply(_id: String, _username: String, _password: String): User = {
-        new User(_id, _username, _password)
+    def apply(_id: Long, _uuid: String, _username: String, _password: String, _createdAt: Date, _updatedAt: Date): User = {
+        new User(_uuid, _username, _password) {
+            id = _id
+            createdAt = _createdAt
+            updatedAt = _updatedAt
+        }
     }
 
     def initializeTable() = {
         DB autoCommit { implicit session =>
             sql"""
                 create table users (
-                    id int not null,
+                    id int GENERATED ALWAYS AS IDENTITY,
                     uuid varchar(64) not null,
                     username varchar(64),
                     password varchar(64),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP,
                     primary key (id)
                 )
             """.execute.apply()
@@ -97,27 +103,73 @@ object User extends Database{
                 select * from users
                 where username = ${username}
                 and password = ${password}
-            """.map(result => User(result.string("uuid"), result.string("username"), result.string("password"))).single.apply()
+            """.map(res => User(
+                res.int("id"), 
+                res.string("uuid"), 
+                res.string("username"), 
+                res.string("password"), 
+                res.timestamp("created_at"), 
+                res.timestamp("updated_at")
+            )).single.apply()
         }
     }
 
-    def getUser(id: String): Option[User] = {
+    def findOne(id: Int): Option[User] = {
         DB readOnly { implicit session =>
             sql"""
                 select * from users
-                where uuid = ${id}
-            """.map(result => User(result.string("uuid"), result.string("username"), result.string("password"))).single.apply()
+                where id = ${id}
+            """.map(res => User(
+                res.int("id"), 
+                res.string("uuid"), 
+                res.string("username"), 
+                res.string("password"), 
+                res.timestamp("created_at"), 
+                res.timestamp("updated_at")
+            )).single.apply()
+        }
+    }
+
+    def selectAll: List[User] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select * from users
+            """.map(res => User(
+                res.int("id"), 
+                res.string("uuid"), 
+                res.string("username"), 
+                res.string("password"), 
+                res.timestamp("created_at"), 
+                res.timestamp("updated_at")
+            )).list.apply()
+        }
+    }
+
+    def search(s: String): List[User] = {
+        val q = s"%${s}%"
+        DB readOnly { implicit session =>
+            sql"""
+                select * from users
+                where username like ${q}
+            """.map(res => User(
+                res.int("id"), 
+                res.string("uuid"), 
+                res.string("username"), 
+                res.string("password"), 
+                res.timestamp("created_at"), 
+                res.timestamp("updated_at")
+            )).list.apply()
         }
     }
 
     def seed() = {
         DB autoCommit { implicit session =>
             sql"""
-                insert into users (id, uuid, username, password)
+                insert into users (uuid, username, password)
                 values 
-                    (1, 'something', 'nick', '1234'),
-                    (2, 'something', 'shi qi', '5678'),
-                    (3, 'something', 'john', '9101')
+                    ('something', 'nick', '1234'),
+                    ('something', 'shi qi', '5678'),
+                    ('something', 'john', '9101')
             """.update().apply()
         }
     }
