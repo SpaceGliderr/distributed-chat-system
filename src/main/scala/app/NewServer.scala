@@ -11,8 +11,8 @@ import util.Database
 object ServerManager {
     sealed trait Command
     case class Message(value: String, from: ActorRef[ClientManager.Command]) extends Command
-    case class CreateSession(participants: Array[StringProperty]) extends Command
-    case class JoinSession(sessionId: String, participants: Array[StringProperty]) extends Command
+    case class CreateSession(participants: Array[String]) extends Command
+    case class JoinSession(sessionId: String, participants: Array[String]) extends Command
     case class SendMessage(sessionId: String, message: String) extends Command
     case class CreateUser(from: ActorRef[ClientManager.Command], user: User) extends Command
     // case object TestCreateSession extends Command
@@ -20,7 +20,7 @@ object ServerManager {
     // case class TestSendMessage(sessionId: String, message: String) extends Command
 
     var chatSessionMap: Map[String, ActorRef[ChatRoom.Command]] = Map()
-    var userMap: Map[StringProperty, ActorRef[ClientManager.Command]] = Map()
+    var userMap: Map[String, ActorRef[ClientManager.Command]] = Map()
 
     val ServerKey: ServiceKey[ServerManager.Command] = ServiceKey("Server")
 

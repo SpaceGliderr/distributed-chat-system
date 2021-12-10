@@ -13,23 +13,24 @@ import util.Database
 import scalikejdbc._
 // import jsr310._
 import java.time._
+import java.util.Date
 
 
 class User(_uuid: String, _username: String, _password: String) extends Database {
 
     // properties
-    var id = ObjectProperty[Long](-1)
-    var uuid = new StringProperty(_uuid)
-    var username = new StringProperty(_username)
-    var password = new StringProperty(_password)
-    val createdAt = new StringProperty(ZonedDateTime.now().toString) // only on initialization, not on update
+    var id: Long = -1
+    var uuid: String = _uuid
+    var username: String = _username
+    var password: String = _password
+    val createdAt: Date = new Date()
 
     def isExist: Boolean = {
         DB readOnly {
             implicit session =>
                 sql"""
                     select * from users
-                    where id = ${id.value}
+                    where id = ${id.intValue}
                 """.map(result => result.int("id")).single.apply()
 
         } match {
@@ -43,11 +44,11 @@ class User(_uuid: String, _username: String, _password: String) extends Database
         if (!(isExist)){
             Try (DB autoCommit {
                 implicit session =>
-                    id.value = sql"""
+                    id = sql"""
                         insert into users(uuid, username, password)
-                        values (${uuid.value}, ${username.value}, ${password.value})
+                        values (${uuid}, ${username}, ${password})
                     """.updateAndReturnGeneratedKey.apply()
-                    id.value
+                    id.intValue
 
             })
 
@@ -58,9 +59,9 @@ class User(_uuid: String, _username: String, _password: String) extends Database
                 sql"""
                     update users
                     set
-                    username = ${username.value},
-                    password = ${password.value}
-                    where id = ${id.value}
+                    username = ${username},
+                    password = ${password}
+                    where id = ${id.intValue}
                 """.update.apply().toLong
             })
         }
