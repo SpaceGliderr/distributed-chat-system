@@ -25,7 +25,7 @@ class SignUpController(
             //val account = new User(......)
             //User.users += account
             //account.saveUser()
-            alertInformation("Sign Up Success", "", "Congratulations, your account has been successfully created")
+            alertInformation("Sign Up Success", null, "Congratulations, your account has been successfully created")
             Main.showPages("view/Home.fxml")
         }
     }

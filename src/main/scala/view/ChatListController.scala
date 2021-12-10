@@ -3,6 +3,7 @@ import scalafxml.core.macros.sfxml
 import scalafx.scene.control.{TextField, ListView}
 import scalafx.Includes._
 import scalafx.scene.image.{ImageView, Image}
+import chat.Main
 
 @sfxml
 class ChatListController(
@@ -11,7 +12,7 @@ class ChatListController(
     private val imageView1: ImageView,
     private val imageView2: ImageView,
     private val imageView3: ImageView,
-    private val conversationList: ListView[String]
+    private val conversationList: ListView[String]  //not sure the type 
 ){
     val searchIcon = new Image(getClass().getResourceAsStream("searchIcon.png"))
     imageView.image_=(searchIcon)
@@ -22,11 +23,14 @@ class ChatListController(
     val deleteIcon = new Image(getClass().getResourceAsStream("deleteIcon.png"))
     imageView3.image_=(deleteIcon)
 
+    val contacts: Array[String] = null  /*not sure if is to use string, 
+    if not please chg the data type of 
+    1. Main's showNewChatOrNewGroupPage method's parameter's type
+    2. NewChatOrGroupController's "contacts"" variable's type*/
 
-    // 1.var conversations
-    // 2.var latestMsg
-    // 3.var combinedList
-    // 4.def updateConversationList()
+    // def showConversationList(){
+
+    // }
 
     def search(): Unit = {
         if (!searchBar.visible.value){
@@ -34,15 +38,14 @@ class ChatListController(
             searchBar.requestFocus()
         }
         else{
-            // 5.filter conversation list
+            //filter conversation list
 
             searchBar.visible_=(false)
         }
     }
 
     def addNewChat: Unit = {
-        //try
-        println("add new chat")
+        Main.showNewChatOrNewGroupPage("Add New Chat", contacts)
     }
 
     def addNewGroup: Unit = {
