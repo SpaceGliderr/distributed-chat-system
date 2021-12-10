@@ -7,8 +7,6 @@ import chat.Main
 import scalafx.scene.control.SelectionMode
 import chat.util.AlertMessage
 import scalafx.collections.ObservableBuffer
-import java.net.URL
-import java.util.ResourceBundle
 
 @sfxml
 class ChatRoomController(

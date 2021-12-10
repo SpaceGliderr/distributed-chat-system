@@ -1,8 +1,11 @@
 package chat.util
-import scalafx.scene.control.{Alert, TextArea, ButtonType,TextInputDialog}
+import scalafx.scene.control.{Alert, TextArea, ButtonType, TextInputDialog, Button}
+import scalafx.scene.Node
 import scalafx.Includes._
 import chat.Main
 import scalafx.beans.property.StringProperty
+import scala.Tuple2
+import scalafx.event.ActionEvent
 
 trait AlertMessage{
     def phoneNumPwdChecking(phoneNum: StringProperty, password: StringProperty): String = {
@@ -56,9 +59,20 @@ trait AlertMessage{
             title       = _title
             headerText  = _headerText
             contentText = _contextText
-        }.showAndWait()
+        }
+             
+        val okButton: Node = dialog.dialogPane().lookupButton(ButtonType.OK)
+        okButton.disable_=(true)
+        dialog.editor.text.onChange{(_, _, newValue) => {
+            if (!newValue.trim().isEmpty)
+                okButton.disable_=(false)
+            else
+                okButton.disable_=(true)
+            }
+        }
+        val result = dialog.showAndWait()
 
-        dialog match{
+        result match{
             case Some(input) => return (input.asInstanceOf[String])
             case _ => return ""
         }
