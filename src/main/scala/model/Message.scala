@@ -6,14 +6,13 @@ import scalikejdbc._
 import java.util.Date
 import java.util.UUID
 
-case class Message(_content: String, _senderId: String, _chatSessionId: String) extends Database {
+case class Message(_content: String, _senderId: Long, _chatSessionId: Long) extends Database {
     var id: Long = 0
     var content: String = _content
-    var senderId: String = _senderId
-    var chatSessionId: String = _chatSessionId
-    var createdAt: Date = new Date()
-    var updatedAt: Date = null // if we allow messages to be updated
-    var deletedAt: Date = null // if we allow messages to be deleted
+    var senderId: Long = _senderId
+    var chatSessionId: Long = _chatSessionId
+    var createdAt: Date = null
+    var updatedAt: Date = new Date() // if we allow messages to be updated
 
     def isExist: Boolean = {
         DB readOnly { implicit session =>
@@ -32,8 +31,8 @@ case class Message(_content: String, _senderId: String, _chatSessionId: String) 
         if (!isExist) {
             Try (DB autoCommit { implicit session =>
                 id = sql"""
-                    insert into messages (content, sender_id, chat_session_id, created_at, updated_at, deleted_at)
-                    values (${content}, ${senderId}, ${chatSessionId}, ${createdAt}, ${updatedAt}, ${deletedAt})
+                    insert into messages (content, sender_id, chat_session_id, created_at, updated_at)
+                    values (${content}, ${senderId}, ${chatSessionId}, ${createdAt}, ${updatedAt})
                 """.updateAndReturnGeneratedKey.apply()
                 id.intValue
             })
@@ -41,7 +40,7 @@ case class Message(_content: String, _senderId: String, _chatSessionId: String) 
             Try (DB autoCommit { implicit session =>
                 sql"""
                     update messages
-                    set content = ${content}, sender_id = ${senderId}, chat_session_id = ${chatSessionId}, created_at = ${createdAt}, updated_at = ${updatedAt}, deleted_at = ${deletedAt}
+                    set content = ${content}, sender_id = ${senderId}, chat_session_id = ${chatSessionId}, updated_at = ${updatedAt}
                     where id = ${id.intValue()}
                 """.update().apply()
             })
@@ -50,17 +49,24 @@ case class Message(_content: String, _senderId: String, _chatSessionId: String) 
 }
 
 object Message extends Database {
+    def apply(_id: Long, _content: String, _senderId: Long, _chatSessionId: Long, _createdAt: Date, _updatedAt: Date): Message = {
+        new Message(_content, _senderId, _chatSessionId) {
+            id = _id
+            createdAt = _createdAt
+            updatedAt = _updatedAt
+        }
+    }
+
     def initializeTable() = {
         DB autoCommit { implicit session =>
             sql"""
                 create table messages (
-                    id int not null,
+                    id int GENERATED ALWAYS AS IDENTITY,
                     content varchar(255),
                     sender_id int,
                     chat_session_id int,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT NULL,
-                    deleted_at TIMESTAMP DEFAULT NULL,
                     foreign key (sender_id) references users(id),
                     foreign key (chat_session_id) references chat_sessions(id),
                     primary key (id)
@@ -72,12 +78,12 @@ object Message extends Database {
     def seed() = {
         DB autoCommit { implicit session =>
             sql"""
-                insert into messages (id, content, sender_id, chat_session_id)
+                insert into messages (content, sender_id, chat_session_id)
                 values 
-                    (1, 'Hello everyone from Shi Qi', 2, 1),
-                    (2, 'Hello everyone from Nick', 1, 1),
-                    (3, 'Hello John from Shi Qi', 2, 2),
-                    (4, 'Hello Shi Qi from John', 3, 2)
+                    ('Hello everyone from Shi Qi', 2, 1),
+                    ('Hello everyone from Nick', 1, 1),
+                    ('Hello John from Shi Qi', 2, 2),
+                    ('Hello Shi Qi from John', 3, 2)
             """.update().apply()
         }
     }
