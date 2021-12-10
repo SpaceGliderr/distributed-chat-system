@@ -45,7 +45,7 @@ class ChatRoomController(
     //  if is personal chat -> show that person's name and status
     // if (group){
     //     groupOrChatName -> //grp name
-    //     statusOrGrpMemNames -> //member names
+    //     statusOrGrpMemNames -> //member names, can cankao: mkString method of List
     // }
     // else{
     //     groupOrChatName -> //that ppl name
