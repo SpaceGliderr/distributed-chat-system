@@ -12,17 +12,17 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" styleClass="backgroundColour" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chat.view.SignUpController">
    <children>
-      <Text layoutX="188.0" layoutY="87.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sign Up" textAlignment="CENTER" wrappingWidth="224.34130859375" AnchorPane.leftAnchor="188.0">
+      <Text layoutX="188.0" layoutY="77.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sign Up" textAlignment="CENTER" wrappingWidth="224.34130859375" AnchorPane.leftAnchor="188.0">
          <font>
             <Font name="Elephant" size="48.0" />
          </font>
       </Text>
-      <Text fill="#f22121" layoutX="116.0" layoutY="122.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sign up now and chat with people around the globe." textAlignment="CENTER" wrappingWidth="367.0079075098038">
+      <Text fill="#f22121" layoutX="116.0" layoutY="112.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sign up now and chat with people around the globe." textAlignment="CENTER" wrappingWidth="367.0079075098038">
          <font>
             <Font size="14.0" />
          </font>
       </Text>
-      <VBox layoutX="188.0" layoutY="149.0" spacing="5.0" AnchorPane.leftAnchor="188.0" AnchorPane.rightAnchor="188.0">
+      <VBox layoutX="188.0" layoutY="139.0" spacing="5.0" AnchorPane.leftAnchor="188.0" AnchorPane.rightAnchor="188.0">
          <children>
             <VBox spacing="5.0">
                <children>
@@ -53,7 +53,7 @@
             </VBox>
          </children>
       </VBox>
-      <HBox layoutX="174.0" layoutY="347.0" spacing="100.0">
+      <HBox layoutX="174.0" layoutY="337.0" spacing="100.0">
          <children>
             <Button defaultButton="true" mnemonicParsing="false" onAction="#signup" prefHeight="33.0" prefWidth="80.0" text="Sign Up">
                <font>

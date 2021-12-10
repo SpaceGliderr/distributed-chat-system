@@ -74,6 +74,7 @@ object Main extends JFXApp {
     controller.messages = _messages
   }
 
+  this.roots.top.value.visible_=(false)
   showPages("view/Home.fxml")
   stage.resizable_=(false)
 }

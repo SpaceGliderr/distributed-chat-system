@@ -34,6 +34,10 @@ class ChatListController(
     1. Main's showNewChatOrNewGroupPage method's parameter's type
     2. NewChatOrGroupController's "contacts"" variable's type*/
 
+    //make the menu bar visible
+    Main.roots.top.value.visible_=(true)
+
+
     // --
     // def showConversationList() = {
 
