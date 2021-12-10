@@ -12,6 +12,7 @@ class ChatListController(
     private val imageView1: ImageView,
     private val imageView2: ImageView,
     private val imageView3: ImageView,
+    private val imageView4: ImageView,
     private val conversationList: ListView[String]  //not sure the type 
 ){
     val searchIcon = new Image(getClass().getResourceAsStream("searchIcon.png"))
@@ -20,8 +21,10 @@ class ChatListController(
     imageView1.image_=(newChatIcon)
     val newGroupIcon = new Image(getClass().getResourceAsStream("newGroupIcon.png"))
     imageView2.image_=(newGroupIcon)
+    val viewIcon = new Image(getClass().getResourceAsStream("viewChatIcon.png"))
+    imageView3.image_=(viewIcon)
     val deleteIcon = new Image(getClass().getResourceAsStream("deleteIcon.png"))
-    imageView3.image_=(deleteIcon)
+    imageView4.image_=(deleteIcon)
 
     val contacts: Array[String] = null  /*not sure if is to use string, 
     if not please chg the data type of 
@@ -49,12 +52,18 @@ class ChatListController(
     }
 
     def addNewGroup: Unit = {
+        Main.showNewChatOrNewGroupPage("Add New Group", null)
+    }
+
+    def viewConversation: Unit = {
         //try
-        println("add new group")
+        println("view")
     }
 
     def deleteConversation: Unit = {
-        //try
-        println("delete")
+        if (contactList.selectionModel().selectedItem.value == null) 
+                alertError("Creation Fail", "Fail to create chat", "You must select one contact")
+        else
+            //pop confirm
     }
 }

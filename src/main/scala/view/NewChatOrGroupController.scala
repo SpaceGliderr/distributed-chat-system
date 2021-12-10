@@ -13,6 +13,7 @@ import scalafx.geometry.Insets
 import scalafx.scene.Node
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
+import scalafx.scene.control.SelectionMode
 
 @sfxml
 class NewChatOrGroupController(
@@ -37,9 +38,11 @@ class NewChatOrGroupController(
     var title: String = ""
 
     // def showContactList(){
-    //     /* if the contact is already in contact list (the contacts variable), 
+    //      /* FOR ADD NEW CHAT: if the contact is already in contact list (the contacts variable), 
     //     if yes then disable the cell, but i think is a bit mafan to do this so maybe can jus remove 
     //     from contact list*/
+    //
+    //      /* FOR ADD NEW GROUP: no nid compare & the "contacts" array passed in will be null 
     // }
 
     def search(): Unit = {
@@ -55,16 +58,14 @@ class NewChatOrGroupController(
     }
 
     def setMenuItemName(): Unit = {
-        println("hi")
-        if (title == "Add New Chat"){
+        if (title == "Add New Chat")
             menuItem.text_=("Create Chat")
-            println("hiiii")}
         else
             menuItem.text_=("Create Group")
     }
 
     def addNewContact(): Unit = {
-        //dialog box,popup
+        //dialog box, popup
         case class Result(contactName: String, contactNum: String)
         val dialog = new Dialog[Result]()
         dialog.initOwner(Main.stage)
@@ -125,21 +126,36 @@ class NewChatOrGroupController(
         }
     }
 
+    //================================ try run, remove later
+    contacts = Array("1","2","3")
+    val tryy = new ObservableBuffer[String]()
+    tryy ++= contacts.toList
+    contactList.items = tryy
+    //=================================
+
+    contactList.selectionModel().setSelectionMode(SelectionMode.Multiple)
+
     def addNewChatOrGroup(): Unit = {
         if (title == "Add New Chat"){
-            if (contactList.selectionModel().selectedItem.value.length > 1)
-                alertError("Creation Fail", "Fail to create chat", "You can only select one contact")
-            else if (contactList.selectionModel().selectedItem.value == null)
+            if (contactList.selectionModel().selectedItem.value == null) 
                 alertError("Creation Fail", "Fail to create chat", "You must select one contact")
+            else if (contactList.selectionModel().getSelectedIndices.length > 1)
+                alertError("Creation Fail", "Fail to create chat", "You can only select one contact")
             else{
-                //load chatroom with name and empty list
+                dialogStage.close()
+                Main.showPages("view/ChatRoom.fxml")
+                
+                //pass in name
             }
         }
         else {
-            if (contactList.selectionModel().selectedItem.value.length <= 1)
+            if (contactList.selectionModel().getSelectedIndices.length <= 1)
                 alertError("Creation Fail", "Fail to create chat", "You must select at least two contacts")
             else{
-                //load chatroom with name and empty list
+                dialogStage.close()
+                Main.showPages("view/ChatRoom.fxml")
+
+                //pass in name
             }
         }
     }

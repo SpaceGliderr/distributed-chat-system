@@ -49,12 +49,20 @@
                   <ImageView fx:id="imageView2" fitHeight="38.0" fitWidth="46.0" pickOnBounds="true" preserveRatio="true" />
                </graphic>
             </Button>
-            <Button mnemonicParsing="false" onAction="#deleteConversation" prefHeight="60.0" prefWidth="67.0">
+            <Button mnemonicParsing="false" onAction="#viewConversation" prefHeight="60.0" prefWidth="67.0">
                <cursor>
                   <Cursor fx:constant="HAND" />
                </cursor>
                <graphic>
                   <ImageView fx:id="imageView3" fitHeight="38.0" fitWidth="46.0" pickOnBounds="true" preserveRatio="true" />
+               </graphic>
+            </Button>
+            <Button mnemonicParsing="false" onAction="#deleteConversation" prefHeight="60.0" prefWidth="67.0">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <graphic>
+                  <ImageView fx:id="imageView4" fitHeight="38.0" fitWidth="46.0" pickOnBounds="true" preserveRatio="true" />
                </graphic>
             </Button>
          </children>

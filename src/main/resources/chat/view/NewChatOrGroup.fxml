@@ -11,7 +11,6 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chat.view.NewChatOrGroupController">
    <children>
       <AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="60.0" prefWidth="500.0" styleClass="backgroundColour" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -40,8 +39,8 @@
             </Button>
          </children>
       </AnchorPane>
-      <ListView fx:id="conversationList" layoutX="9.0" layoutY="69.0" prefHeight="341.0" prefWidth="534.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="58.0" />
-      <MenuButton layoutX="406.0" layoutY="284.0" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" onAction="#setMenuItemName" popupSide="TOP">
+      <ListView fx:id="contactList" layoutX="9.0" layoutY="69.0" prefHeight="341.0" prefWidth="534.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="58.0" />
+      <MenuButton layoutX="406.0" layoutY="284.0" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" onMouseClicked="#setMenuItemName" popupSide="TOP">
         <items>
           <MenuItem mnemonicParsing="false" onAction="#addNewContact" text="Add New Contact" />
           <MenuItem fx:id="menuItem" mnemonicParsing="false" onAction="#addNewChatOrGroup" />
