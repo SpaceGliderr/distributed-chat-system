@@ -33,12 +33,14 @@ class NewChatOrGroupController(
     imageView2.image_=(backIcon)
 
     var dialogStage: Stage = null
-    var okClicked: Boolean = false
     var contacts: Array[String] = null  //-- not sure the type
     var title: String = ""
 
+    //allow multiple selection
+    contactList.selectionModel().setSelectionMode(SelectionMode.Multiple)
+
     // --
-    // def showContactList(){
+    // def showContactList() = {
     //      /* FOR ADD NEW CHAT: if the contact is already in contact list (the contacts variable), 
     //     if yes then disable the cell, but i think is a bit mafan to do this so maybe can jus remove 
     //     from contact list*/
@@ -134,8 +136,6 @@ class NewChatOrGroupController(
     contactList.items = tryy
     //=================================
 
-    contactList.selectionModel().setSelectionMode(SelectionMode.Multiple)
-
     def addNewChatOrGroup(): Unit = {
         if (title == "Add New Chat"){
             if (contactList.selectionModel().selectedItem.value == null) 
@@ -144,9 +144,7 @@ class NewChatOrGroupController(
                 alertError("Creation Fail", "Fail to create chat", "You can only select one contact")
             else{
                 dialogStage.close()
-                Main.showPages("view/ChatRoom.fxml")
-                
-                //-- pass name to chatroom page
+                Main.showChatRoomPage(null, null)   //-- pass name to chatroom page
             }
         }
         else {
@@ -154,9 +152,7 @@ class NewChatOrGroupController(
                 alertError("Creation Fail", "Fail to create chat", "You must select at least two contacts")
             else{
                 dialogStage.close()
-                Main.showPages("view/ChatRoom.fxml")
-
-                //-- pass name to chatroom page
+                Main.showChatRoomPage(null, null)   //-- pass name to chatroom page
             }
         }
     }

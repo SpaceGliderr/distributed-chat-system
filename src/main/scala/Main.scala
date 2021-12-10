@@ -7,7 +7,7 @@ import scalafxml.core.{NoDependencyResolver, FXMLView, FXMLLoader}
 import javafx.{scene => jfxs}
 import scalafx.scene.image.Image
 import scalafx.stage.{Stage, Modality}
-import chat.view.NewChatOrGroupController
+import chat.view.{NewChatOrGroupController, ChatRoomController}
 
 //class Main {
 
@@ -39,7 +39,7 @@ object Main extends JFXApp {
   }
 
   //to load (add new chat page) or (add new group page)
-  def showNewChatOrNewGroupPage(_title: String, _contacts: Array[String]): Boolean = {
+  def showNewChatOrNewGroupPage(_title: String, _contacts: Array[String]) = {
     val resource = getClass.getResourceAsStream("view/NewChatOrGroup.fxml")
     val loader = new FXMLLoader(null, NoDependencyResolver)
     loader.load(resource);
@@ -61,15 +61,17 @@ object Main extends JFXApp {
     controller.title = _title
     controller.contacts = _contacts
     window.showAndWait()
-    controller.okClicked
   }
 
-  def showChatRoomPage() = {
+  def showChatRoomPage(_nameList: Array[String], _messages: Array[String]) = {
     val resource = getClass.getResourceAsStream("view/ChatRoom.fxml")
     val loader = new FXMLLoader(null, NoDependencyResolver)
     loader.load(resource);
     val roots = loader.getRoot[jfxs.layout.AnchorPane]()
     this.roots.setCenter(roots)
+    val controller = loader.getController[ChatRoomController#Controller]
+    controller.nameList = _nameList
+    controller.messages = _messages
   }
 
   showPages("view/Home.fxml")

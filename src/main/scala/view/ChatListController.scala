@@ -35,7 +35,7 @@ class ChatListController(
     2. NewChatOrGroupController's "contacts"" variable's type*/
 
     // --
-    // def showConversationList(){
+    // def showConversationList() = {
 
     // }
 
@@ -60,8 +60,7 @@ class ChatListController(
     }
 
     def viewConversation: Unit = {
-        //-- need to pass in messages and names also
-        Main.show
+        Main.showChatRoomPage(null, null)   //-- pass in messages and names
     }
 
     //================================ try run, remove later

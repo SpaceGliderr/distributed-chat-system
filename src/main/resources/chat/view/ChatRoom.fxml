@@ -1,5 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<AnchorPane minHeight="400.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chat.view.ChatRoomController" />
+<AnchorPane minHeight="400.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chat.view.ChatRoomController">
+   <children>
+      <AnchorPane layoutX="20.0" layoutY="20.0" prefHeight="60.0" prefWidth="500.0" styleClass="backgroundColour" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Button layoutX="438.0" layoutY="9.0" mnemonicParsing="false" onAction="#deleteChat" prefHeight="44.0" prefWidth="38.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="9.0">
+               <graphic>
+                  <ImageView fx:id="imageView" fitHeight="27.0" fitWidth="28.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" />
+               </graphic>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+            <Text layoutX="70.0" layoutY="40.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Chatty">
+               <font>
+                  <Font name="Century Gothic" size="30.0" />
+               </font>
+            </Text>
+            <TextField fx:id="searchBar" layoutX="248.0" layoutY="15.0" prefHeight="31.0" prefWidth="295.0" visible="false" AnchorPane.leftAnchor="248.0" AnchorPane.rightAnchor="63.0" AnchorPane.topAnchor="15.0" />
+            <Button cancelButton="true" layoutX="6.0" layoutY="7.0" mnemonicParsing="false" onAction="#cancel" prefHeight="44.0" prefWidth="38.0" AnchorPane.bottomAnchor="10.0" AnchorPane.topAnchor="9.0">
+               <graphic>
+                  <ImageView fx:id="imageView2" fitHeight="27.0" fitWidth="28.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" />
+               </graphic>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+         </children>
+      </AnchorPane>
+      <HBox layoutX="19.0" layoutY="343.0" spacing="20.0" AnchorPane.bottomAnchor="13.0" AnchorPane.leftAnchor="19.0" AnchorPane.rightAnchor="23.0">
+         <children>
+            <TextField fx:id="messageTextField" prefHeight="44.0" prefWidth="490.0" promptText="Write a Message" HBox.hgrow="SOMETIMES" />
+            <Button fx:id="sendButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#sendMessage" prefHeight="44.0" prefWidth="38.0">
+               <graphic>
+                  <ImageView fx:id="imageView1" fitHeight="27.0" fitWidth="28.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" />
+               </graphic>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+         </children>
+      </HBox>
+      <ListView fx:id="messageList" layoutX="6.0" layoutY="60.0" prefHeight="201.0" prefWidth="600.0" AnchorPane.bottomAnchor="74.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="60.0" />
+   </children>
+</AnchorPane>
