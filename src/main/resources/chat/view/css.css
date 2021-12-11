@@ -1,0 +1,18 @@
+.backgroundColour{
+    -fx-background-color: linear-gradient(to right bottom, RGB(135,182,239),RGB(167,199,253),RGB(224,240,252))
+}
+
+.chatListBackground1{
+    -fx-background-color: linear-gradient(to right bottom, RGB(135,182,239),RGB(167,199,253))
+}
+
+.chatListBackground2{
+    -fx-background-color: linear-gradient(to right bottom, RGB(167,199,253),RGB(224,240,252))
+}
+
+.button{
+    -fx-background-color: white;
+    -fx-border-color: rgb(90, 127, 145);
+    -fx-border-radius: 5;
+
+}

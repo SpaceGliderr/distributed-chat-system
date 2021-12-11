@@ -1,4 +1,7 @@
 .idea
 .bsp
+.vscode
 project/
 target/
+/ChatSystem/
+derby.log
