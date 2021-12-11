@@ -16,24 +16,31 @@ object ChatRoom {
 
     def apply(): Behavior[ChatRoom.Command] =
         Behaviors.setup { context =>
-            Behaviors.receiveMessage { message => 
+            Behaviors.receiveMessage { message =>
                 message match {
                     case Subscribe(participants) =>
                         context.log.info("Subscribing")
+
                         // Add participants to subscribers
-                        participants foreach { participant =>
+                        participants.foreach(participant =>
                             subscribers += participant
-                        }
+                        )
                         // subscribers = subscribers + participants.toSet
                         Behaviors.same
+
                     case Unsubscribe() =>
                         context.log.info("Unsubscribing")
                         Behaviors.same
+
                     case Publish(message) =>
                         context.log.info("Publishing")
+                        
                         // Send message to all subscribers
-                        subscribers.foreach(subscriber => subscriber ! ClientManager.Message(message))
+                        subscribers.foreach(subscriber =>
+                            subscriber ! ClientManager.Message(message)
+                        )
                         Behaviors.same
+
                     case GetParticipants() =>
                         context.log.info("Getting participants")
                         println(subscribers)

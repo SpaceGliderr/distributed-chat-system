@@ -5,9 +5,9 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.receptionist.{Receptionist,ServiceKey}
 import com.typesafe.config.ConfigFactory
 import scalafx.beans.property.StringProperty
-import ClientManager.Command
+// import ClientManager.Command
 import model.{User}
-import java.util.UUID.randomUUID
+import util.Database
 
 // Documentation regarding the Actor Receptionist, Listing, etc.
 // https://alvinalexander.com/scala/akka-typed-how-lookup-find-actor-receptionist/
@@ -15,19 +15,26 @@ object ClientManager {
     sealed trait Command
     final case object FindServer extends Command
     private case class ListingResponse(listing: Receptionist.Listing) extends Command
-    case class Start(user: User) extends Command
+    // case class Start(username: String, password: String) extends Command
     case class Message(message: String) extends Command
-    case class CreateSession(participants: Array[String]) extends Command
-    case class SendMessage(sessionId: String, message: String) extends Command
+    case class SignUp(username: String, password: String) extends Command
+    case class LogIn(username: String, password: String) extends Command
+    // case class CreateSession(participants: Array[String]) extends Command
+    case class CreateSession() extends Command
+    case class JoinSession(sessionId: Long) extends Command
+    case class SendMessage(sessionId: Long, message: String) extends Command
+    case class UpdateUser(user: User) extends Command
     // case class User(id: String, username: String, password: String) extends Command
 
     var user: User = null
+
 
     def apply(): Behavior[ClientManager.Command] =
         Behaviors.setup { context =>
             // The program can't initially get a reference to the Server actor
             // Therefore, this variable is a var and uses Option / None
             var remoteOpt: Option[ActorRef[ServerManager.Command]] = None
+
             // Creates an ActorRef of Receptionist.Listing "adapter"
             // - Adapter is a wrapper of a class that allows another class to interact with it
             val listingAdapter: ActorRef[Receptionist.Listing] =
@@ -38,12 +45,14 @@ object ClientManager {
 
             // Subscribe to events related to the Server actor
             context.system.receptionist ! Receptionist.Subscribe(ServerManager.ServerKey, listingAdapter)
+
             Behaviors.receiveMessage { message =>
                 message match {
                     case FindServer =>
                         // Send a message to the Receptionist to find any/all listings with ServerKey
                         context.system.receptionist ! Receptionist.Find(ServerManager.ServerKey, listingAdapter)
                         Behaviors.same
+
                     case ListingResponse(ServerManager.ServerKey.Listing(listings)) =>
                         // Receptionist sends a ListingResponse message
                         // `listings` variable is a set of ActorRefs of type Server.Command
@@ -52,33 +61,51 @@ object ClientManager {
                             remoteOpt = Some(x)
                         }
                         Behaviors.same
-                    // case Start =>
-                    //     context.self ! FindServer
-                    //     for (remote <- remoteOpt){
-                    //         // TODO: Send message to Server here
-                    //     }
-                    //     Behaviors.same
+
                     case Message(message) =>
                         println(s"Message received on Client ${context.self.path.name}: ${message}")
                         Behaviors.same
-                    case Start(details: User) =>
-                        user = details
-                        context.self ! FindServer
+
+                    case SignUp(username, password) =>
                         for (remote <- remoteOpt) {
-                            remote ! ServerManager.CreateUser(context.self, user)
+                            remote ! ServerManager.CreateUser(context.self, username, password)
                         }
                         Behaviors.same
-                    case CreateSession(participants: Array[String]) =>
-                        // context.self ! FindServer
+
+                    case LogIn(username, password) =>
                         for (remote <- remoteOpt) {
-                            remote ! ServerManager.CreateSession(participants)
+                            remote ! ServerManager.AuthenticateUser(context.self, username, password)
                         }
                         Behaviors.same
+
+                    // case CreateSession(participants: Array[String]) =>
+                    //     for (remote <- remoteOpt) {
+                    //         remote ! ServerManager.CreateSession(participants)
+                    //     }
+                    //     Behaviors.same
+
+                    case CreateSession() =>
+                        for (remote <- remoteOpt) {
+                            remote ! ServerManager.CreateSession(Array(user.id))
+                        }
+                        Behaviors.same
+
+                    case JoinSession(sessionId) =>
+                        for (remote <- remoteOpt) {
+                            remote ! ServerManager.JoinSession(sessionId , Array(user.id))
+                        }
+                        Behaviors.same
+
                     case SendMessage(sessionId, message) =>
-                        // context.self ! FindServer
+                        println(s"Current User >>> ${user}")
                         for (remote <- remoteOpt) {
-                            remote ! ServerManager.SendMessage(sessionId, message)
+                            remote ! ServerManager.SendMessage(sessionId, message, user.id)
                         }
+                        Behaviors.same
+
+                    case UpdateUser(u: User) =>
+                        user = u
+                        println(s"Current User >>> ${user}")
                         Behaviors.same
                 }
             }
@@ -97,20 +124,35 @@ object NewClient extends App {
     //     println("Variable text ", text)
     //     text = scala.io.StdIn.readLine("command=")
     // }
-    val username = scala.io.StdIn.readLine("username=")
-    val password = scala.io.StdIn.readLine("password=")
 
-    // val user = ClientManager.User(randomUUID.toString, username, password)
-    val user = new User(randomUUID.toString, username, password)
+    val entry = scala.io.StdIn.readLine("Login or Signup")
+    val username = scala.io.StdIn.readLine("Enter Username: ")
+    val password = scala.io.StdIn.readLine("Enter Password: ")
 
-    greeterMain ! ClientManager.Start(user)
+    greeterMain ! ClientManager.FindServer
 
-    greeterMain ! ClientManager.CreateSession(Array(user.uuid))
+    // ! DELETE this part when linking front end and back end
+    entry match {
+        case "login" => greeterMain ! ClientManager.LogIn(username, password)
+        case "signup" => greeterMain ! ClientManager.SignUp(username, password)
+    }
 
-    val sessionId = scala.io.StdIn.readLine("sessionId=")
+    var sessionId: String = null
+    val session = scala.io.StdIn.readLine("Create or Join")
+    session match {
+        case "create" =>
+        greeterMain ! ClientManager.CreateSession()
+        sessionId = scala.io.StdIn.readLine("sessionId=")
+
+        case "join" =>
+        sessionId = scala.io.StdIn.readLine("sessionId=")
+        greeterMain ! ClientManager.JoinSession(sessionId.toLong)
+    }
+
     var message = scala.io.StdIn.readLine("message=")
+
     while (message != "end"){
-        greeterMain ! ClientManager.SendMessage(sessionId, message)
+        greeterMain ! ClientManager.SendMessage(sessionId.toLong, message)
         message = scala.io.StdIn.readLine("message=")
     }
 

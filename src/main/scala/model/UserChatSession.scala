@@ -1,13 +1,13 @@
 package model
+
 import scala.util.Try
 import util.Database
 import scalikejdbc._
-import model.{ User, ChatSession }
 import java.util.UUID
 import java.util.Date
 import util.UserRoles
 
-case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles.UserRole = UserRoles.MEMBER) extends Database {
+case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles.UserRole = UserRoles.MEMBER) {
     var id: Long = 0
     var userId: Long = _userId
     var chatSessionId: Long = _chatSessionId
@@ -86,6 +86,8 @@ case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles
             Try(id)
         }
     }
+
+    override def toString = s"UserChatSession(${id}, user:${userId}, chatSession:${chatSessionId})"
 }
 
 object UserChatSession extends Database {
@@ -104,11 +106,10 @@ object UserChatSession extends Database {
                 join user_chat_sessions ucs on u.id = ucs.user_id
                 where ucs.chat_session_id = ${chatSessionId.intValue()}
             """.map(res => User(
-                res.int("id"), 
-                res.string("uuid"), 
-                res.string("username"), 
-                res.string("password"), 
-                res.timestamp("created_at"), 
+                res.int("id"),
+                res.string("username"),
+                res.string("password"),
+                res.timestamp("created_at"),
                 res.timestamp("updated_at")
             )).list.apply()
         }
@@ -147,12 +148,27 @@ object UserChatSession extends Database {
         }
     }
 
+
+    def selectAll: List[UserChatSession] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select * from user_chat_sessions
+            """.map(res => UserChatSession(
+                res.int("id"),
+                res.int("user_id"),
+                res.int("chat_session_id"),
+                if (res.string("role") == "ADMIN") UserRoles.ADMIN else UserRoles.MEMBER,
+                res.timestamp("joined_at")
+            )).list.apply()
+        }
+    }
+
     def seed() = {
         DB autoCommit { implicit session =>
             sql"""
                 insert into user_chat_sessions (user_id, chat_session_id, role)
-                values 
-                    (1, 1, 'ADMIN'), 
+                values
+                    (1, 1, 'ADMIN'),
                     (2, 1, 'MEMBER'),
                     (3, 1, 'MEMBER'),
                     (2, 2, 'ADMIN'),

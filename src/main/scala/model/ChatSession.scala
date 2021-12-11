@@ -1,13 +1,12 @@
 package model
+
 import scala.util.Try
 import util.Database
 import scalikejdbc._
-import model.{ User, Message }
 import java.util.Date
-import java.util.UUID
 import util.UserRoles
 
-case class ChatSession(_name: String, _description: String, _creatorId: Long) extends Database {
+case class ChatSession(_name: String, _description: String, _creatorId: Long) {
     var id: Long = -1
     var name: String = _name
     var description: String = _description
@@ -51,7 +50,7 @@ case class ChatSession(_name: String, _description: String, _creatorId: Long) ex
 
     def create(): Try[Long] = {
         Try (
-            DB autoCommit { implicit session => 
+            DB autoCommit { implicit session =>
                 id = sql"""
                     insert into chat_sessions (name, description, creator_id)
                     values (${name}, ${description}, ${creatorId})
@@ -88,6 +87,8 @@ case class ChatSession(_name: String, _description: String, _creatorId: Long) ex
             }
         )
     }
+
+    override def toString = s"ChatSession(${id}, ${name}, creator:${creatorId})"
 }
 
 object ChatSession extends Database {
@@ -138,11 +139,26 @@ object ChatSession extends Database {
                 select * from messages
                 where chat_session_id = ${chatSessionId}
             """.map(res => Message(
-                res.int("id"), 
-                res.string("content"), 
-                res.int("sender_id"), 
-                res.int("chat_session_id"), 
-                res.timestamp("created_at"), 
+                res.int("id"),
+                res.string("content"),
+                res.int("sender_id"),
+                res.int("chat_session_id"),
+                res.timestamp("created_at"),
+                res.timestamp("updated_at")
+            )).list.apply()
+        }
+    }
+
+    def selectAll: List[ChatSession] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select * from chat_sessions
+            """.map(res => ChatSession(
+                res.long("id"),
+                res.string("name"),
+                res.string("description"),
+                res.long("creator_id"),
+                res.timestamp("created_at"),
                 res.timestamp("updated_at")
             )).list.apply()
         }
@@ -152,8 +168,8 @@ object ChatSession extends Database {
         DB autoCommit { implicit session =>
             sql"""
                 insert into chat_sessions (name, description, creator_id)
-                values 
-                    ('general', 'general chat', 1), 
+                values
+                    ('general', 'general chat', 1),
                     ('private', 'private chat', 2)
             """.update().apply()
         }

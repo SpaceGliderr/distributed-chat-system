@@ -4,9 +4,8 @@ import util.Database
 import scalikejdbc._
 // import model.{ User, ChatSession }
 import java.util.Date
-import java.util.UUID
 
-case class Message(_content: String, _senderId: Long, _chatSessionId: Long) extends Database {
+case class Message(_content: String, _senderId: Long, _chatSessionId: Long) {
     var id: Long = 0
     var content: String = _content
     var senderId: Long = _senderId
@@ -46,6 +45,8 @@ case class Message(_content: String, _senderId: Long, _chatSessionId: Long) exte
             })
         }
     }
+
+    override def toString = s"Message(${id}, ${content}, sender:${senderId}, chat_session: ${chatSessionId})"
 }
 
 object Message extends Database {
@@ -75,11 +76,26 @@ object Message extends Database {
         }
     }
 
+     def selectAll: List[Message] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select * from messages
+            """.map(res => Message(
+                res.int("id"),
+                res.string("content"),
+                res.int("sender_id"),
+                res.int("chat_session_id"),
+                res.timestamp("created_at"),
+                res.timestamp("updated_at")
+            )).list.apply()
+        }
+    }
+
     def seed() = {
         DB autoCommit { implicit session =>
             sql"""
                 insert into messages (content, sender_id, chat_session_id)
-                values 
+                values
                     ('Hello everyone from Shi Qi', 2, 1),
                     ('Hello everyone from Nick', 1, 1),
                     ('Hello John from Shi Qi', 2, 2),
