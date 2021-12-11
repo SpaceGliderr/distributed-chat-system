@@ -22,3 +22,7 @@ libraryDependencies ++= Seq(
   "com.h2database"  %  "h2"                % "1.4.200",
   "ch.qos.logback"  %  "logback-classic"   % "1.2.3"
 )
+
+addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
+
+fork := true

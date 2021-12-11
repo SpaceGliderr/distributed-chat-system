@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" styleClass="backgroundColour" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chat.view.LogInController">
+   <children>
+      <Text layoutX="188.0" layoutY="109.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Log In" textAlignment="CENTER" wrappingWidth="224.00000095367432" AnchorPane.leftAnchor="188.0" AnchorPane.topAnchor="62.82400131225586">
+         <font>
+            <Font name="Elephant" size="48.0" />
+         </font>
+      </Text>
+      <HBox layoutX="182.0" layoutY="304.0" spacing="100.0">
+         <children>
+            <Button defaultButton="true" mnemonicParsing="false" onAction="#login" prefHeight="25.0" prefWidth="70.0" text="Log In">
+               <font>
+                  <Font name="Kristen ITC" size="14.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+            <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" text="Cancel">
+               <font>
+                  <Font name="Kristen ITC" size="14.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+         </children>
+      </HBox>
+      <VBox layoutX="159.0" layoutY="148.0" spacing="15.0">
+         <children>
+            <VBox spacing="5.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Please enter your phone number:">
+                     <font>
+                        <Font name="Century Gothic" size="14.666666984558105" />
+                     </font>
+                  </Text>
+                  <TextField fx:id="phoneNumTextField" minWidth="235.0" prefHeight="31.0" prefWidth="283.0" promptText="0123456789 or 01234567890" />
+               </children>
+            </VBox>
+            <VBox spacing="5.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Please enter your password:">
+                     <font>
+                        <Font name="Century Gothic" size="14.0" />
+                     </font>
+                  </Text>
+                  <PasswordField fx:id="passwordTextField" minWidth="235.0" prefHeight="31.0" prefWidth="283.0" />
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
