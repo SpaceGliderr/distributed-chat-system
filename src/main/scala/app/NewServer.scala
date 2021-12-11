@@ -14,7 +14,7 @@ object ServerManager {
     case class CreateSession(participants: Array[String]) extends Command
     case class JoinSession(sessionId: String, participants: Array[String]) extends Command
     case class SendMessage(sessionId: String, message: String) extends Command
-    case class CreateUser(from: ActorRef[ClientManager.Command], user: User) extends Command
+    case class CreateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
     case class AuthenticateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
     // case object TestCreateSession extends Command
     // case class TestJoinSession(sessionId: String) extends Command
@@ -88,8 +88,12 @@ object ServerManager {
 
                         Behaviors.same
 
-                    case CreateUser(from, user) =>
-                        println(s"Server received request to create user")
+                    case CreateUser(from, username, password) =>
+                        println(s"Server received a request to create user")
+
+                        val user = new User(randomUUID.toString, username, password)
+                        user.upsert()
+                        println(User.selectAll)
 
                         // Add User to userMap
                         userMap += (user.uuid -> from)

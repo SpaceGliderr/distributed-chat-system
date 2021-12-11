@@ -63,31 +63,24 @@ object ClientManager {
                         Behaviors.same
 
                     case SignUp(username, password) =>
-                        val user = new User(randomUUID.toString, username, password)
-
-                        // context.self ! FindServer
-
                         for (remote <- remoteOpt) {
-                            remote ! ServerManager.CreateUser(context.self, user)
+                            remote ! ServerManager.CreateUser(context.self, username, password)
                         }
                         Behaviors.same
 
                     case LogIn(username, password) =>
-                        // context.self ! FindServer
                         for (remote <- remoteOpt) {
                             remote ! ServerManager.AuthenticateUser(context.self, username, password)
                         }
                         Behaviors.same
-                        
+
                     case CreateSession(participants: Array[String]) =>
-                        // context.self ! FindServer
                         for (remote <- remoteOpt) {
                             remote ! ServerManager.CreateSession(participants)
                         }
                         Behaviors.same
 
                     case SendMessage(sessionId, message) =>
-                        // context.self ! FindServer
                         for (remote <- remoteOpt) {
                             remote ! ServerManager.SendMessage(sessionId, message)
                         }
@@ -115,6 +108,7 @@ object NewClient extends App {
 
     greeterMain ! ClientManager.FindServer
 
+    // ! used when only without frontend
     status match {
         case "login" => greeterMain ! ClientManager.LogIn(username, password)
         case "signup" => greeterMain ! ClientManager.SignUp(username, password)
