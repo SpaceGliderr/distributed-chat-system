@@ -99,7 +99,7 @@ object ClientManager {
                     case SendMessage(sessionId, message) =>
                         println(s"Current User >>> ${user}")
                         for (remote <- remoteOpt) {
-                            remote ! ServerManager.SendMessage(sessionId, message)
+                            remote ! ServerManager.SendMessage(sessionId, message, user.id)
                         }
                         Behaviors.same
 

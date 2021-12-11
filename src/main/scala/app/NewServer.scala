@@ -13,7 +13,7 @@ object ServerManager {
     // ! problem to get creator id
     case class CreateSession(participants: Array[Long]) extends Command
     case class JoinSession(sessionId: Long, participants: Array[Long]) extends Command
-    case class SendMessage(sessionId: Long, message: String) extends Command
+    case class SendMessage(sessionId: Long, message: String, senderId: Long) extends Command
     case class CreateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
     case class AuthenticateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
     // case object TestCreateSession extends Command
@@ -84,9 +84,10 @@ object ServerManager {
 
                         Behaviors.same
 
-                    case SendMessage(sessionId, message) =>
+                    case SendMessage(sessionId, message, senderId) =>
                         println(s"Server received message '${message}'")
-
+                        val msg = new model.Message(message, senderId, sessionId)
+                        msg.upsert()
                         chatSessionMap.get(sessionId).foreach(room => {
                             room ! ChatRoom.Publish(message)
                         })
@@ -166,10 +167,17 @@ object NewServer extends App {
         var b = Message.selectAll
         var c = UserChatSession.selectAll
         var d = ChatSession.selectAll
-        println(a)
-        println(b)
-        println(c)
-        println(d)
+        println("USER ------>")
+        a.foreach(x => println(x))
+
+        println("\nCHAT SESSION ------>")
+        d.foreach(x => println(x))
+
+        println("\nUSER CHAT SESSION ------>")
+        c.foreach(x => println(x))
+
+        println("\nMESSAGE ------>")
+        b.foreach(x => println(x))
 
         msg = scala.io.StdIn.readLine("see database")
     }
