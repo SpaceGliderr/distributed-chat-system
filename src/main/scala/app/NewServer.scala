@@ -5,7 +5,7 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.receptionist.{Receptionist,ServiceKey}
 import scalafx.beans.property.StringProperty
 import model.{User, ChatSession, UserChatSession, Message}
-import util.Database
+import util.{Database, UserRoles}
 
 object ServerManager {
     sealed trait Command
@@ -40,7 +40,8 @@ object ServerManager {
 
                         // Spawn Chat Room actor
                         val chatSession = new ChatSession("something", "something", participants(0))
-                        chatSession.upsert()
+                        chatSession.create()
+                        // UserChatSession will be created in chatSession.create() method
 
                         val chatRoom = context.spawn(ChatRoom(), chatSession.id.toString)
 
@@ -67,6 +68,9 @@ object ServerManager {
                         println(s"Session ID: ${sessionId}")
                         println(chatSessionMap)
 
+                        val userChatSession = new UserChatSession(participants(0), sessionId)
+                        userChatSession.upsert()
+
                         var p = Array[ActorRef[ClientManager.Command]]()
 
                         participants.foreach(participant =>
@@ -81,7 +85,6 @@ object ServerManager {
                         Behaviors.same
 
                     case SendMessage(sessionId, message) =>
-                        println("send msg")
                         println(s"Server received message '${message}'")
 
                         chatSessionMap.get(sessionId).foreach(room => {
@@ -153,9 +156,24 @@ object ServerManager {
 
 object NewServer extends App {
     Database.setupDB()
-    // User.users ++= User.selectAll
 
     val greeterMain: ActorSystem[ServerManager.Command] = ActorSystem(ServerManager(), "HelloSystem")
+
+    var msg = scala.io.StdIn.readLine("see database")
+
+    while (msg != "end"){
+        var a = User.selectAll
+        var b = Message.selectAll
+        var c = UserChatSession.selectAll
+        var d = ChatSession.selectAll
+        println(a)
+        println(b)
+        println(c)
+        println(d)
+
+        msg = scala.io.StdIn.readLine("see database")
+    }
+
 
 
     // greeterMain ! ServerManager.TestCreateSession

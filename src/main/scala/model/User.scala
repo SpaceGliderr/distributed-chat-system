@@ -4,9 +4,9 @@
 // The password should be a string.
 
 package model
+
 import scalafx.beans.property.{ObjectProperty, StringProperty}
 import scalafx.collections.ObservableBuffer
-
 import scala.util.Try
 import util.Database
 import scalikejdbc._
@@ -48,7 +48,6 @@ case class User(_username: String, _password: String) {
                         values (${username}, ${password})
                     """.updateAndReturnGeneratedKey.apply()
                     id.intValue
-
             })
 
         // for existing records, update new information

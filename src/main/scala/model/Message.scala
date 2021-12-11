@@ -45,6 +45,8 @@ case class Message(_content: String, _senderId: Long, _chatSessionId: Long) {
             })
         }
     }
+
+    override def toString = s"Message(${id}, ${content}, sender:${senderId}, chat_session: ${chatSessionId})"
 }
 
 object Message extends Database {
@@ -71,6 +73,21 @@ object Message extends Database {
                     primary key (id)
                 )
             """.execute().apply()
+        }
+    }
+
+     def selectAll: List[Message] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select * from messages
+            """.map(res => Message(
+                res.int("id"),
+                res.string("content"),
+                res.int("sender_id"),
+                res.int("chat_session_id"),
+                res.timestamp("created_at"),
+                res.timestamp("updated_at")
+            )).list.apply()
         }
     }
 

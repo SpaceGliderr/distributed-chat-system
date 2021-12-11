@@ -87,6 +87,8 @@ case class ChatSession(_name: String, _description: String, _creatorId: Long) {
             }
         )
     }
+
+    override def toString = s"ChatSession(${id}, ${name}, creator:${creatorId})"
 }
 
 object ChatSession extends Database {
@@ -141,6 +143,21 @@ object ChatSession extends Database {
                 res.string("content"),
                 res.int("sender_id"),
                 res.int("chat_session_id"),
+                res.timestamp("created_at"),
+                res.timestamp("updated_at")
+            )).list.apply()
+        }
+    }
+
+    def selectAll: List[ChatSession] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select * from chat_sessions
+            """.map(res => ChatSession(
+                res.long("id"),
+                res.string("name"),
+                res.string("description"),
+                res.long("creator_id"),
                 res.timestamp("created_at"),
                 res.timestamp("updated_at")
             )).list.apply()

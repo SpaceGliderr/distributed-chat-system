@@ -86,6 +86,8 @@ case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles
             Try(id)
         }
     }
+
+    override def toString = s"UserChatSession(${id}, user:${userId}, chatSession:${chatSessionId})"
 }
 
 object UserChatSession extends Database {
@@ -143,6 +145,21 @@ object UserChatSession extends Database {
                     primary key (id)
                 )
             """.execute().apply()
+        }
+    }
+
+
+    def selectAll: List[UserChatSession] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select * from user_chat_sessions
+            """.map(res => UserChatSession(
+                res.int("id"),
+                res.int("user_id"),
+                res.int("chat_session_id"),
+                if (res.string("role") == "ADMIN") UserRoles.ADMIN else UserRoles.MEMBER,
+                res.timestamp("joined_at")
+            )).list.apply()
         }
     }
 
