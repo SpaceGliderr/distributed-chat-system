@@ -16,7 +16,7 @@ import java.time._
 import java.util.Date
 
 
-class User(_uuid: String, _username: String, _password: String) extends Database {
+case class User(_uuid: String, _username: String, _password: String) {
 
     // properties
     var id: Long = -1
@@ -104,11 +104,11 @@ object User extends Database{
                 where username = ${username}
                 and password = ${password}
             """.map(res => User(
-                res.int("id"), 
-                res.string("uuid"), 
-                res.string("username"), 
-                res.string("password"), 
-                res.timestamp("created_at"), 
+                res.int("id"),
+                res.string("uuid"),
+                res.string("username"),
+                res.string("password"),
+                res.timestamp("created_at"),
                 res.timestamp("updated_at")
             )).single.apply()
         }
@@ -120,11 +120,11 @@ object User extends Database{
                 select * from users
                 where id = ${id}
             """.map(res => User(
-                res.int("id"), 
-                res.string("uuid"), 
-                res.string("username"), 
-                res.string("password"), 
-                res.timestamp("created_at"), 
+                res.int("id"),
+                res.string("uuid"),
+                res.string("username"),
+                res.string("password"),
+                res.timestamp("created_at"),
                 res.timestamp("updated_at")
             )).single.apply()
         }
@@ -135,11 +135,11 @@ object User extends Database{
             sql"""
                 select * from users
             """.map(res => User(
-                res.int("id"), 
-                res.string("uuid"), 
-                res.string("username"), 
-                res.string("password"), 
-                res.timestamp("created_at"), 
+                res.int("id"),
+                res.string("uuid"),
+                res.string("username"),
+                res.string("password"),
+                res.timestamp("created_at"),
                 res.timestamp("updated_at")
             )).list.apply()
         }
@@ -152,11 +152,11 @@ object User extends Database{
                 select * from users
                 where username like ${q}
             """.map(res => User(
-                res.int("id"), 
-                res.string("uuid"), 
-                res.string("username"), 
-                res.string("password"), 
-                res.timestamp("created_at"), 
+                res.int("id"),
+                res.string("uuid"),
+                res.string("username"),
+                res.string("password"),
+                res.timestamp("created_at"),
                 res.timestamp("updated_at")
             )).list.apply()
         }
@@ -166,7 +166,7 @@ object User extends Database{
         DB autoCommit { implicit session =>
             sql"""
                 insert into users (uuid, username, password)
-                values 
+                values
                     ('something', 'nick', '1234'),
                     ('something', 'shi qi', '5678'),
                     ('something', 'john', '9101')

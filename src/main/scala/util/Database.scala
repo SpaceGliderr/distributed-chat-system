@@ -33,7 +33,7 @@ object Database extends Database {
 
         if (!hasDBInitialize("messages"))
             Message.initializeTable()
-        
+
         if (!hasDBInitialize("user_chat_sessions"))
             UserChatSession.initializeTable()
 

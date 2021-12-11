@@ -6,7 +6,7 @@ import scalikejdbc._
 import java.util.Date
 import java.util.UUID
 
-case class Message(_content: String, _senderId: Long, _chatSessionId: Long) extends Database {
+case class Message(_content: String, _senderId: Long, _chatSessionId: Long) {
     var id: Long = 0
     var content: String = _content
     var senderId: Long = _senderId
@@ -79,7 +79,7 @@ object Message extends Database {
         DB autoCommit { implicit session =>
             sql"""
                 insert into messages (content, sender_id, chat_session_id)
-                values 
+                values
                     ('Hello everyone from Shi Qi', 2, 1),
                     ('Hello everyone from Nick', 1, 1),
                     ('Hello John from Shi Qi', 2, 2),
