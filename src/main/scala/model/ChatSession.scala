@@ -1,8 +1,8 @@
 package model
+
 import scala.util.Try
 import util.Database
 import scalikejdbc._
-import model.{ User, Message }
 import java.util.Date
 import util.UserRoles
 

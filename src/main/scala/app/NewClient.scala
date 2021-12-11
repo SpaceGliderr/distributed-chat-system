@@ -8,7 +8,6 @@ import scalafx.beans.property.StringProperty
 // import ClientManager.Command
 import model.{User}
 import util.Database
-import java.util.UUID.randomUUID
 
 // Documentation regarding the Actor Receptionist, Listing, etc.
 // https://alvinalexander.com/scala/akka-typed-how-lookup-find-actor-receptionist/
@@ -20,11 +19,15 @@ object ClientManager {
     case class Message(message: String) extends Command
     case class SignUp(username: String, password: String) extends Command
     case class LogIn(username: String, password: String) extends Command
-    case class CreateSession(participants: Array[String]) extends Command
-    case class SendMessage(sessionId: String, message: String) extends Command
+    // case class CreateSession(participants: Array[String]) extends Command
+    case class CreateSession() extends Command
+    case class JoinSession(sessionId: Long) extends Command
+    case class SendMessage(sessionId: Long, message: String) extends Command
+    case class UpdateUser(user: User) extends Command
     // case class User(id: String, username: String, password: String) extends Command
 
     var user: User = null
+
 
     def apply(): Behavior[ClientManager.Command] =
         Behaviors.setup { context =>
@@ -42,6 +45,7 @@ object ClientManager {
 
             // Subscribe to events related to the Server actor
             context.system.receptionist ! Receptionist.Subscribe(ServerManager.ServerKey, listingAdapter)
+
             Behaviors.receiveMessage { message =>
                 message match {
                     case FindServer =>
@@ -74,16 +78,34 @@ object ClientManager {
                         }
                         Behaviors.same
 
-                    case CreateSession(participants: Array[String]) =>
+                    // case CreateSession(participants: Array[String]) =>
+                    //     for (remote <- remoteOpt) {
+                    //         remote ! ServerManager.CreateSession(participants)
+                    //     }
+                    //     Behaviors.same
+
+                    case CreateSession() =>
                         for (remote <- remoteOpt) {
-                            remote ! ServerManager.CreateSession(participants)
+                            remote ! ServerManager.CreateSession(Array(user.id))
+                        }
+                        Behaviors.same
+
+                    case JoinSession(sessionId) =>
+                        for (remote <- remoteOpt) {
+                            remote ! ServerManager.JoinSession(sessionId , Array(user.id))
                         }
                         Behaviors.same
 
                     case SendMessage(sessionId, message) =>
+                        println(s"Current User >>> ${user}")
                         for (remote <- remoteOpt) {
                             remote ! ServerManager.SendMessage(sessionId, message)
                         }
+                        Behaviors.same
+
+                    case UpdateUser(u: User) =>
+                        user = u
+                        println(s"Current User >>> ${user}")
                         Behaviors.same
                 }
             }
@@ -102,31 +124,37 @@ object NewClient extends App {
     //     println("Variable text ", text)
     //     text = scala.io.StdIn.readLine("command=")
     // }
-    val status = scala.io.StdIn.readLine("Login or Signup")
+
+    val entry = scala.io.StdIn.readLine("Login or Signup")
     val username = scala.io.StdIn.readLine("Enter Username: ")
     val password = scala.io.StdIn.readLine("Enter Password: ")
 
     greeterMain ! ClientManager.FindServer
 
-    // ! used when only without frontend
-    status match {
+    // ! DELETE this part when linking front end and back end
+    entry match {
         case "login" => greeterMain ! ClientManager.LogIn(username, password)
         case "signup" => greeterMain ! ClientManager.SignUp(username, password)
     }
-    // var user: User = null
-    // val user = ClientManager.User(randomUUID.toString, username, password)
-    // val user = new User(randomUUID.toString, username, password)
 
-    // greeterMain ! ClientManager.Start(username, password)
+    var sessionId: String = null
+    val session = scala.io.StdIn.readLine("Create or Join")
+    session match {
+        case "create" =>
+        greeterMain ! ClientManager.CreateSession()
+        sessionId = scala.io.StdIn.readLine("sessionId=")
 
-    // greeterMain ! ClientManager.CreateSession(Array(user.uuid))
+        case "join" =>
+        sessionId = scala.io.StdIn.readLine("sessionId=")
+        greeterMain ! ClientManager.JoinSession(sessionId.toLong)
+    }
 
-    // val sessionId = scala.io.StdIn.readLine("sessionId=")
-    // var message = scala.io.StdIn.readLine("message=")
-    // while (message != "end"){
-    //     greeterMain ! ClientManager.SendMessage(sessionId, message)
-    //     message = scala.io.StdIn.readLine("message=")
-    // }
+    var message = scala.io.StdIn.readLine("message=")
 
-    // greeterMain.terminate
+    while (message != "end"){
+        greeterMain ! ClientManager.SendMessage(sessionId.toLong, message)
+        message = scala.io.StdIn.readLine("message=")
+    }
+
+    greeterMain.terminate
 }

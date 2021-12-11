@@ -86,7 +86,7 @@ object Test {
     // TEST USER INSERTS AND UPDATES
     def testUserCreate: Long = {
         println(s"| CURRENTLY TESTING ${currentMethodName} |")
-        val user = new User("uuid", "someone new", "1234")
+        val user = new User("someone new", "1234")
         val userId = user.upsert.get
         println(s"USER ID RETRIEVED >>>>>>>> ${userId}")
         userId
@@ -94,7 +94,7 @@ object Test {
 
     def testUserUpdate = {
         println(s"| CURRENTLY TESTING ${currentMethodName} |")
-        val user = new User("uuid", "updated name", "1234") {
+        val user = new User("updated name", "1234") {
             id = 2
         }
         println(s"UPDATED USER ID RETRIEVED >>>>>>>> ${user.upsert}")

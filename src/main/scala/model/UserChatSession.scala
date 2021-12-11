@@ -1,8 +1,8 @@
 package model
+
 import scala.util.Try
 import util.Database
 import scalikejdbc._
-import model.{ User, ChatSession }
 import java.util.UUID
 import java.util.Date
 import util.UserRoles
@@ -105,7 +105,6 @@ object UserChatSession extends Database {
                 where ucs.chat_session_id = ${chatSessionId.intValue()}
             """.map(res => User(
                 res.int("id"),
-                res.string("uuid"),
                 res.string("username"),
                 res.string("password"),
                 res.timestamp("created_at"),
