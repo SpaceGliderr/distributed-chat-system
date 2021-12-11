@@ -15,6 +15,7 @@ object ServerManager {
     case class JoinSession(sessionId: String, participants: Array[String]) extends Command
     case class SendMessage(sessionId: String, message: String) extends Command
     case class CreateUser(from: ActorRef[ClientManager.Command], user: User) extends Command
+    case class AuthenticateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
     // case object TestCreateSession extends Command
     // case class TestJoinSession(sessionId: String) extends Command
     // case class TestSendMessage(sessionId: String, message: String) extends Command
@@ -32,8 +33,8 @@ object ServerManager {
                 message match {
                     case Message(value, from) =>
                         println(s"Server received message '${value}'")
-
                         Behaviors.same
+
                     case CreateSession(participants) =>
                         println(s"Server received request to create session")
 
@@ -57,6 +58,7 @@ object ServerManager {
                         chatRoom ! ChatRoom.Publish("Welcome to Hello System!")
 
                         Behaviors.same
+
                     case JoinSession(sessionId, participants) =>
                         println("Server received request to join session")
 
@@ -75,6 +77,7 @@ object ServerManager {
                         })
 
                         Behaviors.same
+
                     case SendMessage(sessionId, message) =>
                         println("send msg")
                         println(s"Server received message '${message}'")
@@ -84,12 +87,23 @@ object ServerManager {
                         })
 
                         Behaviors.same
+
                     case CreateUser(from, user) =>
                         println(s"Server received request to create user")
 
                         // Add User to userMap
                         userMap += (user.uuid -> from)
 
+                        Behaviors.same
+
+                    case AuthenticateUser(from, username, password) =>
+                        println(s"Server received request to authenticate user")
+                        User.login(username, password) match {
+                            case Some(user) =>
+                                from ! ClientManager.Message("Successfully Logged In!")
+                            case None =>
+                                from ! ClientManager.Message("INVALID USERNAME/PASSWORD")
+                        }
                         Behaviors.same
                     // case TestCreateSession =>
                     //     println("Testing Server")

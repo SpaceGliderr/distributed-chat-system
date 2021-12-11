@@ -5,8 +5,9 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.receptionist.{Receptionist,ServiceKey}
 import com.typesafe.config.ConfigFactory
 import scalafx.beans.property.StringProperty
-import ClientManager.Command
+// import ClientManager.Command
 import model.{User}
+import util.Database
 import java.util.UUID.randomUUID
 
 // Documentation regarding the Actor Receptionist, Listing, etc.
@@ -15,8 +16,10 @@ object ClientManager {
     sealed trait Command
     final case object FindServer extends Command
     private case class ListingResponse(listing: Receptionist.Listing) extends Command
-    case class Start(user: User) extends Command
+    // case class Start(username: String, password: String) extends Command
     case class Message(message: String) extends Command
+    case class SignUp(username: String, password: String) extends Command
+    case class LogIn(username: String, password: String) extends Command
     case class CreateSession(participants: Array[String]) extends Command
     case class SendMessage(sessionId: String, message: String) extends Command
     // case class User(id: String, username: String, password: String) extends Command
@@ -28,6 +31,7 @@ object ClientManager {
             // The program can't initially get a reference to the Server actor
             // Therefore, this variable is a var and uses Option / None
             var remoteOpt: Option[ActorRef[ServerManager.Command]] = None
+
             // Creates an ActorRef of Receptionist.Listing "adapter"
             // - Adapter is a wrapper of a class that allows another class to interact with it
             val listingAdapter: ActorRef[Receptionist.Listing] =
@@ -44,6 +48,7 @@ object ClientManager {
                         // Send a message to the Receptionist to find any/all listings with ServerKey
                         context.system.receptionist ! Receptionist.Find(ServerManager.ServerKey, listingAdapter)
                         Behaviors.same
+
                     case ListingResponse(ServerManager.ServerKey.Listing(listings)) =>
                         // Receptionist sends a ListingResponse message
                         // `listings` variable is a set of ActorRefs of type Server.Command
@@ -52,28 +57,35 @@ object ClientManager {
                             remoteOpt = Some(x)
                         }
                         Behaviors.same
-                    // case Start =>
-                    //     context.self ! FindServer
-                    //     for (remote <- remoteOpt){
-                    //         // TODO: Send message to Server here
-                    //     }
-                    //     Behaviors.same
+
                     case Message(message) =>
                         println(s"Message received on Client ${context.self.path.name}: ${message}")
                         Behaviors.same
-                    case Start(details: User) =>
-                        user = details
-                        context.self ! FindServer
+
+                    case SignUp(username, password) =>
+                        val user = new User(randomUUID.toString, username, password)
+
+                        // context.self ! FindServer
+
                         for (remote <- remoteOpt) {
                             remote ! ServerManager.CreateUser(context.self, user)
                         }
                         Behaviors.same
+
+                    case LogIn(username, password) =>
+                        // context.self ! FindServer
+                        for (remote <- remoteOpt) {
+                            remote ! ServerManager.AuthenticateUser(context.self, username, password)
+                        }
+                        Behaviors.same
+                        
                     case CreateSession(participants: Array[String]) =>
                         // context.self ! FindServer
                         for (remote <- remoteOpt) {
                             remote ! ServerManager.CreateSession(participants)
                         }
                         Behaviors.same
+
                     case SendMessage(sessionId, message) =>
                         // context.self ! FindServer
                         for (remote <- remoteOpt) {
@@ -97,22 +109,30 @@ object NewClient extends App {
     //     println("Variable text ", text)
     //     text = scala.io.StdIn.readLine("command=")
     // }
-    val username = scala.io.StdIn.readLine("username=")
-    val password = scala.io.StdIn.readLine("password=")
+    val status = scala.io.StdIn.readLine("Login or Signup")
+    val username = scala.io.StdIn.readLine("Enter Username: ")
+    val password = scala.io.StdIn.readLine("Enter Password: ")
 
-    // val user = ClientManager.User(randomUUID.toString, username, password)
-    val user = new User(randomUUID.toString, username, password)
+    greeterMain ! ClientManager.FindServer
 
-    greeterMain ! ClientManager.Start(user)
-
-    greeterMain ! ClientManager.CreateSession(Array(user.uuid))
-
-    val sessionId = scala.io.StdIn.readLine("sessionId=")
-    var message = scala.io.StdIn.readLine("message=")
-    while (message != "end"){
-        greeterMain ! ClientManager.SendMessage(sessionId, message)
-        message = scala.io.StdIn.readLine("message=")
+    status match {
+        case "login" => greeterMain ! ClientManager.LogIn(username, password)
+        case "signup" => greeterMain ! ClientManager.SignUp(username, password)
     }
+    // var user: User = null
+    // val user = ClientManager.User(randomUUID.toString, username, password)
+    // val user = new User(randomUUID.toString, username, password)
 
-    greeterMain.terminate
+    // greeterMain ! ClientManager.Start(username, password)
+
+    // greeterMain ! ClientManager.CreateSession(Array(user.uuid))
+
+    // val sessionId = scala.io.StdIn.readLine("sessionId=")
+    // var message = scala.io.StdIn.readLine("message=")
+    // while (message != "end"){
+    //     greeterMain ! ClientManager.SendMessage(sessionId, message)
+    //     message = scala.io.StdIn.readLine("message=")
+    // }
+
+    // greeterMain.terminate
 }
