@@ -5,6 +5,7 @@ import chat.Main
 import scalafx.event.ActionEvent
 import scalafx.scene.control.Alert
 import scalafx.scene.control.Alert.AlertType
+import javafx.stage.Stage
 
 @sfxml
 class RootLayoutController() {
@@ -14,6 +15,9 @@ class RootLayoutController() {
 
     def handleLogOut() {
         Main.showPages("view/Home.fxml")
+        Main.stage.scene().getWindow().asInstanceOf[Stage].setMaximized(false)
+        Main.roots.getTop().setVisible(false)
+        Main.stage.resizable_=(false)
     }
 
     def handleAbout(action: ActionEvent) {
