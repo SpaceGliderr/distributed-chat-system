@@ -1,6 +1,5 @@
 // User model for a chat user
 // Build a User class that has the following properties: ID, username and password.
-// The ID should be a UUID identifier for the user.
 // The username should be a string.
 // The password should be a string.
 
@@ -16,11 +15,10 @@ import java.time._
 import java.util.Date
 
 
-case class User(_uuid: String, _username: String, _password: String) {
+case class User(_username: String, _password: String) {
 
     // properties
     var id: Long = -1
-    var uuid: String = _uuid
     var username: String = _username
     var password: String = _password
     var createdAt: Date = null
@@ -46,8 +44,8 @@ case class User(_uuid: String, _username: String, _password: String) {
             Try (DB autoCommit {
                 implicit session =>
                     id = sql"""
-                        insert into users(uuid, username, password)
-                        values (${uuid}, ${username}, ${password})
+                        insert into users(username, password)
+                        values (${username}, ${password})
                     """.updateAndReturnGeneratedKey.apply()
                     id.intValue
 
@@ -67,13 +65,16 @@ case class User(_uuid: String, _username: String, _password: String) {
             })
         }
     }
+
+    override def toString = s"User(${id}, ${username}, ${password})"
+
 }
 
 object User extends Database{
     val users = new ObservableBuffer[User]()
 
-    def apply(_id: Long, _uuid: String, _username: String, _password: String, _createdAt: Date, _updatedAt: Date): User = {
-        new User(_uuid, _username, _password) {
+    def apply(_id: Long,  _username: String, _password: String, _createdAt: Date, _updatedAt: Date): User = {
+        new User(_username, _password) {
             id = _id
             createdAt = _createdAt
             updatedAt = _updatedAt
@@ -85,7 +86,6 @@ object User extends Database{
             sql"""
                 create table users (
                     id int GENERATED ALWAYS AS IDENTITY,
-                    uuid varchar(64) not null,
                     username varchar(64),
                     password varchar(64),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -105,7 +105,6 @@ object User extends Database{
                 and password = ${password}
             """.map(res => User(
                 res.int("id"),
-                res.string("uuid"),
                 res.string("username"),
                 res.string("password"),
                 res.timestamp("created_at"),
@@ -121,7 +120,6 @@ object User extends Database{
                 where id = ${id}
             """.map(res => User(
                 res.int("id"),
-                res.string("uuid"),
                 res.string("username"),
                 res.string("password"),
                 res.timestamp("created_at"),
@@ -136,7 +134,6 @@ object User extends Database{
                 select * from users
             """.map(res => User(
                 res.int("id"),
-                res.string("uuid"),
                 res.string("username"),
                 res.string("password"),
                 res.timestamp("created_at"),
@@ -153,7 +150,6 @@ object User extends Database{
                 where username like ${q}
             """.map(res => User(
                 res.int("id"),
-                res.string("uuid"),
                 res.string("username"),
                 res.string("password"),
                 res.timestamp("created_at"),
@@ -165,11 +161,11 @@ object User extends Database{
     def seed() = {
         DB autoCommit { implicit session =>
             sql"""
-                insert into users (uuid, username, password)
+                insert into users (username, password)
                 values
-                    ('something', 'nick', '1234'),
-                    ('something', 'shi qi', '5678'),
-                    ('something', 'john', '9101')
+                    ('nick', '1234'),
+                    ('shi qi', '5678'),
+                    ('john', '9101')
             """.update().apply()
         }
     }

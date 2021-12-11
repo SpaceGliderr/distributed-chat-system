@@ -4,7 +4,6 @@ import util.Database
 import scalikejdbc._
 import model.{ User, Message }
 import java.util.Date
-import java.util.UUID
 import util.UserRoles
 
 case class ChatSession(_name: String, _description: String, _creatorId: Long) {

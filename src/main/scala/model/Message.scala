@@ -4,7 +4,6 @@ import util.Database
 import scalikejdbc._
 // import model.{ User, ChatSession }
 import java.util.Date
-import java.util.UUID
 
 case class Message(_content: String, _senderId: Long, _chatSessionId: Long) {
     var id: Long = 0
