@@ -63,6 +63,7 @@ object Main extends JFXApp {
     loader.load(resource);
     val root1 = loader.getRoot[jfxs.Parent]
     val controller = loader.getController[NewChatOrGroupController#Controller]
+    controller.clientRef = Option(greeterMain)
 
     val window = new Stage() {
       initModality(Modality.ApplicationModal)

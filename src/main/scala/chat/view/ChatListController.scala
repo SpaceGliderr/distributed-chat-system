@@ -50,15 +50,11 @@ class ChatListController(
     Main.roots.top.value.visible_=(true)
 
     // Populate the conversations in the table
-    var names = new ObservableBuffer[String]()
-    ClientManager.chatSessions.foreach(s => names += s.name)
-    conversationList.items = names
-
-
-    // --
-    // def showConversationList() = {
-
-    // }
+    def showConversationList() = {
+        var names = new ObservableBuffer[String]()
+        ClientManager.chatSessions.foreach(s => names += s.name)
+        conversationList.items = names
+    }
 
     def search(): Unit = {
         if (!searchBar.visible.value){
@@ -109,4 +105,5 @@ class ChatListController(
                 //========================
         }
     }
+    showConversationList()
 }

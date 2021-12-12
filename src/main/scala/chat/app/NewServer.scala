@@ -13,12 +13,13 @@ object ServerManager {
     sealed trait Command
     case class Message(value: String, from: ActorRef[ClientManager.Command]) extends Command
     // ! problem to get creator id
-    case class CreateSession(participants: Array[Long]) extends Command
+    case class CreateSession(from: ActorRef[ClientManager.Command], creatorId: Long, participants: Array[Long], chatName: String) extends Command
     case class JoinSession(sessionId: Long, participants: Array[Long]) extends Command
     case class SendMessage(sessionId: Long, message: String, senderId: Long) extends Command
     case class CreateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
     case class AuthenticateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
     case class GetChatSession(from: ActorRef[ClientManager.Command], userId: Long) extends Command
+    case class GetAllUsers(from: ActorRef[ClientManager.Command]) extends Command
     // case object TestCreateSession extends Command
     // case class TestJoinSession(sessionId: String) extends Command
     // case class TestSendMessage(sessionId: String, message: String) extends Command
@@ -38,12 +39,13 @@ object ServerManager {
                         println(s"Server received message '${value}'")
                         Behaviors.same
 
-                    case CreateSession(participants) =>
+                    case CreateSession(from, creatorId, participants, chatName) =>
                         println(s"Server received request to create session")
 
                         // Spawn Chat Room actor
-                        val chatSession = new ChatSession("something", "something", participants(0))
+                        val chatSession = new ChatSession(chatName, "desc", creatorId)
                         chatSession.create()
+                        from ! ClientManager.ChatSessions(List(chatSession))
                         // UserChatSession will be created in chatSession.create() method
 
                         val chatRoom = context.spawn(ChatRoom(), chatSession.id.toString)
@@ -129,6 +131,11 @@ object ServerManager {
                     case GetChatSession(from, userId) =>
                         val sessions = UserChatSession.getChatSessions(userId)
                         from ! ClientManager.ChatSessions(sessions)
+                        Behaviors.same
+
+                    case GetAllUsers(from) =>
+                        val users = User.selectAll
+                        from ! ClientManager.AllUsers(users)
                         Behaviors.same
 
 

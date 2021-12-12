@@ -64,7 +64,7 @@ case class User(_username: String, _password: String) {
         }
     }
 
-    override def toString = s"User(${id}, ${username}, ${password})"
+    override def toString = s"${username}"
 
 }
 

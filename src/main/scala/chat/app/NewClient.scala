@@ -11,6 +11,7 @@ import scalafx.beans.property.StringProperty
 import chat.model.{User, ChatSession}
 import util.Database
 
+
 // Documentation regarding the Actor Receptionist, Listing, etc.
 // https://alvinalexander.com/scala/akka-typed-how-lookup-find-actor-receptionist/
 object ClientManager {
@@ -22,15 +23,18 @@ object ClientManager {
     case class SignUp(username: String, password: String) extends Command
     case class LogIn(username: String, password: String) extends Command
     // case class CreateSession(participants: Array[String]) extends Command
-    case class CreateSession() extends Command
+    case class CreateSession(participants: Array[Long], chatName: String) extends Command
     case class JoinSession(sessionId: Long) extends Command
     case class SendMessage(sessionId: Long, message: String) extends Command
     case class UpdateUser(user: User) extends Command
     case class ChatSessions(sessions: List[ChatSession]) extends Command
+    case class AllUsers(users: List[User]) extends Command
     // case class User(id: String, username: String, password: String) extends Command
 
     var user: User = null
+    var users: List[User] = List()
     var chatSessions: List[ChatSession] = List()
+
 
 
     def apply(): Behavior[ClientManager.Command] =
@@ -88,9 +92,9 @@ object ClientManager {
                     //     }
                     //     Behaviors.same
 
-                    case CreateSession() =>
+                    case CreateSession(participants, chatName) =>
                         for (remote <- remoteOpt) {
-                            remote ! ServerManager.CreateSession(Array(user.id))
+                            remote ! ServerManager.CreateSession(context.self, user.id, participants, chatName)
                         }
                         Behaviors.same
 
@@ -111,7 +115,8 @@ object ClientManager {
                         user = u
                         println(s"Current User >>> ${user}")
                         for (remote <- remoteOpt) {
-                        remote ! ServerManager.GetChatSession(context.self, this.user.id)
+                            remote ! ServerManager.GetChatSession(context.self, this.user.id)
+                            remote ! ServerManager.GetAllUsers(context.self)
                         }
                         Behaviors.same
 
@@ -119,6 +124,12 @@ object ClientManager {
                         this.chatSessions = this.chatSessions ::: sessions
                         println(s"ChatSessions received from ${context.self.path.name}: ${this.chatSessions}")
                         Behaviors.same
+
+                    case AllUsers(users: List[User]) =>
+                        this.users = this.users ::: users
+                        println(s"All Users in the system: ${context.self.path.name}: ${this.users}")
+                        Behaviors.same
+
                 }
             }
         }

@@ -1,10 +1,11 @@
 package chat.view
+
 import scalafxml.core.macros.sfxml
 import javafx.scene.layout.ColumnConstraints
 import scalafx.scene.control.{TextField, ListView, MenuItem, Dialog, ButtonType, Label}
 import scalafx.Includes._
 import scalafx.scene.image.{ImageView, Image}
-import chat.Main
+import chat.{Main, ClientManager}
 import scalafx.stage.Stage
 import chat.util.AlertMessage
 import scalafx.scene.layout.GridPane
@@ -14,6 +15,8 @@ import scalafx.scene.Node
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control.SelectionMode
+import chat.model.User
+import akka.actor.typed.ActorRef
 
 @sfxml
 class NewChatOrGroupController(
@@ -22,15 +25,20 @@ class NewChatOrGroupController(
     private val imageView1: ImageView,
     private val imageView2: ImageView,
     private val menuItem: MenuItem,
-    private val contactList: ListView[String]   //-- not sure the type
+    private val contactList: ListView[User]   //-- not sure the type
 
 ) extends AlertMessage{
+
+    var clientRef: Option[ActorRef[ClientManager.Command]] = None
+
     val searchIcon = new Image(getClass().getResourceAsStream("searchIcon.png"))
-    imageView.image_=(searchIcon)
     val plusIcon = new Image(getClass().getResourceAsStream("plusIcon.png"))
-    imageView1.image_=(plusIcon)
     val backIcon = new Image(getClass().getResourceAsStream("backIcon.png"))
+
+    imageView.image_=(searchIcon)
+    imageView1.image_=(plusIcon)
     imageView2.image_=(backIcon)
+
 
     var dialogStage: Stage = null
     var contacts: Array[String] = null  //-- not sure the type
@@ -39,13 +47,22 @@ class NewChatOrGroupController(
     //allow multiple selection
     contactList.selectionModel().setSelectionMode(SelectionMode.Multiple)
 
+    // populate the user lists
+    var names = new ObservableBuffer[User]()
+    // // maybe can use filter
+    ClientManager.users.foreach( u =>
+        if (ClientManager.user.username != u.username)
+            names += u
+    )
+    contactList.items = names
+
     // --
     // def showContactList() = {
-    //      /* FOR ADD NEW CHAT: if the contact is already in contact list (the contacts variable), 
-    //     if yes then disable the cell, but i think is a bit mafan to do this so maybe can jus remove 
+    //      /* FOR ADD NEW CHAT: if the contact is already in contact list (the contacts variable),
+    //     if yes then disable the cell, but i think is a bit mafan to do this so maybe can jus remove
     //     from contact list*/
     //
-    //      /* FOR ADD NEW GROUP: no nid compare & the "contacts" array passed in will be null 
+    //      /* FOR ADD NEW GROUP: no nid compare & the "contacts" array passed in will be null
     // }
 
     def search(): Unit = {
@@ -113,11 +130,11 @@ class NewChatOrGroupController(
                 else
                     saveButton.disable_=(true)
             }
-            } 
-        }        
+            }
+        }
         dialog.dialogPane().content_=(grid)
         Platform.runLater(contactName.requestFocus())
-        dialog.resultConverter = buttonType => 
+        dialog.resultConverter = buttonType =>
             if (buttonType == saveButtonType)
                 Result(contactName.text.value, contactNum.text.value)
             else
@@ -130,21 +147,25 @@ class NewChatOrGroupController(
     }
 
     //================================ try run, remove later
-    contacts = Array("1","2","3")
-    val tryy = new ObservableBuffer[String]()
-    tryy ++= contacts
-    contactList.items = tryy
+    // contacts = Array("1","2","3")
+    // val tryy = new ObservableBuffer[String]()
+    // tryy ++= contacts
+    // contactList.items = tryy
     //=================================
 
     def addNewChatOrGroup(): Unit = {
+        // Private Messages
         if (title == "Add New Chat"){
-            if (contactList.selectionModel().selectedItem.value == null) 
+            if (contactList.selectionModel().selectedItem.value == null)
                 alertError("Creation Fail", "Fail to create chat", "You must select one contact")
             else if (contactList.selectionModel().getSelectedIndices.length > 1)
                 alertError("Creation Fail", "Fail to create chat", "You can only select one contact")
             else{
+                val selectedItem = contactList.selectionModel().selectedItem()
+                clientRef.get ! ClientManager.CreateSession(Array(selectedItem.id), selectedItem.username)
                 dialogStage.close()
-                Main.showChatRoomPage(null, null, false)   //-- pass name to chatroom page
+                Main.showChatListPage()
+                // Main.showChatRoomPage(null, null, false)   //-- pass name to chatroom page
             }
         }
         else {
@@ -153,13 +174,14 @@ class NewChatOrGroupController(
             else{
                 var grpName = textInputDialog("Create Group", "Create a group", "Please enter the group name: ")
                 //-- create grp obj? or save the name?? ...
-                if (grpName != ""){     //if grpname = "" means click cancel so wont load the chatroompage
+                if (grpName != ""){
+                    //if grpname = "" means click cancel so wont load the chatroompage
                     dialogStage.close()
                     Main.showChatRoomPage(null, null, true)   //-- pass name to chatroom page
                 }
             }
         }
     }
-        
+
     def cancel: Unit = dialogStage.close()
 }
