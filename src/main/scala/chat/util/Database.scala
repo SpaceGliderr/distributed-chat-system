@@ -1,7 +1,7 @@
-package util
+package chat.util
 
 import scalikejdbc._
-import model.{ChatSession, Message, User, UserChatSession, Test}
+import chat.model.{ChatSession, Message, User, UserChatSession, Test}
 
 
 trait Database {
@@ -19,8 +19,8 @@ trait Database {
 }
 
 object Database extends Database {
-    val seed: Boolean = true
-    val test: Boolean = true
+    val seed: Boolean = false
+    val test: Boolean = false
 
     // create all tables needed
     def setupDB() = {

@@ -87,7 +87,7 @@ class ChatRoomController(
     //=================================
 
     def deleteChat() : Unit = {
-        if (messageList.selectionModel().selectedItem.value == null) 
+        if (messageList.selectionModel().selectedItem.value == null)
             alertError("Delete Fail", "Fail to delete message", "You must select at least one message")
         else{
             val confirm = alertConfirmation("Delete Confirmation", null, "Are you sure you want to delete this message(s)?")
@@ -101,7 +101,7 @@ class ChatRoomController(
     }
 
     def sendMessage() : Unit = {
-        //-- 
+        //--
         // 1. update message list
         // 2. update database
         // 3. rmb to update the latest message for ChatListPage (if yall got put the latest message la)

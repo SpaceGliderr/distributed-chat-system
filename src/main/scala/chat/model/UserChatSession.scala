@@ -1,11 +1,10 @@
-package model
+package chat.model
 
 import scala.util.Try
-import util.Database
+import chat.util.{Database, UserRoles}
 import scalikejdbc._
 import java.util.UUID
 import java.util.Date
-import util.UserRoles
 
 case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles.UserRole = UserRoles.MEMBER) {
     var id: Long = 0

@@ -15,7 +15,7 @@ class ChatListController(
     private val imageView2: ImageView,
     private val imageView3: ImageView,
     private val imageView4: ImageView,
-    private val conversationList: ListView[String]  //-- not sure the type 
+    private val conversationList: ListView[String]  //-- not sure the type
 
 )extends AlertMessage{
     val searchIcon = new Image(getClass().getResourceAsStream("searchIcon.png"))
@@ -29,8 +29,8 @@ class ChatListController(
     val deleteIcon = new Image(getClass().getResourceAsStream("deleteIcon.png"))
     imageView4.image_=(deleteIcon)
 
-    val contacts: Array[String] = null  /* -- not sure if is to use string, 
-    if not please chg the data type of 
+    val contacts: Array[String] = null  /* -- not sure if is to use string,
+    if not please chg the data type of
     1. Main's showNewChatOrNewGroupPage method's parameter's type
     2. NewChatOrGroupController's "contacts"" variable's type*/
 
@@ -64,7 +64,7 @@ class ChatListController(
     }
 
     def viewConversation: Unit = {
-        if (conversationList.selectionModel().selectedItem.value == null) 
+        if (conversationList.selectionModel().selectedItem.value == null)
             alertError("Open Fail", "Fail to open conversation", "You must select a conversation")
         else
             //-- check if is group chat then pass in true to ChatRoomPage, else pass in false
@@ -85,7 +85,7 @@ class ChatListController(
     //=================================
 
     def deleteConversation: Unit = {
-        if (conversationList.selectionModel().selectedItem.value == null) 
+        if (conversationList.selectionModel().selectedItem.value == null)
             alertError("Delete Fail", "Fail to delete conversation", "You must select one conversation")
         else{
             val confirm = alertConfirmation("Delete Confirmation", null, "Are you sure you want to delete this conversation?")

@@ -1,10 +1,9 @@
-package model
+package chat.model
 
 import scala.util.Try
-import util.Database
+import chat.util.{Database, UserRoles}
 import scalikejdbc._
 import java.util.Date
-import util.UserRoles
 
 case class ChatSession(_name: String, _description: String, _creatorId: Long) {
     var id: Long = -1

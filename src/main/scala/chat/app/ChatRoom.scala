@@ -1,3 +1,5 @@
+package chat
+
 import akka.actor.typed.ActorRef
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.Behavior
@@ -34,7 +36,7 @@ object ChatRoom {
 
                     case Publish(message) =>
                         context.log.info("Publishing")
-                        
+
                         // Send message to all subscribers
                         subscribers.foreach(subscriber =>
                             subscriber ! ClientManager.Message(message)

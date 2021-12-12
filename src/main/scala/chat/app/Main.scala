@@ -9,10 +9,6 @@ import scalafx.scene.image.Image
 import scalafx.stage.{Stage, Modality}
 import chat.view.{NewChatOrGroupController, ChatRoomController}
 
-//class Main {
-
-//}
-
 object Main extends JFXApp {
 
   //primary stage

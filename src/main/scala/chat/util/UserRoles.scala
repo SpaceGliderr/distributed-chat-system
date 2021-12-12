@@ -1,4 +1,4 @@
-package util
+package chat.util
 
 object UserRoles extends Enumeration {
     type UserRole = Value

@@ -3,14 +3,13 @@
 // The username should be a string.
 // The password should be a string.
 
-package model
+package chat.model
 
 import scalafx.beans.property.{ObjectProperty, StringProperty}
 import scalafx.collections.ObservableBuffer
 import scala.util.Try
-import util.Database
+import chat.util.Database
 import scalikejdbc._
-// import jsr310._
 import java.time._
 import java.util.Date
 

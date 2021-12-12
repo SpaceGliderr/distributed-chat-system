@@ -1,6 +1,7 @@
-package model
+package chat.model
+
 import scala.util.Try
-import util.Database
+import chat.util.Database
 import scalikejdbc._
 // import model.{ User, ChatSession }
 import java.util.Date
