@@ -3,10 +3,11 @@ import scalafxml.core.macros.sfxml
 import scalafx.scene.control.{TextField, ListView, Label, Button}
 import scalafx.Includes._
 import scalafx.scene.image.{ImageView, Image}
-import chat.Main
-import scalafx.scene.control.SelectionMode
-import chat.util.AlertMessage
 import scalafx.collections.ObservableBuffer
+import scalafx.scene.control.SelectionMode
+import chat.{Main, ClientManager}
+import chat.model.{ChatSession, UserChatSession}
+import chat.util.AlertMessage
 
 @sfxml
 class ChatRoomController(
@@ -21,21 +22,22 @@ class ChatRoomController(
 
 ) extends AlertMessage{
     //pass in from Main
-    var messages: Array[String] = null    //-- not sure the type
-    var nameList: Array[String] = null    //-- not sure the type
-    var group: Boolean = Main.group
+    // var messages: Array[String] = null    //-- not sure the type
+    // var nameList: Array[String] = null    //-- not sure the type
+    var isGroup: Boolean = false
+    var chatRoom: ChatSession = null
 
     //======================== to test run, later delete
-    if(group){
-        groupOrChatName.text_=("buat assignment")
-        nameList = Array("john","nick","wenyi", "shiqi", "peini")
-        val list = nameList.toList
-        statusOrGrpMemNames.text=(list.mkString(", "))
-    }
-    else{
-        groupOrChatName.text_=("john")
-        statusOrGrpMemNames.text=("available")
-    }
+    // if(group){
+    //     groupOrChatName.text_=("buat assignment")
+    //     nameList = Array("john","nick","wenyi", "shiqi", "peini")
+    //     val list = nameList.toList
+    //     statusOrGrpMemNames.text=(list.mkString(", "))
+    // }
+    // else{
+    //     groupOrChatName.text_=("john")
+    //     statusOrGrpMemNames.text=("available")
+    // }
     //========================
 
     //-- use the passed in "nameList" to update the "statusOrGrpMemNames" Label
@@ -69,7 +71,15 @@ class ChatRoomController(
             }
     }
 
+    def updateInfo(): Unit = {
+        this.chatRoom = ClientManager.selectedChatRoom
+        groupOrChatName.text = this.chatRoom.name
 
+        if (isGroup){
+            statusOrGrpMemNames.text = UserChatSession.getUsersInChatSession(chatRoom.id).mkString(", ")
+        }
+
+    }
     // --
     // def showMessageList() = {
 

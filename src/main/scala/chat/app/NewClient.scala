@@ -31,15 +31,15 @@ object ClientManager {
     case class UpdateUser(user: User) extends Command
     case class ChatSessions(sessions: List[ChatSession]) extends Command
     case class AllUsers(users: List[User]) extends Command
+    case class UpdateSelectedChatRoom(chatSession: ChatSession) extends Command
     // case class User(id: String, username: String, password: String) extends Command
 
     var user: User = null
-    var users: List[User] = List()
-    var chatSessions: List[ChatSession] = List()
+    var users: Set[User] = Set.empty[User]
+    var chatSessions: Set[ChatSession] = Set.empty[ChatSession]
+    var selectedChatRoom: ChatSession = null
     var authenticate: Boolean = false
     var signup: Boolean = false
-
-
 
     def apply(): Behavior[ClientManager.Command] =
         Behaviors.setup { context =>
@@ -135,15 +135,20 @@ object ClientManager {
                         Behaviors.same
 
                     case ChatSessions(sessions: List[ChatSession]) =>
-                        this.chatSessions = this.chatSessions ::: sessions
+                        this.chatSessions = this.chatSessions ++ sessions.toSet
                         println(s"ChatSessions received from ${context.self.path.name}: ${this.chatSessions}")
                         Behaviors.same
 
                     case AllUsers(users: List[User]) =>
-                        this.users = this.users ::: users
-                        println(s"All Users in the system: ${context.self.path.name}: ${this.users}")
+                        this.users = this.users ++ users.toSet
+                        println(s"All Users in the system ${context.self.path.name}: ${this.users}")
                         Behaviors.same
 
+                    case UpdateSelectedChatRoom(chatSession) =>
+                        this.selectedChatRoom = chatSession
+                        println(s"Selected Chat Room: ${this.selectedChatRoom}")
+                        Behaviors.same
+                    
                 }
             }
         }

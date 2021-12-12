@@ -164,20 +164,29 @@ class NewChatOrGroupController(
                 val selectedItem = contactList.selectionModel().selectedItem()
                 clientRef.get ! ClientManager.CreateSession(Array(selectedItem.id), selectedItem.username)
                 dialogStage.close()
-                Main.showChatListPage()
-                // Main.showChatRoomPage(null, null, false)   //-- pass name to chatroom page
+                // Main.showChatListPage()
+                Main.showChatRoomPage(false)   //-- pass name to chatroom page
             }
         }
+        // Group Chat
         else {
-            if (contactList.selectionModel().getSelectedIndices.length <= 1)
+            if (contactList.selectionModel().getSelectedItems.length <= 1)
                 alertError("Creation Fail", "Fail to create chat", "You must select at least two contacts")
+
             else{
-                var grpName = textInputDialog("Create Group", "Create a group", "Please enter the group name: ")
-                //-- create grp obj? or save the name?? ...
-                if (grpName != ""){
+                var groupName = textInputDialog("Create Group", "Create a group", "Please enter the group name: ")
+
+                if (groupName != ""){
                     //if grpname = "" means click cancel so wont load the chatroompage
+                    val selectedItems = contactList.selectionModel().getSelectedItems()
+
+                    var ids: Array[Long] = Array()
+                    selectedItems.foreach(i => ids :+ i.id)
+
+                    clientRef.get ! ClientManager.CreateSession(ids, groupName)
+
                     dialogStage.close()
-                    Main.showChatRoomPage(null, null, true)   //-- pass name to chatroom page
+                    Main.showChatRoomPage(true)   //-- pass name to chatroom page
                 }
             }
         }

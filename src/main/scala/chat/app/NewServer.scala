@@ -47,6 +47,7 @@ object ServerManager {
                         val chatSession = new ChatSession(chatName, "desc", creatorId)
                         chatSession.create()
                         from ! ClientManager.ChatSessions(List(chatSession))
+                        from ! ClientManager.UpdateSelectedChatRoom(chatSession)
                         // UserChatSession will be created in chatSession.create() method
 
                         val chatRoom = context.spawn(ChatRoom(), chatSession.id.toString)
@@ -112,7 +113,7 @@ object ServerManager {
                             case Failure(exception) =>
                                 from ! ClientManager.SignUpRequest(false, "Failed to Sign Up!")
                         }
-                        
+
                         Behaviors.same
 
                     case AuthenticateUser(from, username, password) =>

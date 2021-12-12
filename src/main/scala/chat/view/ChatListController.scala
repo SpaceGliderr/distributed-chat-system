@@ -79,7 +79,9 @@ class ChatListController(
     def viewConversation: Unit = {
         if (conversationList.selectionModel().selectedItem.value == null)
             alertError("Open Fail", "Fail to open conversation", "You must select a conversation")
-        else
+        else{
+            
+        }
             //-- check if is group chat then pass in true to ChatRoomPage, else pass in false
             // if (--is group--)
             //     Main.showChatRoomPage(null, null, true)      //-- pass in messages and names
@@ -87,7 +89,7 @@ class ChatListController(
             //     Main.showChatRoomPage(null, null, false)     //-- pass in messages and names
 
             //============================try run, later delete
-            Main.showChatRoomPage(null, null, true)
+            // Main.showChatRoomPage(null, null, true)
             //===============================
     }
 
@@ -105,5 +107,5 @@ class ChatListController(
                 //========================
         }
     }
-    showConversationList()
+    // showConversationList()
 }
