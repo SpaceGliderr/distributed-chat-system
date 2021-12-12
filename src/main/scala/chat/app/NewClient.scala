@@ -1,14 +1,14 @@
 package chat
 
 import akka.actor.typed.ActorRef
-import akka.actor.typed.ActorSystem
+// import akka.actor.typed.ActorSystem
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.receptionist.{Receptionist,ServiceKey}
-import com.typesafe.config.ConfigFactory
+// import com.typesafe.config.ConfigFactory
 import scalafx.beans.property.StringProperty
 // import ClientManager.Command
-import model.{User}
+import chat.model.{User, ChatSession}
 import util.Database
 
 // Documentation regarding the Actor Receptionist, Listing, etc.
@@ -26,9 +26,11 @@ object ClientManager {
     case class JoinSession(sessionId: Long) extends Command
     case class SendMessage(sessionId: Long, message: String) extends Command
     case class UpdateUser(user: User) extends Command
+    case class ChatSessions(sessions: List[ChatSession]) extends Command
     // case class User(id: String, username: String, password: String) extends Command
 
     var user: User = null
+    var chatSessions: List[ChatSession] = List()
 
 
     def apply(): Behavior[ClientManager.Command] =
@@ -108,55 +110,63 @@ object ClientManager {
                     case UpdateUser(u: User) =>
                         user = u
                         println(s"Current User >>> ${user}")
+                        for (remote <- remoteOpt) {
+                        remote ! ServerManager.GetChatSession(context.self, this.user.id)
+                        }
+                        Behaviors.same
+
+                    case ChatSessions(sessions: List[ChatSession]) =>
+                        this.chatSessions = this.chatSessions ::: sessions
+                        println(s"ChatSessions received from ${context.self.path.name}: ${this.chatSessions}")
                         Behaviors.same
                 }
             }
         }
 }
 
-object NewClient extends App {
+// object NewClient extends App {
 
-    // When a main client is spawned, it will (1) Create the ActorRef for the client and (2) Trigger Client.start
-    // val greeterMain: ActorSystem[ClientManager.Command] = ActorSystem(ClientManager(), "HelloSystem")
-    val greeterMain: ActorSystem[ClientManager.Command] = ActorSystem(ClientManager(), "HelloSystem", ConfigFactory.load("client"))
-    // println("Client started")
-    // var text = scala.io.StdIn.readLine("command=")
-    // while (text != "end"){
-    //     greeterMain ! ClientManager.Start
-    //     println("Variable text ", text)
-    //     text = scala.io.StdIn.readLine("command=")
-    // }
+//     // When a main client is spawned, it will (1) Create the ActorRef for the client and (2) Trigger Client.start
+//     // val greeterMain: ActorSystem[ClientManager.Command] = ActorSystem(ClientManager(), "HelloSystem")
+//     val greeterMain: ActorSystem[ClientManager.Command] = ActorSystem(ClientManager(), "HelloSystem", ConfigFactory.load("client"))
+//     // println("Client started")
+//     // var text = scala.io.StdIn.readLine("command=")
+//     // while (text != "end"){
+//     //     greeterMain ! ClientManager.Start
+//     //     println("Variable text ", text)
+//     //     text = scala.io.StdIn.readLine("command=")
+//     // }
 
-    val entry = scala.io.StdIn.readLine("Login or Signup")
-    val username = scala.io.StdIn.readLine("Enter Username: ")
-    val password = scala.io.StdIn.readLine("Enter Password: ")
+//     val entry = scala.io.StdIn.readLine("Login or Signup")
+//     val username = scala.io.StdIn.readLine("Enter Username: ")
+//     val password = scala.io.StdIn.readLine("Enter Password: ")
 
-    greeterMain ! ClientManager.FindServer
+//     greeterMain ! ClientManager.FindServer
 
-    // ! DELETE this part when linking front end and back end
-    entry match {
-        case "login" => greeterMain ! ClientManager.LogIn(username, password)
-        case "signup" => greeterMain ! ClientManager.SignUp(username, password)
-    }
+//     // ! DELETE this part when linking front end and back end
+//     entry match {
+//         case "login" => greeterMain ! ClientManager.LogIn(username, password)
+//         case "signup" => greeterMain ! ClientManager.SignUp(username, password)
+//     }
 
-    var sessionId: String = null
-    val session = scala.io.StdIn.readLine("Create or Join")
-    session match {
-        case "create" =>
-        greeterMain ! ClientManager.CreateSession()
-        sessionId = scala.io.StdIn.readLine("sessionId=")
+//     var sessionId: String = null
+//     val session = scala.io.StdIn.readLine("Create or Join")
+//     session match {
+//         case "create" =>
+//         greeterMain ! ClientManager.CreateSession()
+//         sessionId = scala.io.StdIn.readLine("sessionId=")
 
-        case "join" =>
-        sessionId = scala.io.StdIn.readLine("sessionId=")
-        greeterMain ! ClientManager.JoinSession(sessionId.toLong)
-    }
+//         case "join" =>
+//         sessionId = scala.io.StdIn.readLine("sessionId=")
+//         greeterMain ! ClientManager.JoinSession(sessionId.toLong)
+//     }
 
-    var message = scala.io.StdIn.readLine("message=")
+//     var message = scala.io.StdIn.readLine("message=")
 
-    while (message != "end"){
-        greeterMain ! ClientManager.SendMessage(sessionId.toLong, message)
-        message = scala.io.StdIn.readLine("message=")
-    }
+//     while (message != "end"){
+//         greeterMain ! ClientManager.SendMessage(sessionId.toLong, message)
+//         message = scala.io.StdIn.readLine("message=")
+//     }
 
-    greeterMain.terminate
-}
+//     greeterMain.terminate
+// }

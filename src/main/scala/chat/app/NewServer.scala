@@ -18,6 +18,7 @@ object ServerManager {
     case class SendMessage(sessionId: Long, message: String, senderId: Long) extends Command
     case class CreateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
     case class AuthenticateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
+    case class GetChatSession(from: ActorRef[ClientManager.Command], userId: Long) extends Command
     // case object TestCreateSession extends Command
     // case class TestJoinSession(sessionId: String) extends Command
     // case class TestSendMessage(sessionId: String, message: String) extends Command
@@ -123,6 +124,11 @@ object ServerManager {
                                 from ! ClientManager.Message("INVALID USERNAME/PASSWORD")
                         }
                         println(User.selectAll)
+                        Behaviors.same
+
+                    case GetChatSession(from, userId) =>
+                        val sessions = UserChatSession.getChatSessions(userId)
+                        from ! ClientManager.ChatSessions(sessions)
                         Behaviors.same
 
 

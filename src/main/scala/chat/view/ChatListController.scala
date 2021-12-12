@@ -1,41 +1,58 @@
 package chat.view
+
 import scalafxml.core.macros.sfxml
 import scalafx.scene.control.{TextField, ListView}
 import scalafx.Includes._
 import scalafx.scene.image.{ImageView, Image}
-import chat.Main
+import akka.actor.typed.ActorRef
+import chat.{Main, ClientManager}
 import chat.util.AlertMessage
+import chat.model.ChatSession
 import scalafx.collections.ObservableBuffer
 
 @sfxml
 class ChatListController(
     private val searchBar: TextField,
-    private val imageView: ImageView,
-    private val imageView1: ImageView,
-    private val imageView2: ImageView,
-    private val imageView3: ImageView,
-    private val imageView4: ImageView,
+    private val searchIcon: ImageView,
+    private val pmIcon: ImageView,
+    private val groupChatIcon: ImageView,
+    private val openIcon: ImageView,
+    private val deleteIcon: ImageView,
     private val conversationList: ListView[String]  //-- not sure the type
 
 )extends AlertMessage{
-    val searchIcon = new Image(getClass().getResourceAsStream("searchIcon.png"))
-    imageView.image_=(searchIcon)
-    val newChatIcon = new Image(getClass().getResourceAsStream("newChatIcon.png"))
-    imageView1.image_=(newChatIcon)
-    val newGroupIcon = new Image(getClass().getResourceAsStream("newGroupIcon.png"))
-    imageView2.image_=(newGroupIcon)
-    val viewIcon = new Image(getClass().getResourceAsStream("viewChatIcon.png"))
-    imageView3.image_=(viewIcon)
-    val deleteIcon = new Image(getClass().getResourceAsStream("deleteIcon.png"))
-    imageView4.image_=(deleteIcon)
 
-    val contacts: Array[String] = null  /* -- not sure if is to use string,
+    var clientRef: Option[ActorRef[ClientManager.Command]] = None
+
+    // get images from resources
+    val sIcon = new Image(getClass().getResourceAsStream("searchIcon.png"))
+    val newChatIcon = new Image(getClass().getResourceAsStream("newChatIcon.png"))
+    val newGroupIcon = new Image(getClass().getResourceAsStream("newGroupIcon.png"))
+    val viewIcon = new Image(getClass().getResourceAsStream("viewChatIcon.png"))
+    val dIcon = new Image(getClass().getResourceAsStream("deleteIcon.png"))
+
+    // update the imageViews
+    searchIcon.image_=(sIcon)
+    pmIcon.image_=(newChatIcon)
+    groupChatIcon.image_=(newGroupIcon)
+    openIcon.image_=(viewIcon)
+    deleteIcon.image_=(dIcon)
+
+
+    val contacts: Array[String] = null
+    /* -- not sure if is to use string,
     if not please chg the data type of
     1. Main's showNewChatOrNewGroupPage method's parameter's type
-    2. NewChatOrGroupController's "contacts"" variable's type*/
+    2. NewChatOrGroupController's "contacts"" variable's type
+    */
 
     //make the menu bar visible
     Main.roots.top.value.visible_=(true)
+
+    // Populate the conversations in the table
+    var names = new ObservableBuffer[String]()
+    ClientManager.chatSessions.foreach(s => names += s.name)
+    conversationList.items = names
 
 
     // --
@@ -78,11 +95,6 @@ class ChatListController(
             //===============================
     }
 
-    //================================ try run, remove later
-    val tryy = new ObservableBuffer[String]()
-    tryy ++= Array("1","2","3")
-    conversationList.items = tryy
-    //=================================
 
     def deleteConversation: Unit = {
         if (conversationList.selectionModel().selectedItem.value == null)

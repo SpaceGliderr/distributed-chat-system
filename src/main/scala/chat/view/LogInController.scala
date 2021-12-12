@@ -16,13 +16,13 @@ class LogInController(
     def login(): Unit = {
         //input checking
         var errorMessage = ""
-        errorMessage += phoneNumPwdChecking(phoneNumTextField.text, passwordTextField.text)
+        // errorMessage += phoneNumPwdChecking(phoneNumTextField.text, passwordTextField.text)
         if (errorMessage.length() > 0)
             alertError("Invalid Fields", "Please check invalid fields", errorMessage)
         else{
             //========================= uncomment this later
             // val tempUserList = User.users.toList
-            // //see if yall want to add phone number variable for User class or not 
+            // //see if yall want to add phone number variable for User class or not
             // val index = tempUserList.indexWhere(user => user.phoneNum.value == phoneNumTextField.text.value)
             // if (index == -1)
             //     alertError("Login Fail", "Fail to login", "This account does not exist.")
@@ -37,7 +37,7 @@ class LogInController(
             //==============================
 
             //========================= to test run, later delete
-            Main.showPages("view/ChatList.fxml")
+            Main.showChatListPage()
             Main.stage.resizable_=(true)
             //=========================
         }

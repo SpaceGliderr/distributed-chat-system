@@ -7,9 +7,20 @@ import scalafxml.core.{NoDependencyResolver, FXMLView, FXMLLoader}
 import javafx.{scene => jfxs}
 import scalafx.scene.image.Image
 import scalafx.stage.{Stage, Modality}
-import chat.view.{NewChatOrGroupController, ChatRoomController}
+import chat.view.{NewChatOrGroupController, ChatRoomController, ChatListController}
+import akka.actor.typed.ActorSystem
+import com.typesafe.config.ConfigFactory
 
 object Main extends JFXApp {
+
+  // create Client's Actor System
+  val greeterMain: ActorSystem[ClientManager.Command] = ActorSystem(ClientManager(), "HelloSystem", ConfigFactory.load("client"))
+  greeterMain ! ClientManager.FindServer
+
+  val username = scala.io.StdIn.readLine("Enter Username: ")
+  val password = scala.io.StdIn.readLine("Enter Password: ")
+  greeterMain ! ClientManager.LogIn(username, password)
+
 
   //primary stage
   val rootResource = getClass.getResourceAsStream("view/RootLayout.fxml")
@@ -29,9 +40,20 @@ object Main extends JFXApp {
   def showPages(fileName: String) = {
     val resource = getClass.getResourceAsStream(fileName)
     val loader = new FXMLLoader(null, NoDependencyResolver)
-    loader.load(resource);
+    loader.load(resource)
     val roots = loader.getRoot[jfxs.layout.AnchorPane]()
     this.roots.setCenter(roots)
+  }
+
+  def showChatListPage() = {
+    val resource = getClass.getResourceAsStream("view/ChatList.fxml")
+    val loader = new FXMLLoader(null, NoDependencyResolver)
+    loader.load(resource)
+    val roots = loader.getRoot[jfxs.layout.AnchorPane]()
+    val controller = loader.getController[ChatListController#Controller]
+    controller.clientRef = Option(greeterMain)
+    this.roots.setCenter(roots)
+
   }
 
   //to load (add new chat page) or (add new group page)

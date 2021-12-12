@@ -121,6 +121,24 @@ object UserChatSession extends Database {
         users.filterNot(usersInSession)
     }
 
+    // Get ChatSession with UserID x
+    def getChatSessions(userID: Long): List[ChatSession] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select c.* from chat_sessions c
+                join user_chat_sessions ucs on c.id = ucs.chat_session_id
+                where ucs.user_id = ${userID.intValue()}
+            """.map(res => ChatSession(
+                res.long("id"),
+                res.string("name"),
+                res.string("description"),
+                res.long("creator_id"),
+                res.timestamp("created_at"),
+                res.timestamp("updated_at")
+            )).list.apply()
+        }
+    }
+
     def leaveSession(userId: Long, chatSessionId: Long): Long = {
         DB autoCommit { implicit session =>
             sql"""
