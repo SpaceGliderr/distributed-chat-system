@@ -8,14 +8,10 @@ import scala.Tuple2
 import scalafx.event.ActionEvent
 
 trait AlertMessage{
-    def phoneNumPwdChecking(phoneNum: StringProperty, password: StringProperty): String = {
+    def userNamePwdChecking(username: StringProperty, password: StringProperty): String = {
         var errorMessage = ""
-        if (phoneNum.value.length == 0)
-            errorMessage += "No valid phone number\n"
-        else if(phoneNum.value.length != 10 && phoneNum.value.length != 11)
-            errorMessage += "Incorrect format for phone number\n"
-        else if(phoneNum.value.substring(0,2) != "01")
-            errorMessage += "Incorrect format for phone number\n"
+        if (username.value.length == 0)
+            errorMessage += "No valid username\n"
         if (password.value.length == 0)
             errorMessage += "No valid password"
         errorMessage

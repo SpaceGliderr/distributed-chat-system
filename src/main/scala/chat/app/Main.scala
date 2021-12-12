@@ -14,20 +14,16 @@ import com.typesafe.config.ConfigFactory
 object Main extends JFXApp {
 
   // create Client's Actor System
-  val greeterMain: ActorSystem[ClientManager.Command] = ActorSystem(ClientManager(), "HelloSystem", ConfigFactory.load("client"))
-  greeterMain ! ClientManager.FindServer
-
-  val username = scala.io.StdIn.readLine("Enter Username: ")
-  val password = scala.io.StdIn.readLine("Enter Password: ")
-  greeterMain ! ClientManager.LogIn(username, password)
-
+  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
+  val clientMain: ActorSystem[ClientManager.Command] = ActorSystem(ClientManager(), "HelloSystem", ConfigFactory.load("client"))
+  clientMain ! ClientManager.FindServer
 
   //primary stage
   val rootResource = getClass.getResourceAsStream("view/RootLayout.fxml")
   val loader = new FXMLLoader(null, NoDependencyResolver)
   loader.load(rootResource);
   val roots: jfxs.layout.BorderPane = loader.getRoot[jfxs.layout.BorderPane]
-
+  
   stage = new PrimaryStage {
     title = "Chatty"
     scene = new Scene {
@@ -51,7 +47,7 @@ object Main extends JFXApp {
     loader.load(resource)
     val roots = loader.getRoot[jfxs.layout.AnchorPane]()
     val controller = loader.getController[ChatListController#Controller]
-    controller.clientRef = Option(greeterMain)
+    controller.clientRef = Option(clientMain)
     this.roots.setCenter(roots)
 
   }
@@ -95,7 +91,17 @@ object Main extends JFXApp {
     controller.messages = _messages
   }
 
+  def loginSuccess(): Unit = {
+    this.showPages("view/ChatList.fxml")
+    this.stage.resizable_=(true)
+  }
+
   this.roots.top.value.visible_=(false)
   showPages("view/Home.fxml")
   stage.resizable_=(false)
+  
+
+  stage.onCloseRequest = handle( {
+    clientMain.terminate
+  })
 }
