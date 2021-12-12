@@ -21,6 +21,8 @@ object ClientManager {
     case class Message(message: String) extends Command
     case class SignUp(username: String, password: String) extends Command
     case class LogIn(username: String, password: String) extends Command
+    case class Authenticate(value: Boolean, message: String) extends Command
+    case class SignUpRequest(value: Boolean, message: String) extends Command
     // case class CreateSession(participants: Array[String]) extends Command
     case class CreateSession() extends Command
     case class JoinSession(sessionId: Long) extends Command
@@ -31,6 +33,8 @@ object ClientManager {
 
     var user: User = null
     var chatSessions: List[ChatSession] = List()
+    var authenticate: Boolean = false
+    var signup: Boolean = false
 
 
     def apply(): Behavior[ClientManager.Command] =
@@ -76,10 +80,20 @@ object ClientManager {
                         }
                         Behaviors.same
 
+                    case SignUpRequest(value, message) =>
+                        this.signup = value
+                        println(message)
+                        Behaviors.same
+
                     case LogIn(username, password) =>
                         for (remote <- remoteOpt) {
                             remote ! ServerManager.AuthenticateUser(context.self, username, password)
                         }
+                        Behaviors.same
+
+                    case Authenticate(value, message) =>
+                        this.authenticate = value
+                        println(message)
                         Behaviors.same
 
                     // case CreateSession(participants: Array[String]) =>

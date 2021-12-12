@@ -7,7 +7,7 @@ package chat.model
 
 import scalafx.beans.property.{ObjectProperty, StringProperty}
 import scalafx.collections.ObservableBuffer
-import scala.util.Try
+import scala.util.{ Try, Success, Failure }
 import chat.util.Database
 import scalikejdbc._
 import java.time._
@@ -34,6 +34,34 @@ case class User(_username: String, _password: String) {
         } match {
             case Some(x) => true
             case None => false
+        }
+    }
+
+    def isUserNameExist: Boolean = {
+        DB readOnly{
+            implicit session =>
+                sql"""
+                    select * from users
+                    where username = ${username}
+                """.map(result => result.int("id")).single.apply()
+        } match {
+            case Some(x) => true
+            case None => false
+        }
+    }
+
+    def create(): Try[Long] = {
+        if((!isExist) & (!isUserNameExist)){
+            Try (DB autoCommit {
+                implicit session =>
+                    id = sql"""
+                        insert into users(username, password)
+                        values (${username}, ${password})
+                    """.updateAndReturnGeneratedKey.apply()
+                    id.intValue
+            })
+        } else {
+            Failure(new Exception("Unable to create user."))
         }
     }
 
@@ -84,7 +112,7 @@ object User extends Database{
             sql"""
                 create table users (
                     id int GENERATED ALWAYS AS IDENTITY,
-                    username varchar(64),
+                    username varchar(64) UNIQUE,
                     password varchar(64),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP,

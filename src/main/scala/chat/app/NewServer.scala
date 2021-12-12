@@ -8,6 +8,7 @@ import akka.actor.typed.receptionist.{Receptionist,ServiceKey}
 import scalafx.beans.property.StringProperty
 import model.{User, ChatSession, UserChatSession, Message}
 import util.{Database, UserRoles}
+import scala.util.{ Success, Failure }
 
 object ServerManager {
     sealed trait Command
@@ -101,27 +102,27 @@ object ServerManager {
                         println(s"Server received a request to create user")
 
                         val user = new User(username, password)
-                        user.upsert()
-
-                        from ! ClientManager.UpdateUser(user)
-                        println(User.selectAll)
-
-                        // Add User to userMap
-                        userMap += (user.id -> from)
-                        println(s"USER MAP >> ${userMap}")
-
+                        user.create() match {
+                            case Success(value) =>
+                                from ! ClientManager.SignUpRequest(true, "Successfully Sign Up!")
+                                userMap += (user.id -> from)
+                                println(s"USER MAP >> ${userMap}")
+                            case Failure(exception) =>
+                                from ! ClientManager.SignUpRequest(false, "Failed to Sign Up!")
+                        }
+                        
                         Behaviors.same
 
                     case AuthenticateUser(from, username, password) =>
                         println(s"Server received request to authenticate user")
                         User.login(username, password) match {
                             case Some(user) =>
-                                from ! ClientManager.Message("Successfully Logged In!")
+                                from ! ClientManager.Authenticate(true, "Successfully Logged In!")
                                 from ! ClientManager.UpdateUser(user)
                                 userMap += (user.id -> from)
 
                             case None =>
-                                from ! ClientManager.Message("INVALID USERNAME/PASSWORD")
+                                from ! ClientManager.Authenticate(false, "INVALID USERNAME/PASSWORD")
                         }
                         println(User.selectAll)
                         Behaviors.same
