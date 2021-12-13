@@ -9,6 +9,7 @@ import scalafx.beans.property.StringProperty
 import model.{User, ChatSession, UserChatSession, Message}
 import util.{Database, UserRoles}
 import scala.util.{ Success, Failure }
+import scala.collection.mutable.ListBuffer
 
 object ServerManager {
     sealed trait Command
@@ -21,6 +22,7 @@ object ServerManager {
     case class AuthenticateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
     case class GetChatSession(from: ActorRef[ClientManager.Command], userId: Long) extends Command
     case class GetAllUsers(from: ActorRef[ClientManager.Command]) extends Command
+    case class GetSessionMessages(from: ActorRef[ClientManager.Command], sessionId: Long) extends Command
     // case object TestCreateSession extends Command
     // case class TestJoinSession(sessionId: String) extends Command
     // case class TestSendMessage(sessionId: String, message: String) extends Command
@@ -89,6 +91,15 @@ object ServerManager {
                             room ! ChatRoom.Publish("New people just joined!!!")
                         })
 
+                        Behaviors.same
+                    
+                    case GetSessionMessages(from, sessionId) =>
+                        println("Session ID:" + sessionId)
+                        val messages = ChatSession.getMessages(sessionId)
+                        val messageString = new ListBuffer[String]()
+                        messages.foreach(m => messageString += m.toString())
+                        println(messageString)
+                        from ! ClientManager.GetSessionMessages(messageString)
                         Behaviors.same
 
                     case SendMessage(sessionId, message, senderId) =>

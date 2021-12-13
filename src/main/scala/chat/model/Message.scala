@@ -5,6 +5,7 @@ import chat.util.Database
 import scalikejdbc._
 // import model.{ User, ChatSession }
 import java.util.Date
+import chat.model.User
 
 case class Message(_content: String, _senderId: Long, _chatSessionId: Long) {
     var id: Long = 0
@@ -47,7 +48,19 @@ case class Message(_content: String, _senderId: Long, _chatSessionId: Long) {
         }
     }
 
-    override def toString = s"Message(${id}, ${content}, sender:${senderId}, chat_session: ${chatSessionId})"
+    def senderUserName() : String = {
+        DB readOnly { implicit session =>
+        sql"""
+            select username from users 
+            where id = ${senderId}
+        """.map(rs => rs.string("username")).single.apply()
+        } match {
+            case Some(x) => x
+            case None => "null"
+        }
+    }
+
+    override def toString = s"${senderUserName}: ${content}"
 }
 
 object Message extends Database {

@@ -10,6 +10,8 @@ import scalafx.beans.property.StringProperty
 // import ClientManager.Command
 import chat.model.{User, ChatSession}
 import util.Database
+import scalafx.collections.ObservableBuffer
+import scala.collection.mutable.ListBuffer
 
 
 // Documentation regarding the Actor Receptionist, Listing, etc.
@@ -32,6 +34,7 @@ object ClientManager {
     case class ChatSessions(sessions: List[ChatSession]) extends Command
     case class AllUsers(users: List[User]) extends Command
     case class UpdateSelectedChatRoom(chatSession: ChatSession) extends Command
+    case class GetSessionMessages(message: ListBuffer[String]) extends Command
     // case class User(id: String, username: String, password: String) extends Command
 
     var user: User = null
@@ -40,6 +43,7 @@ object ClientManager {
     var selectedChatRoom: ChatSession = null
     var authenticate: Boolean = false
     var signup: Boolean = false
+    var sessionMessages = new ObservableBuffer[String]()
 
     def apply(): Behavior[ClientManager.Command] =
         Behaviors.setup { context =>
@@ -114,9 +118,17 @@ object ClientManager {
 
                     case JoinSession(sessionId) =>
                         for (remote <- remoteOpt) {
+                            remote ! ServerManager.GetSessionMessages(context.self, sessionId)
                             remote ! ServerManager.JoinSession(sessionId , Array(user.id))
                         }
                         Behaviors.same
+
+                    case GetSessionMessages(messages) =>{
+                        this.sessionMessages.clear()
+                        messages.foreach(m => this.sessionMessages += m)
+                        println(s"sessionMessage received from ${context.self.path.name}: ${this.sessionMessages}")
+                        Behaviors.same
+                    }
 
                     case SendMessage(sessionId, message) =>
                         println(s"Current User >>> ${user}")

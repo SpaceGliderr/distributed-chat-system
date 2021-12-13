@@ -26,6 +26,7 @@ class ChatRoomController(
     // var nameList: Array[String] = null    //-- not sure the type
     var isGroup: Boolean = false
     var chatRoom: ChatSession = null
+    var messages = new ObservableBuffer[String]()
 
     //======================== to test run, later delete
     // if(group){
@@ -62,6 +63,11 @@ class ChatRoomController(
     //allow multiple selection
     messageList.selectionModel().setSelectionMode(SelectionMode.Multiple)
 
+    def updateMessage(): Unit = {
+        this.messages.clear()
+        ClientManager.sessionMessages.foreach(s => messages += s)
+        messageList.setItems(messages)
+    }
     //if the message text field is empty -> disable the send button, else -> able it
     messageTextField.text.onChange{(_, _, newValue) => {
             if (!newValue.trim().isEmpty)
@@ -87,13 +93,13 @@ class ChatRoomController(
 
 
     def cancel(): Unit = {
-        Main.showPages("view/ChatList.fxml")
+        Main.showChatListPage()
     }
 
     //================================ try run, remove later
-    val tryy = new ObservableBuffer[String]()
-    tryy ++= Array("1","2","3")
-    messageList.items = tryy
+    // val tryy = new ObservableBuffer[String]()
+    // tryy ++= Array("1","2","3")
+    // messageList.items = tryy
     //=================================
 
     def deleteChat() : Unit = {
@@ -120,4 +126,10 @@ class ChatRoomController(
         messageTextField.text_=("")
         sendButton.disable_=(true)
     }
+
+    ClientManager.sessionMessages.onChange{(ns, _) =>
+        updateMessage()
+    }
+
+    updateMessage()
 }
