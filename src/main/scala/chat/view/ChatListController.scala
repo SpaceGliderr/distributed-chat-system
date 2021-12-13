@@ -119,7 +119,7 @@ class ChatListController(
             val confirm = alertConfirmation("Delete Confirmation", null, "Are you sure you want to delete this conversation?")
             if (confirm){
                 val selectedItem = conversationList.selectionModel().selectedItem()
-                Main.clientMain ! ClientManager.LeaveSession(selectedItem.id)
+                Main.clientMain ! ClientManager.DeleteSession(selectedItem.id)
                 Thread.sleep(1000)
                 showConversationList()
             }

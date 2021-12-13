@@ -28,6 +28,7 @@ object ClientManager {
     case class CreateSession(participants: Array[Long], chatName: String) extends Command
     case class JoinSession(sessionId: Long) extends Command
     case class LeaveSession(sessionId: Long) extends Command
+    case class DeleteSession(sessionId: Long) extends Command
     case class SendMessage(message: String) extends Command
     case class UpdateUser(user: User) extends Command
     case class ChatSessions(sessions: List[ChatSession]) extends Command
@@ -125,8 +126,16 @@ object ClientManager {
                         for (remote <- remoteOpt) {
                             remote ! ServerManager.LeaveSession(context.self, this.user.id, sessionId)
                         }
+                        Behaviors.same
+
+                    case DeleteSession(sessionId) =>
+                        context.self ! LeaveSession(sessionId)
+                        for (remote <- remoteOpt) {
+                            remote ! ServerManager.DeleteSession(this.user.id, sessionId)
+                        }
                         this.chatSessions = this.chatSessions.filter(_.id != sessionId)
                         Behaviors.same
+
 
                     case GetSessionMessages(messages) =>{
                         messages.foreach(m => this.sessionMessages += m)

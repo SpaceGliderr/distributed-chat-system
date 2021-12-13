@@ -14,10 +14,10 @@ import scala.collection.mutable.ListBuffer
 object ServerManager {
     sealed trait Command
     case class Message(value: String, from: ActorRef[ClientManager.Command]) extends Command
-    // ! problem to get creator id
     case class CreateSession(from: ActorRef[ClientManager.Command], creatorId: Long, participants: Array[Long], chatName: String) extends Command
     case class JoinSession(sessionId: Long, participants: Array[Long]) extends Command
     case class LeaveSession(from: ActorRef[ClientManager.Command], userId: Long, sessionId: Long) extends Command
+    case class DeleteSession(userId: Long, sessionId: Long) extends Command
     case class SendMessage(sessionId: Long, message: String, senderId: Long) extends Command
     case class CreateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
     case class AuthenticateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
@@ -57,7 +57,7 @@ object ServerManager {
                         participants.foreach( participant => {
                             userChatSession = new UserChatSession(participant, chatSession.id)
                             userChatSession.upsert()
-                            //Update new chat session  
+                            //Update new chat session
                             userMap.get(participant).foreach(user => context.self ! GetChatSession(user,participant))
                         })
 
@@ -71,7 +71,7 @@ object ServerManager {
                         chatSessionMap += (chatSession.id -> chatRoom)
                         println("CHAT SESSION MAP >>>>> ", chatSessionMap)
 
-                        
+
                         // for ((id, actorref) <- userMap) {
                         //     context.self ! GetChatSession(actorref,id)
                         // }
@@ -101,14 +101,18 @@ object ServerManager {
                         println("Server received request to leave session")
                         println(s"Session ID: ${sessionId}")
 
-                        UserChatSession.leaveSession(userId, sessionId)
-
+                        // UserChatSession.leaveSession(userId, sessionId)
 
                         chatSessionMap.get(sessionId).foreach(room => {
                             room ! ChatRoom.Unsubscribe(from)
                         })
 
                         Behaviors.same
+
+                    case DeleteSession(userId, sessionId) =>
+                        UserChatSession.leaveSession(userId, sessionId)
+                        Behaviors.same
+
 
                     case GetSessionMessages(from, sessionId) =>
                         println("Session ID:" + sessionId)
