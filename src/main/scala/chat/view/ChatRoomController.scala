@@ -82,7 +82,7 @@ class ChatRoomController(
         groupOrChatName.text = this.chatRoom.name
 
         if (isGroup){
-            statusOrGrpMemNames.text = UserChatSession.getUsersInChatSession(chatRoom.id).mkString(", ")
+            //statusOrGrpMemNames.text = UserChatSession.getUsersInChatSession(chatRoom.id).mkString(", ")
         }
 
     }
@@ -123,6 +123,8 @@ class ChatRoomController(
         // 3. rmb to update the latest message for ChatListPage (if yall got put the latest message la)
 
         //disable the button again & empty the text field after sending message
+        val message = messageTextField.text
+        Main.clientMain ! ClientManager.SendMessage(message.get())
         messageTextField.text_=("")
         sendButton.disable_=(true)
     }

@@ -29,7 +29,7 @@ object ClientManager {
     // case class CreateSession(participants: Array[String]) extends Command
     case class CreateSession(participants: Array[Long], chatName: String) extends Command
     case class JoinSession(sessionId: Long) extends Command
-    case class SendMessage(sessionId: Long, message: String) extends Command
+    case class SendMessage(message: String) extends Command
     case class UpdateUser(user: User) extends Command
     case class ChatSessions(sessions: List[ChatSession]) extends Command
     case class AllUsers(users: List[User]) extends Command
@@ -80,6 +80,7 @@ object ClientManager {
 
                     case Message(message) =>
                         println(s"Message received on Client ${context.self.path.name}: ${message}")
+                        sessionMessages += message
                         Behaviors.same
 
                     case SignUp(username, password) =>
@@ -130,10 +131,10 @@ object ClientManager {
                         Behaviors.same
                     }
 
-                    case SendMessage(sessionId, message) =>
+                    case SendMessage(message) =>
                         println(s"Current User >>> ${user}")
                         for (remote <- remoteOpt) {
-                            remote ! ServerManager.SendMessage(sessionId, message, user.id)
+                            remote ! ServerManager.SendMessage(selectedChatRoom.id, message, user.id)
                         }
                         Behaviors.same
 
