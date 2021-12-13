@@ -34,8 +34,6 @@ object ClientManager {
     case class AllUsers(users: List[User]) extends Command
     case class SelectedChat(chatSession: ChatSession, users: List[User]) extends Command
     case class UpdateChatInfo(chatSession: ChatSession) extends Command
-    // case class UpdateSelectedChatRoom(chatSession: ChatSession) extends Command
-    // case class UpdateUsersInChatRoom(users: List[User]) extends Command
     case class GetSessionMessages(message: ListBuffer[String]) extends Command
 
     // case class User(id: String, username: String, password: String) extends Command
@@ -125,8 +123,9 @@ object ClientManager {
                     case LeaveSession(sessionId) =>
                         sessionMessages.clear()
                         for (remote <- remoteOpt) {
-                            remote ! ServerManager.LeaveSession(context.self, sessionId)
+                            remote ! ServerManager.LeaveSession(context.self, this.user.id, sessionId)
                         }
+                        this.chatSessions = this.chatSessions.filter(_.id != sessionId)
                         Behaviors.same
 
                     case GetSessionMessages(messages) =>{

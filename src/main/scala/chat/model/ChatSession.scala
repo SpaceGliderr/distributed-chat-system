@@ -87,7 +87,7 @@ case class ChatSession(_name: String, _description: String, _creatorId: Long) {
         )
     }
 
-    override def toString = s"ChatSession(${id}, ${name}, creator:${creatorId})"
+    override def toString = s"${name}"
 }
 
 object ChatSession extends Database {
