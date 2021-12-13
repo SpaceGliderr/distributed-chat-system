@@ -19,7 +19,7 @@ class ChatListController(
     private val groupChatIcon: ImageView,
     private val openIcon: ImageView,
     private val deleteIcon: ImageView,
-    private val conversationList: ListView[String]  //-- not sure the type
+    private val conversationList: ListView[ChatSession]  //-- not sure the type
 
 )extends AlertMessage{
 
@@ -54,11 +54,9 @@ class ChatListController(
 
     // Populate the conversations in the table
     def showConversationList() = {
-        var names = new ObservableBuffer[String]()
         this.chatsessions = new ObservableBuffer[ChatSession]()
-        ClientManager.chatSessions.foreach(s => names += s.name)
         ClientManager.chatSessions.foreach(s => chatsessions += s)
-        conversationList.items = names
+        conversationList.items = this.chatsessions
     }
 
     ClientManager.chatSessions.onChange{(ns, _) =>
@@ -107,7 +105,7 @@ class ChatListController(
             println(conversationList.selectionModel().selectedItem.value)
             // val sessionId = conversationList.selectionModel().selectedItem.value.id
             // val sessionId = this.chatsessions(conversationList.getSelectionModel().getSelectedIndex())
-            Main.clientMain ! ClientManager.UpdateSelectedChatRoom(this.chatsessions(conversationList.getSelectionModel().getSelectedIndex()))
+            Main.clientMain ! ClientManager.UpdateChatInfo(this.chatsessions(conversationList.getSelectionModel().getSelectedIndex()))
             Main.clientMain ! ClientManager.JoinSession(this.chatsessions(conversationList.getSelectionModel().getSelectedIndex()).id.toLong)
             // println(sessionId)
             Main.showChatRoomPage(true)
@@ -119,13 +117,12 @@ class ChatListController(
             alertError("Delete Fail", "Fail to delete conversation", "You must select one conversation")
         else{
             val confirm = alertConfirmation("Delete Confirmation", null, "Are you sure you want to delete this conversation?")
-            if (confirm)
-                //-- remove from list and database & show updated list
-
-                //======================= try run, remove later
-                println("deleted")
-                //========================
+            if (confirm){
+                val selectedItem = conversationList.selectionModel().selectedItem()
+                Main.clientMain ! ClientManager.LeaveSession(selectedItem.id)
+                Thread.sleep(1000)
+                showConversationList()
+            }
         }
     }
-    // showConversationList()
 }
