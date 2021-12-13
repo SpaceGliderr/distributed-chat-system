@@ -47,8 +47,12 @@ object ServerManager {
                         val chatSession = new ChatSession(chatName, "desc", creatorId)
                         chatSession.create()
                         from ! ClientManager.ChatSessions(List(chatSession))
-                        from ! ClientManager.UpdateSelectedChatRoom(chatSession)
-                        // UserChatSession will be created in chatSession.create() method
+
+                        context.self ! JoinSession(chatSession.id, participants)
+
+                        Thread.sleep(1000)
+
+                        from ! ClientManager.UpdateSelectedChat(chatSession, UserChatSession.getUsersInChatSession(chatSession.id))
 
                         val chatRoom = context.spawn(ChatRoom(), chatSession.id.toString)
 
@@ -75,15 +79,16 @@ object ServerManager {
                         println(s"Session ID: ${sessionId}")
                         println(chatSessionMap)
 
-                        val userChatSession = new UserChatSession(participants(0), sessionId)
-                        userChatSession.upsert()
-
+                        var userChatSession: UserChatSession = null
                         var p = Array[ActorRef[ClientManager.Command]]()
 
-                        participants.foreach(participant =>
+                        participants.foreach(participant => {
+                            println(participant)
+                            userChatSession = new UserChatSession(participant, sessionId)
+                            userChatSession.upsert()
                             userMap.get(participant).foreach(user => p = p :+ user)
-                        )
-
+                        })
+                        
                         chatSessionMap.get(sessionId).foreach(room => {
                             room ! ChatRoom.Subscribe(p)
                             room ! ChatRoom.Publish("New people just joined!!!")
@@ -140,33 +145,6 @@ object ServerManager {
                         from ! ClientManager.AllUsers(users)
                         Behaviors.same
 
-
-                    // case TestCreateSession =>
-                    //     println("Testing Server")
-
-                    //     val clientManager = context.spawn(ClientManager(), randomUUID.toString)
-                    //     val clientManager2 = context.spawn(ClientManager(), randomUUID.toString)
-                    //     val clientManager3 = context.spawn(ClientManager(), randomUUID.toString)
-
-                    //     val clients = Array(clientManager, clientManager2, clientManager3)
-
-                    //     context.self ! CreateSession(clients)
-
-                    //     Behaviors.same
-                    // case TestJoinSession(sessionId) =>
-                    //     val clientManager4 = context.spawn(ClientManager(), randomUUID.toString)
-                    //     val clientManager5 = context.spawn(ClientManager(), randomUUID.toString)
-                    //     val clients2 = Array(clientManager4, clientManager5)
-
-                    //     context.self ! JoinSession(sessionId, clients2)
-
-                    //     Behaviors.same
-                    // case TestSendMessage(sessionId, message) =>
-                    //     println(s"Server received message '${message}'")
-
-                    //     context.self ! SendMessage(sessionId, message)
-
-                    //     Behaviors.same
                 }
             }
         }

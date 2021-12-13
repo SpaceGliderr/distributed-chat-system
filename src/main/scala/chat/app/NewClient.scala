@@ -18,26 +18,25 @@ object ClientManager {
     sealed trait Command
     final case object FindServer extends Command
     private case class ListingResponse(listing: Receptionist.Listing) extends Command
-    // case class Start(username: String, password: String) extends Command
     case class Message(message: String) extends Command
     case class SignUp(username: String, password: String) extends Command
     case class LogIn(username: String, password: String) extends Command
     case class Authenticate(value: Boolean, message: String) extends Command
     case class SignUpRequest(value: Boolean, message: String) extends Command
-    // case class CreateSession(participants: Array[String]) extends Command
     case class CreateSession(participants: Array[Long], chatName: String) extends Command
     case class JoinSession(sessionId: Long) extends Command
     case class SendMessage(sessionId: Long, message: String) extends Command
     case class UpdateUser(user: User) extends Command
     case class ChatSessions(sessions: List[ChatSession]) extends Command
     case class AllUsers(users: List[User]) extends Command
-    case class UpdateSelectedChatRoom(chatSession: ChatSession) extends Command
+    case class UpdateSelectedChat(chatSession: ChatSession, users: List[User]) extends Command
     // case class User(id: String, username: String, password: String) extends Command
 
     var user: User = null
     var users: Set[User] = Set.empty[User]
     var chatSessions: Set[ChatSession] = Set.empty[ChatSession]
     var selectedChatRoom: ChatSession = null
+    var usersInChatRoom: Set[User] = Set.empty[User]
     var authenticate: Boolean = false
     var signup: Boolean = false
 
@@ -100,12 +99,6 @@ object ClientManager {
                         println(message)
                         Behaviors.same
 
-                    // case CreateSession(participants: Array[String]) =>
-                    //     for (remote <- remoteOpt) {
-                    //         remote ! ServerManager.CreateSession(participants)
-                    //     }
-                    //     Behaviors.same
-
                     case CreateSession(participants, chatName) =>
                         for (remote <- remoteOpt) {
                             remote ! ServerManager.CreateSession(context.self, user.id, participants, chatName)
@@ -144,11 +137,16 @@ object ClientManager {
                         println(s"All Users in the system ${context.self.path.name}: ${this.users}")
                         Behaviors.same
 
-                    case UpdateSelectedChatRoom(chatSession) =>
+                    case UpdateSelectedChat(chatSession, users) =>
                         this.selectedChatRoom = chatSession
-                        println(s"Selected Chat Room: ${this.selectedChatRoom}")
+                        this.usersInChatRoom = users.toSet
+                        println(s"Selected > ${this.selectedChatRoom}")
+                        println(s"In sessions: ${this.usersInChatRoom}")
                         Behaviors.same
-                    
+
+
+
+
                 }
             }
         }

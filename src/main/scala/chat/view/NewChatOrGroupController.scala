@@ -164,8 +164,8 @@ class NewChatOrGroupController(
                 val selectedItem = contactList.selectionModel().selectedItem()
                 clientRef.get ! ClientManager.CreateSession(Array(selectedItem.id), selectedItem.username)
                 dialogStage.close()
-                // Main.showChatListPage()
-                Main.showChatRoomPage(false)   //-- pass name to chatroom page
+                Main.showChatListPage()
+                // Main.showChatRoomPage(false)   //-- pass name to chatroom page
             }
         }
         // Group Chat
@@ -181,7 +181,7 @@ class NewChatOrGroupController(
                     val selectedItems = contactList.selectionModel().getSelectedItems()
 
                     var ids: Array[Long] = Array()
-                    selectedItems.foreach(i => ids :+ i.id)
+                    selectedItems.foreach(i => ids = ids :+ i.id)
 
                     clientRef.get ! ClientManager.CreateSession(ids, groupName)
 
