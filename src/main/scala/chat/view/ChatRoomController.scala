@@ -71,6 +71,7 @@ class ChatRoomController(
         messages.clear()
         ClientManager.sessionMessages.foreach(s => messages += s)
         messageList.setItems(messages)
+        messageList.scrollTo(messages.size())
     }
     //if the message text field is empty -> disable the send button, else -> able it
     messageTextField.text.onChange{(_, _, newValue) => {
