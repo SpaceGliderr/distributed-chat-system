@@ -15,6 +15,7 @@ import scalafx.application.Platform
 class ChatListController(
     private val searchBar: TextField,
     private val searchIcon: ImageView,
+    private val clearIcon: ImageView,
     private val pmIcon: ImageView,
     private val groupChatIcon: ImageView,
     private val openIcon: ImageView,
@@ -31,6 +32,7 @@ class ChatListController(
     val newGroupIcon = new Image(getClass().getResourceAsStream("newGroupIcon.png"))
     val viewIcon = new Image(getClass().getResourceAsStream("viewChatIcon.png"))
     val dIcon = new Image(getClass().getResourceAsStream("deleteIcon.png"))
+    val cIcon = new Image(getClass().getResourceAsStream("clearIcon.png"))
 
     // update the imageViews
     searchIcon.image_=(sIcon)
@@ -38,6 +40,7 @@ class ChatListController(
     groupChatIcon.image_=(newGroupIcon)
     openIcon.image_=(viewIcon)
     deleteIcon.image_=(dIcon)
+    clearIcon.image_=(cIcon)
 
 
     val contacts: Array[String] = null
@@ -69,12 +72,18 @@ class ChatListController(
     searchBar.text.onChange {
         if(searchBar.text.getValue() == ""){
             conversationList.items = chatsessions
+            clearIcon.visible_=(false)
         } else{
+            clearIcon.visible_=(true)
             val filtered = chatsessions.filter(x => x.name.contains(searchBar.text.getValue()))
             conversationList.items = filtered
         }
     }
 
+    def clearSearchBar(): Unit = {
+        searchBar.text = ""
+        clearIcon.visible_=(false)
+    }
     def search(): Unit = {
         if (!searchBar.visible.value){
             searchBar.visible_=(true)

@@ -25,7 +25,7 @@ class RootLayoutController() {
         new Alert(AlertType.Information) {
             initOwner(Main.stage)
             title = "About"
-            headerText = "Chattty: A distributed chat application"
+            headerText = "Chatty: A distributed chat application"
             contentText = "This is a distributed chat application that allows multiple users to chat simulataneously. This app is created as an assignment project for the subject of Distributed Systems."
         }.showAndWait()
     }

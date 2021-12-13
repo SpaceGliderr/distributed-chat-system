@@ -42,7 +42,7 @@ class LogInController(
             
             if(ClientManager.authenticate == true){
                 Main.showChatListPage()
-                Main.stage.resizable_=(true)
+                // Main.stage.resizable_=(true)
             } else {
                 alertError("Login Failed", "Invalid Credentials.","Username or password did not match")
             }

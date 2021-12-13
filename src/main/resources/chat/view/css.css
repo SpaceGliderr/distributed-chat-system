@@ -1,4 +1,4 @@
-.backgroundColour{
+/* .backgroundColour{
     -fx-background-color: linear-gradient(to right bottom, RGB(135,182,239),RGB(167,199,253),RGB(224,240,252))
 }
 
@@ -14,5 +14,94 @@
     -fx-background-color: white;
     -fx-border-color: rgb(90, 127, 145);
     -fx-border-radius: 5;
+} */
 
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans&display=swap');
+
+.label{
+    -fx-font-family: "DM Sans";
+    -fx-font-size: 12pt;
+}
+
+.backgroundColour{
+    -fx-background-color: #FEFEFF;
+}
+
+
+.menu-item:focused {
+    -fx-background-color: derive(#0066FF,50%);
+}
+
+.menu:hover, .menu:showing {
+    -fx-background-color: derive(#0066FF,50%);
+}
+
+.button{
+    -fx-background-color: transparent;
+    /* -fx-border-color: rgb(90, 127, 145);
+    -fx-border-radius: 5; */
+    -fx-font-family: "DM Sans";
+
+}
+
+.chatListBackground1{
+    -fx-background-color: #F0F0F0;
+}
+.chatListBackground2{
+    -fx-background-color: #EDEDED;
+}
+
+.list-view {
+    -fx-border-color: transparent;
+    -fx-background-color: #FFFEFF;
+}
+
+.list-view:focused .list-cell:filled:focused:selected {
+    -fx-background-color: derive(#0066FF,50%);
+    -fx-text-fill: white;
+}
+
+.chatroomlist .list-cell {
+    -fx-background-color: #FFFEFF;
+}
+
+.searchBar {
+    -fx-border-color: transparent;
+    -fx-background-color: #FFFEFF;
+}
+
+.heading {
+    -fx-font-family: "DM Sans";
+    -fx-font-size: 24pt;
+    -fx-font-weight: bold; 
+}
+
+.primaryButton {
+    -fx-border-color: #0066FF;
+    -fx-background-color: #0066FF;
+    -fx-font-family: "DM Sans";
+    -fx-font-size: 12pt;
+    -fx-text-fill: #FEFEFF;
+  
+}
+
+.secondaryButton {
+    -fx-background-color: #FEFEFF;
+    -fx-font-family: "DM Sans";
+    -fx-font-size: 12pt;
+    -fx-text-fill: #0066FF;
+    -fx-border-width: 1px;
+    -fx-border-color: #0066FF;
+    -fx-padding: 5 10 5 10;
+}
+
+.text-field{
+    -fx-font-size: 12pt;
+    -fx-font-family: "DM Sans";
+}
+
+.title {
+    -fx-font-family: "DM Sans";
+    -fx-font-size: 30pt;
+    -fx-text-fill: #000000;
 }
