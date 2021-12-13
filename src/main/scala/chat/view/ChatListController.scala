@@ -66,6 +66,15 @@ class ChatListController(
         }
     }
 
+    searchBar.text.onChange {
+        if(searchBar.text.getValue() == ""){
+            conversationList.items = chatsessions
+        } else{
+            val filtered = chatsessions.filter(x => x.name.contains(searchBar.text.getValue()))
+            conversationList.items = filtered
+        }
+    }
+
     def search(): Unit = {
         if (!searchBar.visible.value){
             searchBar.visible_=(true)
@@ -73,7 +82,7 @@ class ChatListController(
         }
         else{
             //-- filter conversation list
-
+            searchBar.text = ""
             searchBar.visible_=(false)
         }
     }

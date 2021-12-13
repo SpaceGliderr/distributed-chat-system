@@ -69,6 +69,15 @@ class NewChatOrGroupController(
     }
 
 
+    searchBar.text.onChange {
+        if(searchBar.text.getValue() == ""){
+            contactList.items = names
+        } else{
+            val filtered = names.filter(x => x.username.contains(searchBar.text.getValue()))
+            contactList.items = filtered
+        }
+    }
+
     def search(): Unit = {
         if (!searchBar.visible.value){
             searchBar.visible_=(true)
@@ -76,7 +85,7 @@ class NewChatOrGroupController(
         }
         else{
             //-- filter contact list
-
+            searchBar.text = ""
             searchBar.visible_=(false)
         }
     }
