@@ -84,7 +84,7 @@ class ChatListController(
         if (conversationList.selectionModel().selectedItem.value == null)
             alertError("Open Fail", "Fail to open conversation", "You must select a conversation")
         else{
-            
+
         }
             //-- check if is group chat then pass in true to ChatRoomPage, else pass in false
             // if (--is group--)

@@ -55,7 +55,8 @@ object ServerManager {
 
                         Thread.sleep(1000)
 
-                        from ! ClientManager.UpdateSelectedChat(chatSession, UserChatSession.getUsersInChatSession(chatSession.id))
+                        from ! ClientManager.UpdateSelectedChatRoom(chatSession)
+                        from ! ClientManager.UpdateUsersInChatRoom(UserChatSession.getUsersInChatSession(chatSession.id))
 
                         val chatRoom = context.spawn(ChatRoom(), chatSession.id.toString)
 
