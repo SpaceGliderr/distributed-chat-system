@@ -166,9 +166,7 @@ class NewChatOrGroupController(
                 val selectedItem = contactList.selectionModel().selectedItem()
                 clientRef.get ! ClientManager.CreateSession(Array(selectedItem.id), selectedItem.username)
                 dialogStage.close()
-                Main.showChatListPage()
-                //TODO: show chatroom
-                // Main.showChatRoomPage(false)   //-- pass name to chatroom page
+                Main.showChatRoomPage(false)
             }
         }
         // Group Chat

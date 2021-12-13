@@ -32,8 +32,10 @@ object ClientManager {
     case class UpdateUser(user: User) extends Command
     case class ChatSessions(sessions: List[ChatSession]) extends Command
     case class AllUsers(users: List[User]) extends Command
-    case class UpdateSelectedChatRoom(chatSession: ChatSession) extends Command
-    case class UpdateUsersInChatRoom(users: List[User]) extends Command
+    case class SelectedChat(chatSession: ChatSession, users: List[User]) extends Command
+    case class UpdateChatInfo(chatSession: ChatSession) extends Command
+    // case class UpdateSelectedChatRoom(chatSession: ChatSession) extends Command
+    // case class UpdateUsersInChatRoom(users: List[User]) extends Command
     case class GetSessionMessages(message: ListBuffer[String]) extends Command
 
     // case class User(id: String, username: String, password: String) extends Command
@@ -159,15 +161,28 @@ object ClientManager {
                         println(s"All Users in the system ${context.self.path.name}: ${this.users}")
                         Behaviors.same
 
-                    case UpdateSelectedChatRoom(chatSession) =>
-                        this.selectedChatRoom = chatSession
-                        println(s"Selected > ${this.selectedChatRoom}")
+                    case UpdateChatInfo(chatSession) =>
+                        for (remote <- remoteOpt) {
+                            remote ! ServerManager.UpdateChatInfo(context.self, chatSession)
+                        }
                         Behaviors.same
 
-                    case UpdateUsersInChatRoom(users) =>
+                    case SelectedChat(chatSession, users) =>
+                        this.selectedChatRoom = chatSession
                         this.usersInChatRoom = users.toSet
+                        println(s"Selected > ${this.selectedChatRoom}")
                         println(s"In sessions: ${this.usersInChatRoom}")
                         Behaviors.same
+
+                    // case UpdateSelectedChatRoom(chatSession) =>
+                    //     this.selectedChatRoom = chatSession
+                    //     println(s"Selected > ${this.selectedChatRoom}")
+                    //     Behaviors.same
+
+                    // case UpdateUsersInChatRoom(users) =>
+                    //     this.usersInChatRoom = users.toSet
+                    //     println(s"In sessions: ${this.usersInChatRoom}")
+                    //     Behaviors.same
 
 
 

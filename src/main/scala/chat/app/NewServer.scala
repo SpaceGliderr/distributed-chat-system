@@ -25,6 +25,7 @@ object ServerManager {
     case class GetAllUsers(from: ActorRef[ClientManager.Command]) extends Command
     case class GetSessionMessages(from: ActorRef[ClientManager.Command], sessionId: Long) extends Command
     case class populateChatSessionMap() extends Command
+    case class UpdateChatInfo(from: ActorRef[ClientManager.Command], chatSession: ChatSession) extends Command
     // case object TestCreateSession extends Command
     // case class TestJoinSession(sessionId: String) extends Command
     // case class TestSendMessage(sessionId: String, message: String) extends Command
@@ -60,8 +61,9 @@ object ServerManager {
                             userChatSession.upsert()
                         })
 
-                        from ! ClientManager.UpdateSelectedChatRoom(chatSession)
-                        from ! ClientManager.UpdateUsersInChatRoom(UserChatSession.getUsersInChatSession(chatSession.id))
+                        from ! ClientManager.SelectedChat(chatSession, UserChatSession.getUsersInChatSession(chatSession.id))
+                        // from ! ClientManager.UpdateSelectedChatRoom(chatSession)
+                        // from ! ClientManager.UpdateUsersInChatRoom(UserChatSession.getUsersInChatSession(chatSession.id))
                         from ! ClientManager.JoinSession(chatSession.id)
 
                         val chatRoom = context.spawn(ChatRoom(), chatSession.id.toString)
@@ -89,17 +91,17 @@ object ServerManager {
                         })
 
                         Behaviors.same
-                    
+
                     case LeaveSession(from, sessionId) =>
                         println("Server received request to leave session")
                         println(s"Session ID: ${sessionId}")
-            
+
                         chatSessionMap.get(sessionId).foreach(room => {
                             room ! ChatRoom.Unsubscribe(from)
                         })
-                        
+
                         Behaviors.same
-                    
+
                     case GetSessionMessages(from, sessionId) =>
                         println("Session ID:" + sessionId)
                         val messages = ChatSession.getMessages(sessionId)
@@ -164,6 +166,12 @@ object ServerManager {
                             chatSessionMap += (chatSession.id -> chatRoom)
                         })
                         Behaviors.same
+
+                    case UpdateChatInfo(from, chatSession) =>
+                        val users = UserChatSession.getUsersInChatSession(chatSession.id)
+                        from ! ClientManager.SelectedChat(chatSession, users)
+                        Behaviors.same
+
 
                 }
             }
