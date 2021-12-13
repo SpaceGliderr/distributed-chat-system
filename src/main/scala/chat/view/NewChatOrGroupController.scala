@@ -2,7 +2,7 @@ package chat.view
 
 import scalafxml.core.macros.sfxml
 import javafx.scene.layout.ColumnConstraints
-import scalafx.scene.control.{TextField, ListView, MenuItem, Dialog, ButtonType, Label}
+import scalafx.scene.control.{TextField, ListView, MenuItem, Dialog, ButtonType, Label, Button}
 import scalafx.Includes._
 import scalafx.scene.image.{ImageView, Image}
 import chat.{Main, ClientManager}
@@ -24,7 +24,7 @@ class NewChatOrGroupController(
     private val imageView: ImageView,
     private val imageView1: ImageView,
     private val imageView2: ImageView,
-    private val menuItem: MenuItem,
+    private val createButton: Button,
     private val contactList: ListView[User]   //-- not sure the type
 
 ) extends AlertMessage{
@@ -56,6 +56,8 @@ class NewChatOrGroupController(
     )
     contactList.items = names
 
+    //TODO: remove already in contact list
+
     // --
     // def showContactList() = {
     //      /* FOR ADD NEW CHAT: if the contact is already in contact list (the contacts variable),
@@ -77,74 +79,74 @@ class NewChatOrGroupController(
         }
     }
 
-    def setMenuItemName(): Unit = {
-        if (title == "Add New Chat")
-            menuItem.text_=("Create Chat")
-        else
-            menuItem.text_=("Create Group")
-    }
+    // def setMenuItemName(): Unit = {
+    //     if (title == "Add New Chat")
+    //         menuItem.text_=("Create Chat")
+    //     else
+    //         menuItem.text_=("Create Group")
+    // }
 
-    def addNewContact(): Unit = {
-        //dialog box, popup
-        case class Result(contactName: String, contactNum: String)
-        val dialog = new Dialog[Result]()
-        dialog.initOwner(Main.stage)
-        dialog.title_=("Add New Contact")
-        dialog.headerText_=("Please enter the contact name and contact number")
-        val imageView = new ImageView(getClass.getResource("addContact.png").toString())
-        imageView.fitWidth_=(44)
-        imageView.fitHeight_=(44)
-        dialog.graphic_=(imageView)
-        val saveButtonType: ButtonType = new ButtonType("Save", ButtonData.OKDone)
-        dialog.dialogPane().buttonTypes = Seq(ButtonType.Cancel,saveButtonType)
-        val grid: GridPane = new GridPane()
-        grid.hgap_=(10)
-        grid.vgap_=(10)
-        grid.padding_=(Insets(20,150,10,10))
-        grid.getColumnConstraints().add(new ColumnConstraints(127))
-        grid.getColumnConstraints().add(new ColumnConstraints(210))
-        val contactName: TextField = new TextField()
-        val contactNum: TextField = new TextField()
-        contactNum.promptText_=("0123456789 or 01234567890")
-        grid.add(new Label("Contact Name: "), 0, 0)
-        grid.add(contactName,1,0)
-        grid.add(new Label("Contact Number: "),0,1)
-        grid.add(contactNum,1,1)
-        val saveButton: Node = dialog.dialogPane().lookupButton(saveButtonType)
-        saveButton.disable_=(true)
-        contactName.text.onChange{(_, _, newValue) => {
-            if (contactNum.text.value.length != 0 && !newValue.trim().isEmpty){
-                if ((contactNum.text.value.length == 10 || contactNum.text.value.length == 11) && (contactNum.text.value.substring(0,2) == "01"))
-                    saveButton.disable_=(false)
-                else
-                    saveButton.disable_=(true)
-            }
-            else
-                saveButton.disable_=(true)
-            }
-        }
-        contactNum.text.onChange{(_, _, newValue1) => {
-            if (contactName.text.value.length != 0 && !newValue1.trim().isEmpty){
-                if ((newValue1.length == 10 || newValue1.length == 11) && (newValue1.substring(0,2) == "01"))
-                    saveButton.disable_=(false)
-                else
-                    saveButton.disable_=(true)
-            }
-            }
-        }
-        dialog.dialogPane().content_=(grid)
-        Platform.runLater(contactName.requestFocus())
-        dialog.resultConverter = buttonType =>
-            if (buttonType == saveButtonType)
-                Result(contactName.text.value, contactNum.text.value)
-            else
-                null
-        val result = dialog.showAndWait()
-        result match{
-            case Some(Result(name, num)) => //-- use the name and num to create contact obj? or user obj? & save to database
-            case None => dialog.close()
-        }
-    }
+    // def addNewContact(): Unit = {
+    //     //dialog box, popup
+    //     case class Result(contactName: String, contactNum: String)
+    //     val dialog = new Dialog[Result]()
+    //     dialog.initOwner(Main.stage)
+    //     dialog.title_=("Add New Contact")
+    //     dialog.headerText_=("Please enter the contact name and contact number")
+    //     val imageView = new ImageView(getClass.getResource("addContact.png").toString())
+    //     imageView.fitWidth_=(44)
+    //     imageView.fitHeight_=(44)
+    //     dialog.graphic_=(imageView)
+    //     val saveButtonType: ButtonType = new ButtonType("Save", ButtonData.OKDone)
+    //     dialog.dialogPane().buttonTypes = Seq(ButtonType.Cancel,saveButtonType)
+    //     val grid: GridPane = new GridPane()
+    //     grid.hgap_=(10)
+    //     grid.vgap_=(10)
+    //     grid.padding_=(Insets(20,150,10,10))
+    //     grid.getColumnConstraints().add(new ColumnConstraints(127))
+    //     grid.getColumnConstraints().add(new ColumnConstraints(210))
+    //     val contactName: TextField = new TextField()
+    //     val contactNum: TextField = new TextField()
+    //     contactNum.promptText_=("0123456789 or 01234567890")
+    //     grid.add(new Label("Contact Name: "), 0, 0)
+    //     grid.add(contactName,1,0)
+    //     grid.add(new Label("Contact Number: "),0,1)
+    //     grid.add(contactNum,1,1)
+    //     val saveButton: Node = dialog.dialogPane().lookupButton(saveButtonType)
+    //     saveButton.disable_=(true)
+    //     contactName.text.onChange{(_, _, newValue) => {
+    //         if (contactNum.text.value.length != 0 && !newValue.trim().isEmpty){
+    //             if ((contactNum.text.value.length == 10 || contactNum.text.value.length == 11) && (contactNum.text.value.substring(0,2) == "01"))
+    //                 saveButton.disable_=(false)
+    //             else
+    //                 saveButton.disable_=(true)
+    //         }
+    //         else
+    //             saveButton.disable_=(true)
+    //         }
+    //     }
+    //     contactNum.text.onChange{(_, _, newValue1) => {
+    //         if (contactName.text.value.length != 0 && !newValue1.trim().isEmpty){
+    //             if ((newValue1.length == 10 || newValue1.length == 11) && (newValue1.substring(0,2) == "01"))
+    //                 saveButton.disable_=(false)
+    //             else
+    //                 saveButton.disable_=(true)
+    //         }
+    //         }
+    //     }
+    //     dialog.dialogPane().content_=(grid)
+    //     Platform.runLater(contactName.requestFocus())
+    //     dialog.resultConverter = buttonType =>
+    //         if (buttonType == saveButtonType)
+    //             Result(contactName.text.value, contactNum.text.value)
+    //         else
+    //             null
+    //     val result = dialog.showAndWait()
+    //     result match{
+    //         case Some(Result(name, num)) => //-- use the name and num to create contact obj? or user obj? & save to database
+    //         case None => dialog.close()
+    //     }
+    // }
 
     //================================ try run, remove later
     // contacts = Array("1","2","3")
@@ -165,6 +167,7 @@ class NewChatOrGroupController(
                 clientRef.get ! ClientManager.CreateSession(Array(selectedItem.id), selectedItem.username)
                 dialogStage.close()
                 Main.showChatListPage()
+                //TODO: show chatroom
                 // Main.showChatRoomPage(false)   //-- pass name to chatroom page
             }
         }
