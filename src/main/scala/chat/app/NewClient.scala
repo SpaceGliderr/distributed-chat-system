@@ -27,6 +27,7 @@ object ClientManager {
     case class SignUpRequest(value: Boolean, message: String) extends Command
     case class CreateSession(participants: Array[Long], chatName: String) extends Command
     case class JoinSession(sessionId: Long) extends Command
+    case class LeaveSession(sessionId: Long) extends Command
     case class SendMessage(message: String) extends Command
     case class UpdateUser(user: User) extends Command
     case class ChatSessions(sessions: List[ChatSession]) extends Command
@@ -119,8 +120,14 @@ object ClientManager {
                         }
                         Behaviors.same
 
+                    case LeaveSession(sessionId) =>
+                        for (remote <- remoteOpt) {
+                            remote ! ServerManager.LeaveSession(context.self, sessionId)
+                        }
+                        Behaviors.same
+
                     case GetSessionMessages(messages) =>{
-                        this.sessionMessages.clear()
+                        sessionMessages.clear()
                         messages.foreach(m => this.sessionMessages += m)
                         println(s"sessionMessage received from ${context.self.path.name}: ${this.sessionMessages}")
                         Behaviors.same

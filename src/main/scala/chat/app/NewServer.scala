@@ -17,6 +17,7 @@ object ServerManager {
     // ! problem to get creator id
     case class CreateSession(from: ActorRef[ClientManager.Command], creatorId: Long, participants: Array[Long], chatName: String) extends Command
     case class JoinSession(sessionId: Long, participants: Array[Long]) extends Command
+    case class LeaveSession(from: ActorRef[ClientManager.Command], sessionId: Long) extends Command
     case class SendMessage(sessionId: Long, message: String, senderId: Long) extends Command
     case class CreateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
     case class AuthenticateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
@@ -103,7 +104,17 @@ object ServerManager {
                         })
 
                         Behaviors.same
-
+                    
+                    case LeaveSession(from, sessionId) =>
+                        println("Server received request to leave session")
+                        println(s"Session ID: ${sessionId}")
+            
+                        chatSessionMap.get(sessionId).foreach(room => {
+                            room ! ChatRoom.Unsubscribe(from)
+                        })
+                        
+                        Behaviors.same
+                    
                     case GetSessionMessages(from, sessionId) =>
                         println("Session ID:" + sessionId)
                         val messages = ChatSession.getMessages(sessionId)
