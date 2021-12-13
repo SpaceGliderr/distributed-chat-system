@@ -46,14 +46,22 @@ object ServerManager {
                     case CreateSession(from, creatorId, participants, chatName) =>
                         println(s"Server received request to create session")
 
+
+
                         // Spawn Chat Room actor
                         val chatSession = new ChatSession(chatName, "desc", creatorId)
                         chatSession.create()
                         from ! ClientManager.ChatSessions(List(chatSession))
 
-                        context.self ! JoinSession(chatSession.id, participants)
+                        var userChatSession: UserChatSession = null
 
-                        Thread.sleep(1000)
+                        participants.foreach( participant => {
+                            println(participant)
+                            userChatSession = new UserChatSession(participant, chatSession.id)
+                            userChatSession.upsert()
+                        })
+
+                        // context.self ! JoinSession(chatSession.id, participants)
 
                         from ! ClientManager.UpdateSelectedChatRoom(chatSession)
                         from ! ClientManager.UpdateUsersInChatRoom(UserChatSession.getUsersInChatSession(chatSession.id))
@@ -83,13 +91,9 @@ object ServerManager {
                         println(s"Session ID: ${sessionId}")
                         println(chatSessionMap)
 
-                        var userChatSession: UserChatSession = null
                         var p = Array[ActorRef[ClientManager.Command]]()
 
                         participants.foreach(participant => {
-                            println(participant)
-                            userChatSession = new UserChatSession(participant, sessionId)
-                            userChatSession.upsert()
                             userMap.get(participant).foreach(user => p = p :+ user)
                         })
 
