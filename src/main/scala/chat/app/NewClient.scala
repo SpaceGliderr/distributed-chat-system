@@ -40,7 +40,7 @@ object ClientManager {
 
     var user: User = null
     var users: Set[User] = Set.empty[User]
-    var chatSessions: Set[ChatSession] = Set.empty[ChatSession]
+    var chatSessions = new ObservableBuffer[ChatSession]()
     var selectedChatRoom: ChatSession = null
     var usersInChatRoom: Set[User] = Set.empty[User]
     var authenticate: Boolean = false
@@ -149,9 +149,10 @@ object ClientManager {
                         }
                         Behaviors.same
 
-                    case ChatSessions(sessions: List[ChatSession]) =>
-                        this.chatSessions = this.chatSessions ++ sessions.toSet
-                        println(s"ChatSessions received from ${context.self.path.name}: ${this.chatSessions}")
+                    case ChatSessions(sessions) =>
+                        chatSessions.clear()
+                        sessions.foreach(s => chatSessions += s)
+                        println(s"ChatSessions received from ${context.self.path.name}: ${chatSessions}")
                         Behaviors.same
 
                     case AllUsers(users: List[User]) =>

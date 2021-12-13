@@ -50,7 +50,7 @@ object ServerManager {
                         // Spawn Chat Room actor
                         val chatSession = new ChatSession(chatName, "desc", creatorId)
                         chatSession.create()
-                        from ! ClientManager.ChatSessions(List(chatSession))
+                        context.self ! GetChatSession(from, creatorId)
 
                         var userChatSession: UserChatSession = null
 
@@ -58,6 +58,8 @@ object ServerManager {
                             println(participant)
                             userChatSession = new UserChatSession(participant, chatSession.id)
                             userChatSession.upsert()
+                            //Update new chat session  
+                            userMap.get(participant).foreach(user => context.self ! GetChatSession(user,participant))
                         })
 
                         from ! ClientManager.UpdateSelectedChatRoom(chatSession)
@@ -68,6 +70,11 @@ object ServerManager {
                         // Add chat room to chat session map
                         chatSessionMap += (chatSession.id -> chatRoom)
                         println("CHAT SESSION MAP >>>>> ", chatSessionMap)
+
+                        
+                        // for ((id, actorref) <- userMap) {
+                        //     context.self ! GetChatSession(actorref,id)
+                        // }
 
                         Behaviors.same
 
@@ -93,11 +100,11 @@ object ServerManager {
                     case LeaveSession(from, sessionId) =>
                         println("Server received request to leave session")
                         println(s"Session ID: ${sessionId}")
-            
+
                         chatSessionMap.get(sessionId).foreach(room => {
                             room ! ChatRoom.Unsubscribe(from)
                         })
-                        
+
                         Behaviors.same
                     
                     case GetSessionMessages(from, sessionId) =>
@@ -150,7 +157,7 @@ object ServerManager {
 
                     case GetChatSession(from, userId) =>
                         val sessions = UserChatSession.getChatSessions(userId)
-                        from ! ClientManager.ChatSessions(sessions)
+                        from ! ClientManager.ChatSessions(sessions.distinct)
                         Behaviors.same
 
                     case GetAllUsers(from) =>

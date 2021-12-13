@@ -11,6 +11,7 @@ import javafx.stage.Stage
 class RootLayoutController() {
     def handleClose() {
         Platform.exit()
+        Main.clientMain.terminate
     }
 
     def handleLogOut() {

@@ -9,6 +9,7 @@ import chat.{Main, ClientManager}
 import chat.util.AlertMessage
 import chat.model.ChatSession
 import scalafx.collections.ObservableBuffer
+import scalafx.application.Platform
 
 @sfxml
 class ChatListController(
@@ -58,6 +59,13 @@ class ChatListController(
         ClientManager.chatSessions.foreach(s => names += s.name)
         ClientManager.chatSessions.foreach(s => chatsessions += s)
         conversationList.items = names
+    }
+
+    ClientManager.chatSessions.onChange{(ns, _) =>
+        println("chatsession changes")
+        Platform.runLater {
+            showConversationList()
+        }
     }
 
     def search(): Unit = {
