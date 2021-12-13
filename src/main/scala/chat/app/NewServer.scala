@@ -47,8 +47,6 @@ object ServerManager {
                     case CreateSession(from, creatorId, participants, chatName) =>
                         println(s"Server received request to create session")
 
-
-
                         // Spawn Chat Room actor
                         val chatSession = new ChatSession(chatName, "desc", creatorId)
                         chatSession.create()
@@ -62,27 +60,14 @@ object ServerManager {
                             userChatSession.upsert()
                         })
 
-                        // context.self ! JoinSession(chatSession.id, participants)
-
                         from ! ClientManager.UpdateSelectedChatRoom(chatSession)
                         from ! ClientManager.UpdateUsersInChatRoom(UserChatSession.getUsersInChatSession(chatSession.id))
+                        from ! ClientManager.JoinSession(chatSession.id)
 
                         val chatRoom = context.spawn(ChatRoom(), chatSession.id.toString)
-
                         // Add chat room to chat session map
                         chatSessionMap += (chatSession.id -> chatRoom)
-
                         println("CHAT SESSION MAP >>>>> ", chatSessionMap)
-
-                        var p: Array[ActorRef[ClientManager.Command]] = Array()
-
-                        participants.foreach(participant => {
-                            userMap.get(participant).foreach(user =>
-                                p = p :+ user)
-                        })
-
-                        chatRoom ! ChatRoom.Subscribe(p)
-                        //chatRoom ! ChatRoom.Publish("Welcome to Hello System!")
 
                         Behaviors.same
 

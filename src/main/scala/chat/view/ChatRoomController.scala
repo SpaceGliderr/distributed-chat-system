@@ -24,7 +24,6 @@ class ChatRoomController(
 
 ) extends AlertMessage{
 
-    var clientRef: Option[ActorRef[ClientManager.Command]] = None
     //pass in from Main
     // var messages: Array[String] = null    //-- not sure the type
     var chatRoom: ChatSession = null

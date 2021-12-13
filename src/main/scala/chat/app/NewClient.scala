@@ -121,13 +121,13 @@ object ClientManager {
                         Behaviors.same
 
                     case LeaveSession(sessionId) =>
+                        sessionMessages.clear()
                         for (remote <- remoteOpt) {
                             remote ! ServerManager.LeaveSession(context.self, sessionId)
                         }
                         Behaviors.same
 
                     case GetSessionMessages(messages) =>{
-                        sessionMessages.clear()
                         messages.foreach(m => this.sessionMessages += m)
                         println(s"sessionMessage received from ${context.self.path.name}: ${this.sessionMessages}")
                         Behaviors.same
