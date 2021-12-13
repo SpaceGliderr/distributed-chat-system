@@ -48,10 +48,12 @@ class NewChatOrGroupController(
     //allow multiple selection
     contactList.selectionModel().setSelectionMode(SelectionMode.Multiple)
 
+    var names = new ObservableBuffer[User]()
+
     //TODO: remove already in contact list
     // populate the user lists
     def updateContactList() = {
-        var names = new ObservableBuffer[User]()
+        names = new ObservableBuffer[User]()
 
         if (isGroup)
             ClientManager.users.foreach( u => names += u)
@@ -63,7 +65,7 @@ class NewChatOrGroupController(
 
 
     def updatePMContactList() = {
-        var names = new ObservableBuffer[User]()
+        names = new ObservableBuffer[User]()
         ClientManager.users.foreach( u => names += u)
         contactList.items = names
     }
