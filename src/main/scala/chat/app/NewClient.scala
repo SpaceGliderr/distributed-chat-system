@@ -32,7 +32,7 @@ object ClientManager {
     case class SendMessage(message: String) extends Command
     case class UpdateUser(user: User) extends Command
     case class ChatSessions(sessions: List[ChatSession]) extends Command
-    case class AllUsers(users: List[User]) extends Command
+    case class AllUsers(allUsers: List[User], pmUsers: List[User]) extends Command
     case class SelectedChat(chatSession: ChatSession, users: List[User]) extends Command
     case class UpdateChatInfo(chatSession: ChatSession) extends Command
     case class GetSessionMessages(message: ListBuffer[String]) extends Command
@@ -41,6 +41,7 @@ object ClientManager {
 
     var user: User = null
     var users: Set[User] = Set.empty[User]
+    var pmUsers: Set[User] = Set.empty[User]
     var chatSessions = new ObservableBuffer[ChatSession]()
     var selectedChatRoom: ChatSession = null
     var usersInChatRoom: Set[User] = Set.empty[User]
@@ -165,9 +166,12 @@ object ClientManager {
                         println(s"ChatSessions received from ${context.self.path.name}: ${chatSessions}")
                         Behaviors.same
 
-                    case AllUsers(users: List[User]) =>
-                        this.users = this.users ++ users.toSet
+                    case AllUsers(allUsers: List[User], pmUsers: List[User]) =>
+                        this.users = this.users ++ allUsers.toSet
+                        this.pmUsers = this.pmUsers ++ pmUsers.toSet
+
                         println(s"All Users in the system ${context.self.path.name}: ${this.users}")
+                        println(s"PM User in the system ${context.self.path.name}: ${this.pmUsers}")
                         Behaviors.same
 
                     case UpdateChatInfo(chatSession) =>

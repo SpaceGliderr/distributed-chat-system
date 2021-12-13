@@ -168,16 +168,18 @@ object ServerManager {
                         Behaviors.same
 
                     case GetAllUsers(from, user) =>
-                        var users = User.selectAll.filter( _ != user)
+                        var allUsers = User.selectAll.filter( _ != user)
+                        var availableUsers = User.selectAll.filter( _ != user)
+
                         val sessions = ChatSession.selectAll
                         sessions.foreach( s => {
-                            users.foreach( u => {
+                            availableUsers.foreach( u => {
                                 if (UserChatSession.getPMChatSessions(u.id, user.id, s.id).length == 2)
-                                    users = users.filter(_ != u)
+                                    availableUsers = availableUsers.filter(_ != u)
                             })
                         })
 
-                        from ! ClientManager.AllUsers(users)
+                        from ! ClientManager.AllUsers(allUsers, availableUsers)
                         Behaviors.same
 
                     case PopulateChatSessionMap()=>

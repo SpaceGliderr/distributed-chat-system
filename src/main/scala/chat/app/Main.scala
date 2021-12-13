@@ -54,7 +54,7 @@ object Main extends JFXApp {
   }
 
   //to load (add new chat page) or (add new group page)
-  def showNewChatOrNewGroupPage(_title: String, _contacts: Array[String]) = {
+  def showNewChatOrNewGroupPage(_title: String, _contacts: Array[String], _isGroup: Boolean) = {
     val resource = getClass.getResourceAsStream("view/NewChatOrGroup.fxml")
     val loader = new FXMLLoader(null, NoDependencyResolver)
     loader.load(resource);
@@ -74,8 +74,10 @@ object Main extends JFXApp {
       icons += new Image(getClass.getResourceAsStream("view/chatIcon.png"))
     }
     controller.dialogStage = window
+    controller.isGroup = _isGroup
     controller.title = _title
     controller.contacts = _contacts
+    controller.updateContactList()
     window.showAndWait()
   }
 

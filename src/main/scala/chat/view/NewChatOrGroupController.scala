@@ -34,6 +34,7 @@ class NewChatOrGroupController(
     val searchIcon = new Image(getClass().getResourceAsStream("searchIcon.png"))
     val plusIcon = new Image(getClass().getResourceAsStream("plusIcon.png"))
     val backIcon = new Image(getClass().getResourceAsStream("backIcon.png"))
+    var isGroup = false
 
     imageView.image_=(searchIcon)
     imageView1.image_=(plusIcon)
@@ -49,14 +50,24 @@ class NewChatOrGroupController(
 
     //TODO: remove already in contact list
     // populate the user lists
-    var names = new ObservableBuffer[User]()
-    ClientManager.users.foreach( u => {
-        if (ClientManager.user.username != u.username)
-            names += u
+    def updateContactList() = {
+        var names = new ObservableBuffer[User]()
+
+        if (isGroup)
+            ClientManager.users.foreach( u => names += u)
+        else
+            ClientManager.pmUsers.foreach( u => names += u)
+
+        contactList.items = names
     }
 
-    )
-    contactList.items = names
+
+    def updatePMContactList() = {
+        var names = new ObservableBuffer[User]()
+        ClientManager.users.foreach( u => names += u)
+        contactList.items = names
+    }
+
 
     def search(): Unit = {
         if (!searchBar.visible.value){
@@ -186,4 +197,7 @@ class NewChatOrGroupController(
     }
 
     def cancel: Unit = dialogStage.close()
+
+
+
 }

@@ -79,11 +79,11 @@ class ChatListController(
     }
 
     def addNewChat: Unit = {
-        Main.showNewChatOrNewGroupPage("Add New Chat", contacts)
+        Main.showNewChatOrNewGroupPage("Add New Chat", contacts, false)
     }
 
     def addNewGroup: Unit = {
-        Main.showNewChatOrNewGroupPage("Add New Group", null)
+        Main.showNewChatOrNewGroupPage("Add New Group", null, true)
     }
 
     def viewConversation: Unit = {
