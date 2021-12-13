@@ -9,6 +9,7 @@ import scalafx.beans.property.StringProperty
 import model.{User, ChatSession, UserChatSession, Message}
 import util.{Database, UserRoles}
 import scala.util.{ Success, Failure }
+import scala.collection.mutable.ListBuffer
 
 object ServerManager {
     sealed trait Command
@@ -21,6 +22,8 @@ object ServerManager {
     case class AuthenticateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
     case class GetChatSession(from: ActorRef[ClientManager.Command], userId: Long) extends Command
     case class GetAllUsers(from: ActorRef[ClientManager.Command]) extends Command
+    case class GetSessionMessages(from: ActorRef[ClientManager.Command], sessionId: Long) extends Command
+    case class populateChatSessionMap() extends Command
     // case object TestCreateSession extends Command
     // case class TestJoinSession(sessionId: String) extends Command
     // case class TestSendMessage(sessionId: String, message: String) extends Command
@@ -69,7 +72,7 @@ object ServerManager {
                         })
 
                         chatRoom ! ChatRoom.Subscribe(p)
-                        chatRoom ! ChatRoom.Publish("Welcome to Hello System!")
+                        //chatRoom ! ChatRoom.Publish("Welcome to Hello System!")
 
                         Behaviors.same
 
@@ -88,12 +91,21 @@ object ServerManager {
                             userChatSession.upsert()
                             userMap.get(participant).foreach(user => p = p :+ user)
                         })
-                        
+
                         chatSessionMap.get(sessionId).foreach(room => {
                             room ! ChatRoom.Subscribe(p)
-                            room ! ChatRoom.Publish("New people just joined!!!")
+                            //room ! ChatRoom.Publish("New people just joined!!!")
                         })
 
+                        Behaviors.same
+
+                    case GetSessionMessages(from, sessionId) =>
+                        println("Session ID:" + sessionId)
+                        val messages = ChatSession.getMessages(sessionId)
+                        val messageString = new ListBuffer[String]()
+                        messages.foreach(m => messageString += m.toString())
+                        println(messageString)
+                        from ! ClientManager.GetSessionMessages(messageString)
                         Behaviors.same
 
                     case SendMessage(sessionId, message, senderId) =>
@@ -101,7 +113,7 @@ object ServerManager {
                         val msg = new model.Message(message, senderId, sessionId)
                         msg.upsert()
                         chatSessionMap.get(sessionId).foreach(room => {
-                            room ! ChatRoom.Publish(message)
+                            room ! ChatRoom.Publish(msg.toString())
                         })
 
                         Behaviors.same
@@ -145,6 +157,13 @@ object ServerManager {
                         from ! ClientManager.AllUsers(users)
                         Behaviors.same
 
+                    case populateChatSessionMap()=>
+                        ChatSession.selectAll.foreach(chatSession => {
+                            val chatRoom = context.spawn(ChatRoom(), chatSession.id.toString)
+                            chatSessionMap += (chatSession.id -> chatRoom)
+                        })
+                        Behaviors.same
+
                 }
             }
         }
@@ -154,6 +173,8 @@ object NewServer extends App {
     Database.setupDB()
 
     val greeterMain: ActorSystem[ServerManager.Command] = ActorSystem(ServerManager(), "HelloSystem")
+
+    greeterMain ! ServerManager.populateChatSessionMap()
 
     var msg = scala.io.StdIn.readLine("see database")
 

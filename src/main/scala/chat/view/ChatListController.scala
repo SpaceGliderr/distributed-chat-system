@@ -49,10 +49,14 @@ class ChatListController(
     //make the menu bar visible
     Main.roots.top.value.visible_=(true)
 
+    var chatsessions = new ObservableBuffer[ChatSession]()
+
     // Populate the conversations in the table
     def showConversationList() = {
         var names = new ObservableBuffer[String]()
+        this.chatsessions = new ObservableBuffer[ChatSession]()
         ClientManager.chatSessions.foreach(s => names += s.name)
+        ClientManager.chatSessions.foreach(s => chatsessions += s)
         conversationList.items = names
     }
 
@@ -91,6 +95,14 @@ class ChatListController(
             //============================try run, later delete
             // Main.showChatRoomPage(null, null, true)
             //===============================
+            println(conversationList.getSelectionModel().getSelectedIndex())
+            println(conversationList.selectionModel().selectedItem.value)
+            // val sessionId = conversationList.selectionModel().selectedItem.value.id
+            // val sessionId = this.chatsessions(conversationList.getSelectionModel().getSelectedIndex())
+            Main.clientMain ! ClientManager.UpdateSelectedChatRoom(this.chatsessions(conversationList.getSelectionModel().getSelectedIndex()))
+            Main.clientMain ! ClientManager.JoinSession(this.chatsessions(conversationList.getSelectionModel().getSelectedIndex()).id.toLong)
+            // println(sessionId)
+            Main.showChatRoomPage(true)
     }
 
 

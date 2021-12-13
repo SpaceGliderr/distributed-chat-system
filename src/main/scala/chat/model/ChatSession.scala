@@ -132,7 +132,7 @@ object ChatSession extends Database {
         }
     }
 
-    def getMessages(chatSessionId: Int): List[Message] = {
+    def getMessages(chatSessionId: Long): List[Message] = {
         DB readOnly { implicit session =>
             sql"""
                 select * from messages

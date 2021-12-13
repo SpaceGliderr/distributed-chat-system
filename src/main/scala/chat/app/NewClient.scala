@@ -10,6 +10,8 @@ import scalafx.beans.property.StringProperty
 // import ClientManager.Command
 import chat.model.{User, ChatSession}
 import util.Database
+import scalafx.collections.ObservableBuffer
+import scala.collection.mutable.ListBuffer
 
 
 // Documentation regarding the Actor Receptionist, Listing, etc.
@@ -25,11 +27,13 @@ object ClientManager {
     case class SignUpRequest(value: Boolean, message: String) extends Command
     case class CreateSession(participants: Array[Long], chatName: String) extends Command
     case class JoinSession(sessionId: Long) extends Command
-    case class SendMessage(sessionId: Long, message: String) extends Command
+    case class SendMessage(message: String) extends Command
     case class UpdateUser(user: User) extends Command
     case class ChatSessions(sessions: List[ChatSession]) extends Command
     case class AllUsers(users: List[User]) extends Command
     case class UpdateSelectedChat(chatSession: ChatSession, users: List[User]) extends Command
+    case class GetSessionMessages(message: ListBuffer[String]) extends Command
+
     // case class User(id: String, username: String, password: String) extends Command
 
     var user: User = null
@@ -39,6 +43,7 @@ object ClientManager {
     var usersInChatRoom: Set[User] = Set.empty[User]
     var authenticate: Boolean = false
     var signup: Boolean = false
+    var sessionMessages = new ObservableBuffer[String]()
 
     def apply(): Behavior[ClientManager.Command] =
         Behaviors.setup { context =>
@@ -75,6 +80,7 @@ object ClientManager {
 
                     case Message(message) =>
                         println(s"Message received on Client ${context.self.path.name}: ${message}")
+                        sessionMessages += message
                         Behaviors.same
 
                     case SignUp(username, password) =>
@@ -107,14 +113,22 @@ object ClientManager {
 
                     case JoinSession(sessionId) =>
                         for (remote <- remoteOpt) {
+                            remote ! ServerManager.GetSessionMessages(context.self, sessionId)
                             remote ! ServerManager.JoinSession(sessionId , Array(user.id))
                         }
                         Behaviors.same
 
-                    case SendMessage(sessionId, message) =>
+                    case GetSessionMessages(messages) =>{
+                        this.sessionMessages.clear()
+                        messages.foreach(m => this.sessionMessages += m)
+                        println(s"sessionMessage received from ${context.self.path.name}: ${this.sessionMessages}")
+                        Behaviors.same
+                    }
+
+                    case SendMessage(message) =>
                         println(s"Current User >>> ${user}")
                         for (remote <- remoteOpt) {
-                            remote ! ServerManager.SendMessage(sessionId, message, user.id)
+                            remote ! ServerManager.SendMessage(selectedChatRoom.id, message, user.id)
                         }
                         Behaviors.same
 
