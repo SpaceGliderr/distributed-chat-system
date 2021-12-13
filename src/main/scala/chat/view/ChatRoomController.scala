@@ -27,9 +27,10 @@ class ChatRoomController(
     var clientRef: Option[ActorRef[ClientManager.Command]] = None
     //pass in from Main
     // var messages: Array[String] = null    //-- not sure the type
-    // var nameList: Array[String] = null    //-- not sure the type
-    var isGroup: Boolean = false
     var chatRoom: ChatSession = null
+    var nameList: Array[String] = Array()
+    var clientRef: Option[ActorRef[ClientManager.Command]] = None
+    var isGroup: Boolean = false
     var messages = new ObservableBuffer[String]()
 
     //======================== to test run, later delete
@@ -82,11 +83,11 @@ class ChatRoomController(
     }
 
     def updateInfo(): Unit = {
-        this.chatRoom = ClientManager.selectedChatRoom
+        // this.chatRoom = ClientManager.selectedChatRoom
         groupOrChatName.text = this.chatRoom.name
 
         if (isGroup){
-            //statusOrGrpMemNames.text = UserChatSession.getUsersInChatSession(chatRoom.id).mkString(", ")
+            statusOrGrpMemNames.text = nameList.mkString(", ")
         }
 
     }

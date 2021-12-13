@@ -3,9 +3,7 @@ package chat.model
 import scala.util.Try
 import chat.util.Database
 import scalikejdbc._
-// import model.{ User, ChatSession }
 import java.util.Date
-import chat.model.User
 
 case class Message(_content: String, _senderId: Long, _chatSessionId: Long) {
     var id: Long = 0
@@ -51,7 +49,7 @@ case class Message(_content: String, _senderId: Long, _chatSessionId: Long) {
     def senderUserName() : String = {
         DB readOnly { implicit session =>
         sql"""
-            select username from users 
+            select username from users
             where id = ${senderId}
         """.map(rs => rs.string("username")).single.apply()
         } match {
