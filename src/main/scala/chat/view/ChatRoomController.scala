@@ -8,6 +8,8 @@ import scalafx.scene.control.SelectionMode
 import chat.{Main, ClientManager}
 import chat.model.{ChatSession, UserChatSession}
 import chat.util.AlertMessage
+import akka.actor.typed.ActorRef
+import scalafx.application.Platform
 
 @sfxml
 class ChatRoomController(
@@ -21,6 +23,8 @@ class ChatRoomController(
     private val messageList: ListView[String]   //-- not sure the type
 
 ) extends AlertMessage{
+
+    var clientRef: Option[ActorRef[ClientManager.Command]] = None
     //pass in from Main
     // var messages: Array[String] = null    //-- not sure the type
     // var nameList: Array[String] = null    //-- not sure the type
@@ -64,7 +68,7 @@ class ChatRoomController(
     messageList.selectionModel().setSelectionMode(SelectionMode.Multiple)
 
     def updateMessage(): Unit = {
-        this.messages.clear()
+        messages.clear()
         ClientManager.sessionMessages.foreach(s => messages += s)
         messageList.setItems(messages)
     }
@@ -93,6 +97,7 @@ class ChatRoomController(
 
 
     def cancel(): Unit = {
+        Main.clientMain ! ClientManager.LeaveSession(chatRoom.id)
         Main.showChatListPage()
     }
 
@@ -130,7 +135,9 @@ class ChatRoomController(
     }
 
     ClientManager.sessionMessages.onChange{(ns, _) =>
-        updateMessage()
+        Platform.runLater {
+            updateMessage()
+        }
     }
 
     updateMessage()
