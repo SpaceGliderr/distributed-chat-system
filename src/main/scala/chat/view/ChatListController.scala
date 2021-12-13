@@ -121,6 +121,7 @@ class ChatListController(
                 val selectedItem = conversationList.selectionModel().selectedItem()
                 Main.clientMain ! ClientManager.DeleteSession(selectedItem.id)
                 Thread.sleep(1000)
+                Main.clientMain ! ClientManager.UpdateUser(ClientManager.user)
                 showConversationList()
             }
         }

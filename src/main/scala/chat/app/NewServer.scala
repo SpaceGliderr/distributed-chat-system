@@ -22,7 +22,7 @@ object ServerManager {
     case class CreateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
     case class AuthenticateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
     case class GetChatSession(from: ActorRef[ClientManager.Command], userId: Long) extends Command
-    case class GetAllUsers(from: ActorRef[ClientManager.Command]) extends Command
+    case class GetAllUsers(from: ActorRef[ClientManager.Command], user: User) extends Command
     case class GetSessionMessages(from: ActorRef[ClientManager.Command], sessionId: Long) extends Command
     case class PopulateChatSessionMap() extends Command
     case class UpdateChatInfo(from: ActorRef[ClientManager.Command], chatSession: ChatSession) extends Command
@@ -167,8 +167,16 @@ object ServerManager {
                         from ! ClientManager.ChatSessions(sessions.distinct)
                         Behaviors.same
 
-                    case GetAllUsers(from) =>
-                        val users = User.selectAll
+                    case GetAllUsers(from, user) =>
+                        var users = User.selectAll.filter( _ != user)
+                        val sessions = ChatSession.selectAll
+                        sessions.foreach( s => {
+                            users.foreach( u => {
+                                if (UserChatSession.getPMChatSessions(u.id, user.id, s.id).length == 2)
+                                    users = users.filter(_ != u)
+                            })
+                        })
+
                         from ! ClientManager.AllUsers(users)
                         Behaviors.same
 
@@ -183,8 +191,6 @@ object ServerManager {
                         val users = UserChatSession.getUsersInChatSession(chatSession.id)
                         from ! ClientManager.SelectedChat(chatSession, users)
                         Behaviors.same
-
-
                 }
             }
         }

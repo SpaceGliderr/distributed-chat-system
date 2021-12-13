@@ -122,12 +122,12 @@ object UserChatSession extends Database {
     }
 
     // Get ChatSession with UserID x
-    def getChatSessions(userID: Long): List[ChatSession] = {
+    def getChatSessions(userId: Long): List[ChatSession] = {
         DB readOnly { implicit session =>
             sql"""
                 select c.* from chat_sessions c
                 join user_chat_sessions ucs on c.id = ucs.chat_session_id
-                where ucs.user_id = ${userID.intValue()}
+                where ucs.user_id = ${userId.intValue()}
             """.map(res => ChatSession(
                 res.long("id"),
                 res.string("name"),
@@ -139,10 +139,28 @@ object UserChatSession extends Database {
         }
     }
 
+    def getPMChatSessions(userId1: Long, userId2: Long, sessionId: Long): List[UserChatSession] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select * from user_chat_sessions
+                where user_id in (${userId1.intValue()}, ${userId2.intValue()})
+                and chat_session_id = ${sessionId.intValue()}
+            """.map(res => UserChatSession(
+                res.int("id"),
+                res.int("user_id"),
+                res.int("chat_session_id"),
+                if (res.string("role") == "ADMIN") UserRoles.ADMIN else UserRoles.MEMBER,
+                res.timestamp("joined_at")
+            )).list.apply()
+        }
+    }
+
     def leaveSession(userId: Long, chatSessionId: Long): Long = {
         DB autoCommit { implicit session =>
             sql"""
-                delete from user_chat_sessions where user_id = ${userId.intValue()} and chat_session_id = ${chatSessionId.intValue()}
+                delete from user_chat_sessions
+                where user_id = ${userId.intValue()}
+                and chat_session_id = ${chatSessionId.intValue()}
             """.update().apply()
         }
         userId

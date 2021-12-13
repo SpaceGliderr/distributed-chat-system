@@ -155,7 +155,7 @@ object ClientManager {
                         println(s"Current User >>> ${user}")
                         for (remote <- remoteOpt) {
                             remote ! ServerManager.GetChatSession(context.self, this.user.id)
-                            remote ! ServerManager.GetAllUsers(context.self)
+                            remote ! ServerManager.GetAllUsers(context.self, user)
                         }
                         Behaviors.same
 
@@ -182,20 +182,6 @@ object ClientManager {
                         println(s"Selected > ${this.selectedChatRoom}")
                         println(s"In sessions: ${this.usersInChatRoom}")
                         Behaviors.same
-
-                    // case UpdateSelectedChatRoom(chatSession) =>
-                    //     this.selectedChatRoom = chatSession
-                    //     println(s"Selected > ${this.selectedChatRoom}")
-                    //     Behaviors.same
-
-                    // case UpdateUsersInChatRoom(users) =>
-                    //     this.usersInChatRoom = users.toSet
-                    //     println(s"In sessions: ${this.usersInChatRoom}")
-                    //     Behaviors.same
-
-
-
-
                 }
             }
         }

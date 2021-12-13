@@ -47,25 +47,16 @@ class NewChatOrGroupController(
     //allow multiple selection
     contactList.selectionModel().setSelectionMode(SelectionMode.Multiple)
 
+    //TODO: remove already in contact list
     // populate the user lists
     var names = new ObservableBuffer[User]()
-    // // maybe can use filter
-    ClientManager.users.foreach( u =>
+    ClientManager.users.foreach( u => {
         if (ClientManager.user.username != u.username)
             names += u
+    }
+
     )
     contactList.items = names
-
-    //TODO: remove already in contact list
-
-    // --
-    // def showContactList() = {
-    //      /* FOR ADD NEW CHAT: if the contact is already in contact list (the contacts variable),
-    //     if yes then disable the cell, but i think is a bit mafan to do this so maybe can jus remove
-    //     from contact list*/
-    //
-    //      /* FOR ADD NEW GROUP: no nid compare & the "contacts" array passed in will be null
-    // }
 
     def search(): Unit = {
         if (!searchBar.visible.value){
@@ -165,6 +156,7 @@ class NewChatOrGroupController(
             else{
                 val selectedItem = contactList.selectionModel().selectedItem()
                 clientRef.get ! ClientManager.CreateSession(Array(selectedItem.id), selectedItem.username)
+                ClientManager.users = ClientManager.users.filter(_ != selectedItem)
                 dialogStage.close()
                 Main.showChatRoomPage(false)
             }
