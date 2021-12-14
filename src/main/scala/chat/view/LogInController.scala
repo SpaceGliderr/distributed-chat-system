@@ -4,6 +4,7 @@ import scalafx.scene.control.TextField
 import scalafx.Includes._
 import chat.ClientManager
 import chat.Main
+import scalafx.application.Platform
 import chat.util.AlertMessage   // -- directory different
 //import chat.model.User    <-- don't know if yall will change the directory for User class
 
@@ -38,15 +39,25 @@ class LogInController(
 
             //========================= to test run, later delete
             Main.clientMain ! ClientManager.LogIn(userNameTextField.text.getValue(), passwordTextField.text.getValue())
-            Thread.sleep(100) //Wait for login result
+            // Thread.sleep(100) //Wait for login result
             
-            if(ClientManager.authenticate == true){
-                Main.showChatListPage()
-                // Main.stage.resizable_=(true)
-            } else {
-                alertError("Login Failed", "Invalid Credentials.","Username or password did not match")
-            }
+            // if(ClientManager.authenticate == true){
+            //     Main.showChatListPage()
+            //     // Main.stage.resizable_=(true)
+            // } else {
+            //     alertError("Login Failed", "Invalid Credentials.","Username or password did not match")
+            // }
             //=========================
+        }
+    }
+
+    ClientManager.authenticate.onChange{
+        if(ClientManager.authenticate.getValue() == true){
+            Platform.runLater {
+                Main.showChatListPage()
+            }
+        } else{
+            alertError("Login Failed", "Invalid Credentials.","Username or password did not match")
         }
     }
 
