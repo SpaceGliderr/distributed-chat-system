@@ -32,7 +32,7 @@
       </TableView>
       <VBox layoutX="500.0" layoutY="6.0" prefHeight="400.0" prefWidth="67.0" styleClass="chatListBackground2" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Button mnemonicParsing="false" onAction="#addNewChat" prefHeight="60.0" prefWidth="67.0">
+            <Button mnemonicParsing="false" onAction="#addNewChat" prefHeight="60.0" prefWidth="67.0" styleClass="IconButton">
                <cursor>
                   <Cursor fx:constant="HAND" />
                </cursor>
@@ -40,7 +40,7 @@
                   <ImageView fx:id="pmIcon" fitHeight="38.0" fitWidth="46.0" pickOnBounds="true" preserveRatio="true" />
                </graphic>
             </Button>
-            <Button mnemonicParsing="false" onAction="#addNewGroup" prefHeight="60.0" prefWidth="67.0">
+            <Button mnemonicParsing="false" onAction="#addNewGroup" prefHeight="60.0" prefWidth="67.0" styleClass="IconButton">
                <cursor>
                   <Cursor fx:constant="HAND" />
                </cursor>
@@ -48,7 +48,7 @@
                   <ImageView fx:id="groupChatIcon" fitHeight="38.0" fitWidth="46.0" pickOnBounds="true" preserveRatio="true" />
                </graphic>
             </Button>
-            <Button mnemonicParsing="false" onAction="#viewConversation" prefHeight="60.0" prefWidth="67.0">
+            <Button mnemonicParsing="false" onAction="#viewConversation" prefHeight="60.0" prefWidth="67.0" styleClass="IconButton">
                <cursor>
                   <Cursor fx:constant="HAND" />
                </cursor>
@@ -56,7 +56,7 @@
                   <ImageView fx:id="openIcon" fitHeight="38.0" fitWidth="46.0" pickOnBounds="true" preserveRatio="true" />
                </graphic>
             </Button>
-            <Button mnemonicParsing="false" onAction="#deleteConversation" prefHeight="60.0" prefWidth="67.0">
+            <Button mnemonicParsing="false" onAction="#deleteConversation" prefHeight="60.0" prefWidth="67.0" styleClass="IconButton">
                <cursor>
                   <Cursor fx:constant="HAND" />
                </cursor>

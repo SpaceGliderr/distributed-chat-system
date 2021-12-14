@@ -36,12 +36,11 @@
     -fx-background-color: derive(#0066FF,50%);
 }
 
-.button{
+.IconButton{
     -fx-background-color: transparent;
     /* -fx-border-color: rgb(90, 127, 145);
     -fx-border-radius: 5; */
     -fx-font-family: "DM Sans";
-
 }
 
 .chatListBackground1{
@@ -57,7 +56,7 @@
 }
 
 .table-view:focused .table-row-cell:filled:focused:selected,
-.list-view:focused .list-cell:filled:focused:selected {
+.list-view:focused .list-cell:filled:focused:selected  {
     -fx-background-color: derive(#0066FF,50%);
     -fx-text-fill: white;
 }
@@ -75,6 +74,14 @@
     -fx-font-family: "DM Sans";
     -fx-font-size: 24pt;
     -fx-font-weight: bold;
+}
+
+.dialog-pane .button{
+    -fx-border-color: #0066FF;
+    -fx-background-color: #0066FF;
+    -fx-font-family: "DM Sans";
+    -fx-font-size: 12pt;
+    -fx-text-fill: #FEFEFF;
 }
 
 .primaryButton {

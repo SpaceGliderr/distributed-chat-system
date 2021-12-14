@@ -41,9 +41,14 @@ trait AlertMessage{
             title       = _title
             headerText  = _headerText
             contentText = _contextText
-        }.showAndWait()
+        }
 
-        alert match{
+        val cancelButton = alert.dialogPane().lookupButton(ButtonType.Cancel)
+        cancelButton.getStyleClass().clear();   
+        cancelButton.getStyleClass().add("secondaryButton"); 
+          
+        val result = alert.showAndWait()
+        result match{
             case Some(ButtonType.OK) => return true
             case _ => return false
         }
@@ -58,6 +63,10 @@ trait AlertMessage{
         }
              
         val okButton: Node = dialog.dialogPane().lookupButton(ButtonType.OK)
+        val cancelButton: Node = dialog.dialogPane().lookupButton(ButtonType.Cancel)
+        okButton.getStyleClass().add("primaryButton");   
+        cancelButton.getStyleClass().clear();   
+        cancelButton.getStyleClass().add("secondaryButton");   
         okButton.disable_=(true)
         dialog.editor.text.onChange{(_, _, newValue) => {
             if (!newValue.trim().isEmpty)
