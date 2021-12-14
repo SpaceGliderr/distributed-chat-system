@@ -90,13 +90,12 @@ object Main extends JFXApp {
     this.roots.setCenter(roots)
     val controller = loader.getController[ChatRoomController#Controller]
     controller.clientRef = Option(clientMain)
-    Thread.sleep(2000)
-    controller.chatRoom = ClientManager.selectedChatRoom
-    ClientManager.usersInChatRoom.foreach( user =>
-      controller.nameList = controller.nameList :+ user.username
-    )
+    // Thread.sleep(2000)
+    // controller.chatRoom = ClientManager.selectedChatRoom
+    // ClientManager.usersInChatRoom.foreach( user =>
+    //   controller.nameList = controller.nameList :+ user.username
+    // )
     controller.isGroup = _isGroup
-
     controller.updateInfo()
   }
 

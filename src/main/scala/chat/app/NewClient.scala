@@ -46,7 +46,8 @@ object ClientManager {
     var pmUsers: ObservableBuffer[User] = new ObservableBuffer[User]()
     var chatSessions = new ObservableBuffer[ChatSession]()
     var selectedChatRoom: ChatSession = null
-    var usersInChatRoom: Set[User] = Set.empty[User]
+    // var usersInChatRoom: Set[User] = Set.empty[User]
+    var usersInChatRoom: ObservableBuffer[User] = new ObservableBuffer[User]()
     //var authenticate: Boolean = false
     //var signup: Boolean = false
     //var authenticate = ObjectProperty[Boolean](false)
@@ -203,7 +204,10 @@ object ClientManager {
 
                     case SelectedChat(chatSession, users) =>
                         this.selectedChatRoom = chatSession
-                        this.usersInChatRoom = users.toSet
+                        println(users)
+                        this.usersInChatRoom.clear()
+                        users.foreach(u => this.usersInChatRoom += u)
+                        // this.usersInChatRoom = users
                         println(s"Selected > ${this.selectedChatRoom}")
                         println(s"In sessions: ${this.usersInChatRoom}")
                         Behaviors.same

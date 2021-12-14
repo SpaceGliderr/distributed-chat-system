@@ -92,8 +92,12 @@ class ChatRoomController(
 
     def updateInfo(): Unit = {
         // this.chatRoom = ClientManager.selectedChatRoom
+        this.chatRoom = ClientManager.selectedChatRoom
         groupOrChatName.text = this.chatRoom.name
-
+        this.nameList = Array()
+        ClientManager.usersInChatRoom.foreach( user =>
+            nameList = nameList :+ user.username
+        )
         if (isGroup){
             statusOrGrpMemNames.text = nameList.mkString(", ")
         }
@@ -149,8 +153,15 @@ class ChatRoomController(
     ClientManager.sessionMessages.onChange{(ns, _) =>
         Platform.runLater {
             updateMessage()
+            // updateInfo()
         }
     }
-
+    ClientManager.usersInChatRoom.onChange{
+        println("users changes ")
+        Platform.runLater {
+            updateInfo()
+        }
+    }
+    updateInfo()
     updateMessage()
 }
