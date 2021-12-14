@@ -97,7 +97,7 @@ object ClientManager {
                         Behaviors.same
 
                     case SignUpRequest(value, message) =>
-                        this.signup.value = value.toString 
+                        this.signup.value = value.toString
                         println(signup.getValue())
                         println(message)
                         Behaviors.same
