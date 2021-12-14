@@ -40,8 +40,8 @@ object ClientManager {
     // case class User(id: String, username: String, password: String) extends Command
 
     var user: User = null
-    var users: Set[User] = Set.empty[User]
-    var pmUsers: Set[User] = Set.empty[User]
+    var users: ObservableBuffer[User] = new ObservableBuffer[User]()
+    var pmUsers: ObservableBuffer[User] = new ObservableBuffer[User]()
     var chatSessions = new ObservableBuffer[ChatSession]()
     var selectedChatRoom: ChatSession = null
     var usersInChatRoom: Set[User] = Set.empty[User]
@@ -167,8 +167,10 @@ object ClientManager {
                         Behaviors.same
 
                     case AllUsers(allUsers: List[User], pmUsers: List[User]) =>
-                        this.users = this.users ++ allUsers.toSet
-                        this.pmUsers = this.pmUsers ++ pmUsers.toSet
+                        this.users ++= allUsers
+                        this.pmUsers ++= pmUsers
+                        this.users = this.users.distinct
+                        this.pmUsers = this.pmUsers.distinct
 
                         println(s"All Users in the system ${context.self.path.name}: ${this.users}")
                         println(s"PM User in the system ${context.self.path.name}: ${this.pmUsers}")

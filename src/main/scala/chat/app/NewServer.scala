@@ -142,6 +142,12 @@ object ServerManager {
                                 from ! ClientManager.SignUpRequest(true, "Successfully Sign Up!")
                                 userMap += (user.id -> from)
                                 println(s"USER MAP >> ${userMap}")
+
+                                userMap.foreach{
+                                    case (u, ref) =>
+                                        context.self ! GetAllUsers(ref, User.findOne(u).get)
+                                }
+
                             case Failure(exception) =>
                                 from ! ClientManager.SignUpRequest(false, "Failed to Sign Up!")
                         }

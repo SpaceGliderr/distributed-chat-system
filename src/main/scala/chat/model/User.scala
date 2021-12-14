@@ -139,7 +139,7 @@ object User extends Database{
         }
     }
 
-    def findOne(id: Int): Option[User] = {
+    def findOne(id: Long): Option[User] = {
         DB readOnly { implicit session =>
             sql"""
                 select * from users

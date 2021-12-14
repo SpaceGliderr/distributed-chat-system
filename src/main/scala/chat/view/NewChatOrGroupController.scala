@@ -60,11 +60,22 @@ class NewChatOrGroupController(
         }
     }
 
+    ClientManager.users.onChange {
+        Platform.runLater {
+            updateContactList()
+        }
+    }
+
+    ClientManager.pmUsers.onChange {
+        Platform.runLater {
+            updateContactList()
+        }
+    }
+
 
     // populate the user lists
     def updateContactList() = {
-        names = new ObservableBuffer[User]()
-
+        names.clear()
         if (isGroup)
             ClientManager.users.foreach( u => names += u)
         else
