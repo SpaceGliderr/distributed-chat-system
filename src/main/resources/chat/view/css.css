@@ -51,11 +51,12 @@
     -fx-background-color: #EDEDED;
 }
 
-.list-view {
+.list-view, .table-view {
     -fx-border-color: transparent;
     -fx-background-color: #FFFEFF;
 }
 
+.table-view:focused .table-row-cell:filled:focused:selected,
 .list-view:focused .list-cell:filled:focused:selected {
     -fx-background-color: derive(#0066FF,50%);
     -fx-text-fill: white;
@@ -73,7 +74,7 @@
 .heading {
     -fx-font-family: "DM Sans";
     -fx-font-size: 24pt;
-    -fx-font-weight: bold; 
+    -fx-font-weight: bold;
 }
 
 .primaryButton {
@@ -82,7 +83,7 @@
     -fx-font-family: "DM Sans";
     -fx-font-size: 12pt;
     -fx-text-fill: #FEFEFF;
-  
+
 }
 
 .secondaryButton {
@@ -104,4 +105,17 @@
     -fx-font-family: "DM Sans";
     -fx-font-size: 30pt;
     -fx-text-fill: #000000;
+}
+
+.no-header .column-header-background {
+    -fx-max-height: 0;
+    -fx-pref-height: 0;
+    -fx-min-height: 0;
+}
+
+.table-view .scroll-bar * {
+    -fx-background-color: null;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
 }

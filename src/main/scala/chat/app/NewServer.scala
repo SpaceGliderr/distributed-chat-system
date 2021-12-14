@@ -48,7 +48,13 @@ object ServerManager {
                     case CreateSession(from, creatorId, participants, chatName) =>
                         println(s"Server received request to create session")
 
-                        val chatSession = new ChatSession(chatName, "desc", creatorId)
+                        var chatSession: ChatSession = null
+
+                        if (participants.length == 1)
+                            chatSession = new ChatSession(chatName, User.findOne(creatorId).get.username, creatorId)
+                        else
+                            chatSession = new ChatSession(chatName, "group chat", creatorId)
+
                         chatSession.create()
                         context.self ! GetChatSession(from, creatorId)
 

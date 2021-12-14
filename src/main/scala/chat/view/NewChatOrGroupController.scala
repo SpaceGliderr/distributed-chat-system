@@ -42,7 +42,6 @@ class NewChatOrGroupController(
 
 
     var dialogStage: Stage = null
-    var contacts: Array[String] = null  //-- not sure the type
     var title: String = ""
 
     //allow multiple selection

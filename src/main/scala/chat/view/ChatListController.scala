@@ -1,8 +1,9 @@
 package chat.view
 
 import scalafxml.core.macros.sfxml
-import scalafx.scene.control.{TextField, ListView}
+import scalafx.scene.control.{TextField, TableView, TableColumn, Label}
 import scalafx.Includes._
+import scalafx.beans.property.ObjectProperty
 import scalafx.scene.image.{ImageView, Image}
 import akka.actor.typed.ActorRef
 import chat.{Main, ClientManager}
@@ -20,7 +21,8 @@ class ChatListController(
     private val groupChatIcon: ImageView,
     private val openIcon: ImageView,
     private val deleteIcon: ImageView,
-    private val conversationList: ListView[ChatSession]  //-- not sure the type
+    private val conversationList: TableView[ChatSession],
+    private val chatSessionName: TableColumn[ChatSession, String]
 
 )extends AlertMessage{
 
@@ -42,13 +44,7 @@ class ChatListController(
     deleteIcon.image_=(dIcon)
     clearIcon.image_=(cIcon)
 
-
-    val contacts: Array[String] = null
-    /* -- not sure if is to use string,
-    if not please chg the data type of
-    1. Main's showNewChatOrNewGroupPage method's parameter's type
-    2. NewChatOrGroupController's "contacts"" variable's type
-    */
+    conversationList.placeholder = new Label("")
 
     //make the menu bar visible
     Main.roots.top.value.visible_=(true)
@@ -60,6 +56,13 @@ class ChatListController(
         this.chatsessions = new ObservableBuffer[ChatSession]()
         ClientManager.chatSessions.foreach(s => chatsessions += s)
         conversationList.items = this.chatsessions
+
+        chatSessionName.cellValueFactory = cell =>
+            if (cell.value.name == ClientManager.user.username)
+                ObjectProperty[String](cell.value.description)
+            else
+                ObjectProperty[String](cell.value.name)
+
     }
 
     ClientManager.chatSessions.onChange{(ns, _) =>
@@ -97,11 +100,11 @@ class ChatListController(
     }
 
     def addNewChat: Unit = {
-        Main.showNewChatOrNewGroupPage("Add New Chat", contacts, false)
+        Main.showNewChatOrNewGroupPage("Add New Chat", false)
     }
 
     def addNewGroup: Unit = {
-        Main.showNewChatOrNewGroupPage("Add New Group", null, true)
+        Main.showNewChatOrNewGroupPage("Add New Group", true)
     }
 
     def viewConversation: Unit = {
@@ -110,15 +113,6 @@ class ChatListController(
         else{
 
         }
-            //-- check if is group chat then pass in true to ChatRoomPage, else pass in false
-            // if (--is group--)
-            //     Main.showChatRoomPage(null, null, true)      //-- pass in messages and names
-            // else
-            //     Main.showChatRoomPage(null, null, false)     //-- pass in messages and names
-
-            //============================try run, later delete
-            // Main.showChatRoomPage(null, null, true)
-            //===============================
             println(conversationList.getSelectionModel().getSelectedIndex())
             println(conversationList.selectionModel().selectedItem.value)
             // val sessionId = conversationList.selectionModel().selectedItem.value.id
