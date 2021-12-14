@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane minHeight="400.0" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #F0F0F0;" stylesheets="@css.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chat.view.ChatRoomController">
+<AnchorPane minHeight="400.0" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #F0F0F0;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chat.view.ChatRoomController">
    <children>
       <AnchorPane layoutX="20.0" layoutY="20.0" prefHeight="60.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>

@@ -21,6 +21,8 @@ class ChatRoomController(
     private val groupOrChatName: Label,
     private val statusOrGrpMemNames: Label,
     private val messageList: ListView[String]   //-- not sure the type
+    // private val messageTable: TableView[Message]   //-- not sure the type
+    // private val message: TableColumn[Message, String]   //-- not sure the type
 
 ) extends AlertMessage{
 
@@ -31,6 +33,7 @@ class ChatRoomController(
     var clientRef: Option[ActorRef[ClientManager.Command]] = None
     var isGroup: Boolean = false
     var messages = new ObservableBuffer[String]()
+    var messageIds = new ObservableBuffer[Long]()
 
     //======================== to test run, later delete
     // if(group){
@@ -65,14 +68,19 @@ class ChatRoomController(
     imageView2.image_=(backIcon)
 
     //allow multiple selection
-    messageList.selectionModel().setSelectionMode(SelectionMode.Multiple)
+    // messageList.selectionModel().setSelectionMode(SelectionMode.Multiple)
 
     def updateMessage(): Unit = {
         messages.clear()
-        ClientManager.sessionMessages.foreach(s => messages += s)
+        messageIds.clear()
+        for ((id, value) <- ClientManager.sessionMessages) {
+            messages += value
+            messageIds += id
+        }
         messageList.setItems(messages)
         messageList.scrollTo(messages.size())
     }
+
     //if the message text field is empty -> disable the send button, else -> able it
     messageTextField.text.onChange{(_, _, newValue) => {
             if (!newValue.trim().isEmpty)
@@ -113,12 +121,15 @@ class ChatRoomController(
             alertError("Delete Fail", "Fail to delete message", "You must select at least one message")
         else{
             val confirm = alertConfirmation("Delete Confirmation", null, "Are you sure you want to delete this message(s)?")
-            if (confirm)
+            if (confirm) {
                 //-- remove from list and database & show updated list
 
                 //======================= try run, remove later
-                println("deleted")
+                val messageId = messageIds(messageList.getSelectionModel().getSelectedIndex())
+                Main.clientMain ! ClientManager.DeleteMessage(messageId)
                 //========================
+            }
+                
         }
     }
 

@@ -9,7 +9,7 @@ object ChatRoom {
     sealed trait Command
     case class Subscribe(participants: Array[ActorRef[ClientManager.Command]]) extends Command // Join the chat room
     case class Unsubscribe(participants:ActorRef[ClientManager.Command]) extends Command // Leave the chat room
-    case class Publish(message: String) extends Command // Send a message to all subscribers
+    case class Publish(messageId: Long, message: String) extends Command // Send a message to all subscribers
     case class GetParticipants() extends Command // Get a list of all participants
 
     // Class attributes
@@ -37,12 +37,12 @@ object ChatRoom {
                         println(subscribers)
                         Behaviors.same
 
-                    case Publish(message) =>
+                    case Publish(messageId, message) =>
                         context.log.info("Publishing")
 
                         // Send message to all subscribers
                         subscribers.foreach(subscriber =>
-                            subscriber ! ClientManager.Message(message)
+                            subscriber ! ClientManager.Message(messageId, message)
                         )
                         Behaviors.same
 

@@ -88,7 +88,16 @@ object Message extends Database {
         }
     }
 
-     def selectAll: List[Message] = {
+    def deleteMessage(messageId: Long): Long = {
+        DB autoCommit { implicit session =>
+            sql"""
+                delete from messages where id = ${messageId.intValue}
+            """.update().apply()
+        }
+        messageId
+    }
+
+    def selectAll: List[Message] = {
         DB readOnly { implicit session =>
             sql"""
                 select * from messages

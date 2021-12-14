@@ -11,6 +11,7 @@ import scalafx.beans.property.StringProperty
 import chat.model.{User, ChatSession}
 import util.Database
 import scalafx.collections.ObservableBuffer
+import scalafx.collections.ObservableHashMap
 import scala.collection.mutable.ListBuffer
 
 
@@ -20,7 +21,7 @@ object ClientManager {
     sealed trait Command
     final case object FindServer extends Command
     private case class ListingResponse(listing: Receptionist.Listing) extends Command
-    case class Message(message: String) extends Command
+    case class Message(messageId: Long, message: String) extends Command
     case class SignUp(username: String, password: String) extends Command
     case class LogIn(username: String, password: String) extends Command
     case class Authenticate(value: Boolean, message: String) extends Command
@@ -30,12 +31,13 @@ object ClientManager {
     case class LeaveSession(sessionId: Long) extends Command
     case class DeleteSession(sessionId: Long) extends Command
     case class SendMessage(message: String) extends Command
+    case class DeleteMessage(messageId: Long) extends Command
     case class UpdateUser(user: User) extends Command
     case class ChatSessions(sessions: List[ChatSession]) extends Command
     case class AllUsers(allUsers: List[User], pmUsers: List[User]) extends Command
     case class SelectedChat(chatSession: ChatSession, users: List[User]) extends Command
     case class UpdateChatInfo(chatSession: ChatSession) extends Command
-    case class GetSessionMessages(message: ListBuffer[String]) extends Command
+    case class GetSessionMessages(messageMap: Map[Long,String]) extends Command
 
     // case class User(id: String, username: String, password: String) extends Command
 
@@ -50,7 +52,7 @@ object ClientManager {
     //var authenticate = ObjectProperty[Boolean](false)
     var authenticate =  new StringProperty("")
     var signup = new StringProperty("")
-    var sessionMessages = new ObservableBuffer[String]()
+    var sessionMessages = new ObservableHashMap[Long,String]()
 
     def apply(): Behavior[ClientManager.Command] =
         Behaviors.setup { context =>
@@ -85,9 +87,9 @@ object ClientManager {
                         }
                         Behaviors.same
 
-                    case Message(message) =>
+                    case Message(messageId, message) =>
                         println(s"Message received on Client ${context.self.path.name}: ${message}")
-                        sessionMessages += message
+                        sessionMessages += (messageId -> message)
                         Behaviors.same
 
                     case SignUp(username, password) =>
@@ -143,8 +145,11 @@ object ClientManager {
                         Behaviors.same
 
 
-                    case GetSessionMessages(messages) =>{
-                        messages.foreach(m => this.sessionMessages += m)
+                    case GetSessionMessages(messageMap) =>{
+                        sessionMessages.clear()
+                        for ((messageId, message) <- messageMap) {
+                           sessionMessages += (messageId -> message)
+                        }
                         println(s"sessionMessage received from ${context.self.path.name}: ${this.sessionMessages}")
                         Behaviors.same
                     }
@@ -153,6 +158,14 @@ object ClientManager {
                         println(s"Current User >>> ${user}")
                         for (remote <- remoteOpt) {
                             remote ! ServerManager.SendMessage(selectedChatRoom.id, message, user.id)
+                        }
+                        Behaviors.same
+
+                    case DeleteMessage(messageId) =>
+                        println(s"Current User >>> ${user}")
+                        sessionMessages.remove(messageId)
+                        for (remote <- remoteOpt) {
+                            remote ! ServerManager.DeleteMessage(messageId)
                         }
                         Behaviors.same
 

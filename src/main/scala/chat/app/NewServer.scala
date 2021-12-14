@@ -19,6 +19,7 @@ object ServerManager {
     case class LeaveSession(from: ActorRef[ClientManager.Command], userId: Long, sessionId: Long) extends Command
     case class DeleteSession(userId: Long, sessionId: Long) extends Command
     case class SendMessage(sessionId: Long, message: String, senderId: Long) extends Command
+    case class DeleteMessage(messageId: Long) extends Command
     case class CreateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
     case class AuthenticateUser(from: ActorRef[ClientManager.Command], username: String, password: String) extends Command
     case class GetChatSession(from: ActorRef[ClientManager.Command], userId: Long) extends Command
@@ -119,14 +120,13 @@ object ServerManager {
                         UserChatSession.leaveSession(userId, sessionId)
                         Behaviors.same
 
-
                     case GetSessionMessages(from, sessionId) =>
                         println("Session ID:" + sessionId)
                         val messages = ChatSession.getMessages(sessionId)
-                        val messageString = new ListBuffer[String]()
-                        messages.foreach(m => messageString += m.toString())
-                        println(messageString)
-                        from ! ClientManager.GetSessionMessages(messageString)
+                        var messageMap: Map[Long, String] = Map()
+                        messages.foreach(m => messageMap += (m.id -> m.toString()))
+                        println(messageMap)
+                        from ! ClientManager.GetSessionMessages(messageMap)
                         Behaviors.same
 
                     case SendMessage(sessionId, message, senderId) =>
@@ -134,9 +134,14 @@ object ServerManager {
                         val msg = new model.Message(message, senderId, sessionId)
                         msg.upsert()
                         chatSessionMap.get(sessionId).foreach(room => {
-                            room ! ChatRoom.Publish(msg.toString())
+                            room ! ChatRoom.Publish(msg.id, msg.toString())
                         })
 
+                        Behaviors.same
+
+                    case DeleteMessage(messageId) =>
+                        println(s"Server received delete message '${messageId}'")
+                        model.Message.deleteMessage(messageId)
                         Behaviors.same
 
                     case CreateUser(from, username, password) =>
