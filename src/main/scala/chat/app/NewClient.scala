@@ -141,7 +141,8 @@ object ClientManager {
                         for (remote <- remoteOpt) {
                             remote ! ServerManager.DeleteSession(this.user.id, sessionId)
                         }
-                        this.chatSessions = this.chatSessions.filter(_.id != sessionId)
+                        context.self ! UpdateUser(user)
+                        // this.chatSessions = this.chatSessions.filter(_.id != sessionId)
                         Behaviors.same
 
 
