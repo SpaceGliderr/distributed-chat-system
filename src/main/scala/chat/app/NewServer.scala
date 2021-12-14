@@ -146,8 +146,8 @@ object ServerManager {
                         user.create() match {
                             case Success(value) =>
                                 from ! ClientManager.SignUpRequest(true, "Successfully Sign Up!")
-                                userMap += (user.id -> from)
-                                println(s"USER MAP >> ${userMap}")
+                                // userMap += (user.id -> from)
+                                // println(s"USER MAP >> ${userMap}")
 
                                 userMap.foreach{
                                     case (u, ref) =>

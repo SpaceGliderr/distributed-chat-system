@@ -38,15 +38,18 @@ class SignUpController(
         }
     }
 
-    ClientManager.signup.onChange{
-        if(ClientManager.signup.getValue() == true){
+    ClientManager.signup.onChange{ 
+        if(ClientManager.signup.getValue() == "true"){
             Platform.runLater {
                 alertInformation("Sign Up Success", null, "Congratulations, your account has been successfully created.")
                 Main.showPages("view/Home.fxml")
             }
-        } else{
-            alertError("Sign Up Failed", "Error signing up.","Username already taken.")
+        } else if(ClientManager.signup.getValue() == "false"){
+            Platform.runLater{
+                alertError("Sign Up Failed", "Error signing up.","Username already taken.")
+            }
         }
+        ClientManager.signup.value = "handled"
     }
 
     def cancel(): Unit = Main.showPages("view/Home.fxml")

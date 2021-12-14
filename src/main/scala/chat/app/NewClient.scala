@@ -12,7 +12,6 @@ import chat.model.{User, ChatSession}
 import util.Database
 import scalafx.collections.ObservableBuffer
 import scala.collection.mutable.ListBuffer
-import scalafx.beans.property.ObjectProperty
 
 
 // Documentation regarding the Actor Receptionist, Listing, etc.
@@ -48,8 +47,9 @@ object ClientManager {
     var usersInChatRoom: Set[User] = Set.empty[User]
     //var authenticate: Boolean = false
     //var signup: Boolean = false
-    var authenticate = ObjectProperty[Boolean](false)
-    var signup = ObjectProperty[Boolean](false)
+    //var authenticate = ObjectProperty[Boolean](false)
+    var authenticate =  new StringProperty("")
+    var signup = new StringProperty("")
     var sessionMessages = new ObservableBuffer[String]()
 
     def apply(): Behavior[ClientManager.Command] =
@@ -97,7 +97,7 @@ object ClientManager {
                         Behaviors.same
 
                     case SignUpRequest(value, message) =>
-                        this.signup.value = value
+                        this.signup.value = value.toString 
                         println(signup.getValue())
                         println(message)
                         Behaviors.same
@@ -109,7 +109,7 @@ object ClientManager {
                         Behaviors.same
 
                     case Authenticate(value, message) =>
-                        this.authenticate.value = value
+                        this.authenticate.value = value.toString
                         println(authenticate.getValue())
                         println(message)
                         Behaviors.same

@@ -52,13 +52,16 @@ class LogInController(
     }
 
     ClientManager.authenticate.onChange{
-        if(ClientManager.authenticate.getValue() == true){
+        if(ClientManager.authenticate.getValue() == "true"){
             Platform.runLater {
                 Main.showChatListPage()
             }
-        } else{
-            alertError("Login Failed", "Invalid Credentials.","Username or password did not match")
+        } else if(ClientManager.authenticate.getValue() == "false"){
+            Platform.runLater{
+                alertError("Login Failed", "Invalid Credentials.","Username or password did not match")
+            }
         }
+        ClientManager.authenticate.value = "handled"
     }
 
     def cancel(): Unit = Main.showPages("view/Home.fxml")
