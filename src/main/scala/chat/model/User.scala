@@ -1,13 +1,6 @@
-// User model for a chat user
-// Build a User class that has the following properties: ID, username and password.
-// The username should be a string.
-// The password should be a string.
-
 package chat.model
 
-import scalafx.beans.property.{ObjectProperty, StringProperty}
-import scalafx.collections.ObservableBuffer
-import scala.util.{ Try, Success, Failure }
+import scala.util.{Try, Success, Failure}
 import chat.util.Database
 import scalikejdbc._
 import java.time._
@@ -16,13 +9,14 @@ import java.util.Date
 
 case class User(_username: String, _password: String) {
 
-    // properties
+    // Properties
     var id: Long = -1
     var username: String = _username
     var password: String = _password
     var createdAt: Date = null
     var updatedAt: Date = new Date()
 
+    // Check if a user exists in database
     def isExist: Boolean = {
         DB readOnly {
             implicit session =>
@@ -37,6 +31,7 @@ case class User(_username: String, _password: String) {
         }
     }
 
+    // Check if a username has been used
     def isUserNameExist: Boolean = {
         DB readOnly{
             implicit session =>
@@ -50,6 +45,7 @@ case class User(_username: String, _password: String) {
         }
     }
 
+    // Create a new user
     def create(): Try[Long] = {
         if((!isExist) & (!isUserNameExist)){
             Try (DB autoCommit {
@@ -65,8 +61,9 @@ case class User(_username: String, _password: String) {
         }
     }
 
+    // Update or create a new record for user
     def upsert(): Try[Long] = {
-        //  for new records, save it into database
+        //  For new records, insert the new records into database
         if (!(isExist)){
             Try (DB autoCommit {
                 implicit session =>
@@ -76,9 +73,7 @@ case class User(_username: String, _password: String) {
                     """.updateAndReturnGeneratedKey.apply()
                     id.intValue
             })
-
-        // for existing records, update new information
-        // ! if we don't have the function to edit user info, then DELETE this part
+        // For existing records, update new information
         } else {
             Try (DB autoCommit { implicit session =>
                 sql"""
@@ -92,12 +87,12 @@ case class User(_username: String, _password: String) {
         }
     }
 
+    // toString method
     override def toString = s"${username}"
 
 }
 
 object User extends Database{
-    val users = new ObservableBuffer[User]()
 
     def apply(_id: Long,  _username: String, _password: String, _createdAt: Date, _updatedAt: Date): User = {
         new User(_username, _password) {
@@ -107,6 +102,7 @@ object User extends Database{
         }
     }
 
+    // Initialize the table in database
     def initializeTable() = {
         DB autoCommit { implicit session =>
             sql"""
@@ -123,6 +119,8 @@ object User extends Database{
         }
     }
 
+    // Check if a user exists in database by using username and password.
+    // If exists, cerate a User object and return it.
     def login(username: String, password: String): Option[User] = {
         DB readOnly { implicit session =>
             sql"""
@@ -139,6 +137,7 @@ object User extends Database{
         }
     }
 
+    // Find the user with his/her id.
     def findOne(id: Long): Option[User] = {
         DB readOnly { implicit session =>
             sql"""
@@ -154,6 +153,7 @@ object User extends Database{
         }
     }
 
+    // Select and create all users in the database
     def selectAll: List[User] = {
         DB readOnly { implicit session =>
             sql"""
@@ -168,6 +168,7 @@ object User extends Database{
         }
     }
 
+    // Search a user by using the username containing the parameter s
     def search(s: String): List[User] = {
         val q = s"%${s}%"
         DB readOnly { implicit session =>
@@ -184,6 +185,7 @@ object User extends Database{
         }
     }
 
+    // Seeding
     def seed() = {
         DB autoCommit { implicit session =>
             sql"""
