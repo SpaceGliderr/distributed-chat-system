@@ -93,7 +93,7 @@ object ChatSession extends Database {
         DB autoCommit { implicit session =>
             sql"""
                 create table chat_sessions (
-                    id int GENERATED ALWAYS AS IDENTITY,
+                    id int GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
                     name varchar(255) not null,
                     description varchar(255),
                     creator_id int not null,
@@ -129,7 +129,6 @@ object ChatSession extends Database {
             sql"""
                 select * from messages
                 where chat_session_id = ${chatSessionId}
-                order by created_at
             """.map(res => Message(
                 res.int("id"),
                 res.string("content"),

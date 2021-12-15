@@ -12,6 +12,8 @@ trait Database {
     // user is username, 1234 is password -> create connection to database
     ConnectionPool.singleton(dbURL, "", "")
 
+    System.setProperty("derby.language.sequence.preallocator", String.valueOf(1));
+
     // ad-hoc session provider on the REPL
     implicit val session: DBSession = AutoSession
 }
