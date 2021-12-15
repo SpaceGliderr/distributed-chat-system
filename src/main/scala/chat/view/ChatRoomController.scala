@@ -14,62 +14,34 @@ import scalafx.application.Platform
 @sfxml
 class ChatRoomController(
     private val messageTextField: TextField,
-    private val imageView: ImageView,
-    private val imageView1: ImageView,
-    private val imageView2: ImageView,
+    private val deleteIcon: ImageView,
+    private val sendIcon: ImageView,
+    private val backIcon: ImageView,
     private val sendButton: Button,
     private val groupOrChatName: Label,
     private val statusOrGrpMemNames: Label,
-    private val messageList: ListView[String]   //-- not sure the type
-    // private val messageTable: TableView[Message]   //-- not sure the type
-    // private val message: TableColumn[Message, String]   //-- not sure the type
-
+    private val messageList: ListView[String]   
 ) extends AlertMessage{
 
-    //pass in from Main
-    // var messages: Array[String] = null    //-- not sure the type
+    //Variables
+    var clientRef: Option[ActorRef[ClientManager.Command]] = None
     var chatRoom: ChatSession = null
     var nameList: Array[String] = Array()
-    var clientRef: Option[ActorRef[ClientManager.Command]] = None
     var isGroup: Boolean = false
     var messages = new ObservableBuffer[String]()
     var messageIds = new ObservableBuffer[Long]()
 
-    //======================== to test run, later delete
-    // if(group){
-    //     groupOrChatName.text_=("buat assignment")
-    //     nameList = Array("john","nick","wenyi", "shiqi", "peini")
-    //     val list = nameList.toList
-    //     statusOrGrpMemNames.text=(list.mkString(", "))
-    // }
-    // else{
-    //     groupOrChatName.text_=("john")
-    //     statusOrGrpMemNames.text=("available")
-    // }
-    //========================
+    //Get images from resources
+    val deleteIconImage = new Image(getClass().getResourceAsStream("deleteIcon.png"))
+    val sendIconImage = new Image(getClass().getResourceAsStream("sendIcon.png"))
+    val backIconImage = new Image(getClass().getResourceAsStream("backIcon.png"))
 
-    //-- use the passed in "nameList" to update the "statusOrGrpMemNames" Label
-    //  if is group chat -> show group name and member names
-    //  if is personal chat -> show that person's name and status
-    // if (group){
-    //     groupOrChatName -> //grp name
-    //     statusOrGrpMemNames -> //member names, can cankao: mkString method of List
-    // }
-    // else{
-    //     groupOrChatName -> //that ppl name
-    //     statusOrGrpMemNames -> //status
-    // }
+    //Update the imageViews
+    deleteIcon.image_=(deleteIconImage)
+    sendIcon.image_=(sendIconImage)
+    backIcon.image_=(backIconImage)
 
-    val deleteIcon = new Image(getClass().getResourceAsStream("deleteIcon.png"))
-    imageView.image_=(deleteIcon)
-    val sendIcon = new Image(getClass().getResourceAsStream("sendIcon.png"))
-    imageView1.image_=(sendIcon)
-    val backIcon = new Image(getClass().getResourceAsStream("backIcon.png"))
-    imageView2.image_=(backIcon)
-
-    //allow multiple selection
-    // messageList.selectionModel().setSelectionMode(SelectionMode.Multiple)
-
+    //Update Messages
     def updateMessage(): Unit = {
         messages.clear()
         messageIds.clear()
@@ -81,7 +53,7 @@ class ChatRoomController(
         messageList.scrollTo(messages.size())
     }
 
-    //if the message text field is empty -> disable the send button, else -> able it
+    //If the message text field is empty -> disable the send button, else -> able it
     messageTextField.text.onChange{(_, _, newValue) => {
             if (!newValue.trim().isEmpty)
                 sendButton.disable_=(false)
@@ -90,8 +62,8 @@ class ChatRoomController(
             }
     }
 
+    //Update chat room information
     def updateInfo(): Unit = {
-        // this.chatRoom = ClientManager.selectedChatRoom
         this.chatRoom = ClientManager.selectedChatRoom
         groupOrChatName.text = this.chatRoom.name
         this.nameList = Array()
@@ -103,61 +75,42 @@ class ChatRoomController(
         }
 
     }
-    // --
-    // def showMessageList() = {
 
-    // }
-
-
-    def cancel(): Unit = {
-        Main.clientMain ! ClientManager.LeaveSession(chatRoom.id)
+    //Leave current chat room and return to chat list page
+    def returnToChatList(): Unit = {
+        clientRef.get ! ClientManager.LeaveSession(chatRoom.id)
         Main.showChatListPage()
     }
 
-    //================================ try run, remove later
-    // val tryy = new ObservableBuffer[String]()
-    // tryy ++= Array("1","2","3")
-    // messageList.items = tryy
-    //=================================
-
-    def deleteChat() : Unit = {
+    //Delete select message
+    def deleteMessage() : Unit = {
         if (messageList.selectionModel().selectedItem.value == null)
             alertError("Delete Fail", "Fail to delete message", "You must select at least one message")
         else{
             val confirm = alertConfirmation("Delete Confirmation", null, "Are you sure you want to delete this message(s)?")
             if (confirm) {
-                //-- remove from list and database & show updated list
-
-                //======================= try run, remove later
                 val messageId = messageIds(messageList.getSelectionModel().getSelectedIndex())
-                Main.clientMain ! ClientManager.DeleteMessage(messageId)
-                //========================
+                clientRef.get ! ClientManager.DeleteMessage(messageId)
             }
                 
         }
     }
 
+    //Send message
     def sendMessage() : Unit = {
-        //--
-        // 1. update message list
-        // 2. update database
-        // 3. rmb to update the latest message for ChatListPage (if yall got put the latest message la)
-
-        //disable the button again & empty the text field after sending message
         val message = messageTextField.text
-        Main.clientMain ! ClientManager.SendMessage(message.get())
+        clientRef.get ! ClientManager.SendMessage(message.get())
         messageTextField.text_=("")
         sendButton.disable_=(true)
     }
 
+    //Detect changes in chat room and update
     ClientManager.sessionMessages.onChange{(ns, _) =>
         Platform.runLater {
             updateMessage()
-            // updateInfo()
         }
     }
     ClientManager.usersInChatRoom.onChange{
-        println("users changes ")
         Platform.runLater {
             updateInfo()
         }

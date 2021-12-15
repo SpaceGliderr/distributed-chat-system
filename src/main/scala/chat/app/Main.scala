@@ -7,7 +7,7 @@ import scalafxml.core.{NoDependencyResolver, FXMLView, FXMLLoader}
 import javafx.{scene => jfxs}
 import scalafx.scene.image.Image
 import scalafx.stage.{Stage, Modality}
-import chat.view.{NewChatOrGroupController, ChatRoomController, ChatListController}
+import chat.view.{NewChatOrGroupController, ChatRoomController, ChatListController, LogInController, SignUpController}
 import akka.actor.typed.ActorSystem
 import com.typesafe.config.ConfigFactory
 import chat.model.ChatSession
@@ -39,6 +39,26 @@ object Main extends JFXApp {
     val loader = new FXMLLoader(null, NoDependencyResolver)
     loader.load(resource)
     val roots = loader.getRoot[jfxs.layout.AnchorPane]()
+    this.roots.setCenter(roots)
+  }
+
+  def showLoginPage() = {
+    val resource = getClass.getResourceAsStream("view/LogIn.fxml")
+    val loader = new FXMLLoader(null, NoDependencyResolver)
+    loader.load(resource)
+    val roots = loader.getRoot[jfxs.layout.AnchorPane]()
+    val controller = loader.getController[LogInController#Controller]
+    controller.clientRef = Option(clientMain)
+    this.roots.setCenter(roots)
+  }
+
+  def showSignUpPage() = {
+    val resource = getClass.getResourceAsStream("view/SignUp.fxml")
+    val loader = new FXMLLoader(null, NoDependencyResolver)
+    loader.load(resource)
+    val roots = loader.getRoot[jfxs.layout.AnchorPane]()
+    val controller = loader.getController[SignUpController#Controller]
+    controller.clientRef = Option(clientMain)
     this.roots.setCenter(roots)
   }
 
@@ -99,15 +119,9 @@ object Main extends JFXApp {
     controller.updateInfo()
   }
 
-  def loginSuccess(): Unit = {
-    this.showPages("view/ChatList.fxml")
-    this.stage.resizable_=(true)
-  }
-
   this.roots.top.value.visible_=(false)
   showPages("view/Home.fxml")
   stage.resizable_=(false)
-
 
   stage.onCloseRequest = handle( {
     clientMain.terminate
