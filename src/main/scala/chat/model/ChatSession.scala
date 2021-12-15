@@ -137,6 +137,7 @@ object ChatSession extends Database {
             sql"""
                 select * from messages
                 where chat_session_id = ${chatSessionId}
+                order by created_at
             """.map(res => Message(
                 res.int("id"),
                 res.string("content"),

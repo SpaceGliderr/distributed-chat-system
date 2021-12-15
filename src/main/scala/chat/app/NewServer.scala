@@ -9,13 +9,14 @@ import scalafx.beans.property.StringProperty
 import model.{User, ChatSession, UserChatSession, Message}
 import util.{Database, UserRoles}
 import scala.util.{ Success, Failure }
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.{ListBuffer, Set}
 
 object ServerManager {
     sealed trait Command
     case class Message(value: String, from: ActorRef[ClientManager.Command]) extends Command
     case class CreateSession(from: ActorRef[ClientManager.Command], creatorId: Long, participants: Array[Long], chatName: String) extends Command
-    case class JoinSession(sessionId: Long, participants: Array[Long]) extends Command
+    // case class JoinSession(sessionId: Long, participants: Array[Long]) extends Command
+    case class JoinSession(sessionId: Long, from: ActorRef[ClientManager.Command]) extends Command
     case class LeaveSession(from: ActorRef[ClientManager.Command], userId: Long, sessionId: Long) extends Command
     case class DeleteSession(userId: Long, sessionId: Long) extends Command
     case class SendMessage(sessionId: Long, message: String, senderId: Long) extends Command
@@ -25,11 +26,12 @@ object ServerManager {
     case class GetChatSession(from: ActorRef[ClientManager.Command], userId: Long) extends Command
     case class GetAllUsers(from: ActorRef[ClientManager.Command], user: User) extends Command
     case class GetSessionMessages(from: ActorRef[ClientManager.Command], sessionId: Long) extends Command
-    case class PopulateChatSessionMap() extends Command
+    // case class PopulateChatSessionMap() extends Command
     case class UpdateChatInfo(from: ActorRef[ClientManager.Command], chatSession: ChatSession) extends Command
 
 
-    var chatSessionMap: Map[Long, ActorRef[ChatRoom.Command]] = Map()
+    // var chatSessionMap: Map[Long, ActorRef[ChatRoom.Command]] = Map()
+    var chatSessionMap: Map[Long, Set[ActorRef[ClientManager.Command]]] = Map()
     var userMap: Map[Long, ActorRef[ClientManager.Command]] = Map()
 
     val ServerKey: ServiceKey[ServerManager.Command] = ServiceKey("Server")
@@ -75,27 +77,45 @@ object ServerManager {
                         from ! ClientManager.JoinSession(chatSession.id)
 
                          // Spawn Chat Room actor
-                        val chatRoom = context.spawn(ChatRoom(), chatSession.id.toString)
+                        //val chatRoom = context.spawn(ChatRoom(), chatSession.id.toString)
 
                         // Add chat room to chat session map
-                        chatSessionMap += (chatSession.id -> chatRoom)
+                        // chatSessionMap += (chatSession.id -> chatRoom)
+                        val p = Set.empty[ActorRef[ClientManager.Command]]
+                        p += from
+                        chatSessionMap += (chatSession.id -> p)
                         println("CHAT SESSION MAP >>>>> ", chatSessionMap)
 
                         Behaviors.same
 
-                    case JoinSession(sessionId, participants) =>
+                    case JoinSession(sessionId, from) =>
                         println("Server received request to join session")
 
                         println(s"Session ID: ${sessionId}")
                         println(chatSessionMap)
 
-                        var p = Array[ActorRef[ClientManager.Command]]()
+                        // var p = Array[ActorRef[ClientManager.Command]]()
 
-                        participants.foreach(participant => {
-                            userMap.get(participant).foreach(user => p = p :+ user)
-                        })
+                        // participants.foreach(participant => {
+                        //     userMap.get(participant).foreach(user => p = p :+ user)
+                        // })
 
-                        chatSessionMap.get(sessionId).foreach(room => room ! ChatRoom.Subscribe(p))
+                        // chatSessionMap.get(sessionId).foreach(room => room ! ChatRoom.Subscribe(p))
+                        chatSessionMap.get(sessionId) match {
+                            case Some(participants) => 
+                                println("participants are:" +  participants) 
+                                participants += from
+                                chatSessionMap += (sessionId -> participants)
+                            case None => 
+                                println("Session not found")
+                                val p = Set.empty[ActorRef[ClientManager.Command]]
+                                p += from
+                                chatSessionMap += (sessionId -> p)
+                        }
+                        
+                        for ((id, participants) <- chatSessionMap) {
+                            println("participants are:" +  participants) 
+                        }
 
                         Behaviors.same
 
@@ -103,7 +123,11 @@ object ServerManager {
                         println("Server received request to leave session")
                         println(s"Session ID: ${sessionId}")
 
-                        chatSessionMap.get(sessionId).foreach(room => room ! ChatRoom.Unsubscribe(from))
+                        // chatSessionMap.get(sessionId).foreach(room => room ! ChatRoom.Unsubscribe(from))
+                        chatSessionMap.get(sessionId).foreach(participants => {
+                            participants -= from
+                            chatSessionMap += (sessionId -> participants)
+                        })
 
                         Behaviors.same
 
@@ -126,8 +150,13 @@ object ServerManager {
                         println(s"Server received message '${message}'")
                         val msg = new model.Message(message, senderId, sessionId)
                         msg.upsert()
-                        chatSessionMap.get(sessionId).foreach(room => {
-                            room ! ChatRoom.Publish(msg.id, msg.toString())
+                        // chatSessionMap.get(sessionId).foreach(room => {
+                        //     room ! ChatRoom.Publish(msg.id, msg.toString())
+                        chatSessionMap.get(sessionId).foreach(participants => {
+                            println("participants are:" +  participants)
+                            participants.foreach(participant =>
+                                participant ! ClientManager.Message(msg.id, msg.toString())
+                            )
                         })
 
                         Behaviors.same
@@ -192,12 +221,12 @@ object ServerManager {
                         from ! ClientManager.AllUsers(allUsers, availableUsers)
                         Behaviors.same
 
-                    case PopulateChatSessionMap()=>
-                        ChatSession.selectAll.foreach(chatSession => {
-                            val chatRoom = context.spawn(ChatRoom(), chatSession.id.toString)
-                            chatSessionMap += (chatSession.id -> chatRoom)
-                        })
-                        Behaviors.same
+                    // case PopulateChatSessionMap()=>
+                    //     ChatSession.selectAll.foreach(chatSession => {
+                    //         val chatRoom = context.spawn(ChatRoom(), chatSession.id.toString)
+                    //         chatSessionMap += (chatSession.id -> chatRoom)
+                    //     })
+                    //     Behaviors.same
 
                     case UpdateChatInfo(from, chatSession) =>
                         val users = UserChatSession.getUsersInChatSession(chatSession.id)
@@ -213,7 +242,7 @@ object NewServer extends App {
 
     val greeterMain: ActorSystem[ServerManager.Command] = ActorSystem(ServerManager(), "HelloSystem")
 
-    greeterMain ! ServerManager.PopulateChatSessionMap()
+    // greeterMain ! ServerManager.PopulateChatSessionMap()
 
     var msg = scala.io.StdIn.readLine("see database")
 

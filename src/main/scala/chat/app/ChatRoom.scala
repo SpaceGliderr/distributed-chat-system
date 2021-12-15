@@ -7,8 +7,8 @@ import akka.actor.typed.scaladsl.Behaviors
 
 object ChatRoom {
     sealed trait Command
-    case class Subscribe(participants: Array[ActorRef[ClientManager.Command]]) extends Command // Join the chat room
-    case class Unsubscribe(participants:ActorRef[ClientManager.Command]) extends Command // Leave the chat room
+    case class Subscribe(participant: ActorRef[ClientManager.Command]) extends Command // Join the chat room
+    case class Unsubscribe(participant:ActorRef[ClientManager.Command]) extends Command // Leave the chat room
     case class Publish(messageId: Long, message: String) extends Command // Send a message to all subscribers
     case class GetParticipants() extends Command // Get a list of all participants
 
@@ -20,13 +20,12 @@ object ChatRoom {
         Behaviors.setup { context =>
             Behaviors.receiveMessage { message =>
                 message match {
-                    case Subscribe(participants) =>
+                    case Subscribe(participant) =>
                         context.log.info("Subscribing")
 
                         // Add participants to subscribers
-                        participants.foreach(participant =>
-                            subscribers += participant
-                        )
+                        
+                        subscribers += participant
                         // subscribers = subscribers + participants.toSet
                         Behaviors.same
 

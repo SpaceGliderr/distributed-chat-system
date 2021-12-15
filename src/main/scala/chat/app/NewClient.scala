@@ -126,7 +126,7 @@ object ClientManager {
                     case JoinSession(sessionId) =>
                         for (remote <- remoteOpt) {
                             remote ! ServerManager.GetSessionMessages(context.self, sessionId)
-                            remote ! ServerManager.JoinSession(sessionId , Array(user.id))
+                            remote ! ServerManager.JoinSession(sessionId , context.self)
                         }
                         Behaviors.same
 
