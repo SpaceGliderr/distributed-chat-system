@@ -9,11 +9,14 @@ import javafx.stage.Stage
 
 @sfxml
 class RootLayoutController() {
+
+    //Close the application and terminate client actor
     def handleClose() {
         Platform.exit()
         Main.clientMain.terminate
     }
 
+    //Return to home page
     def handleLogOut() {
         Main.showPages("view/Home.fxml")
         Main.stage.scene().getWindow().asInstanceOf[Stage].setMaximized(false)
@@ -21,6 +24,7 @@ class RootLayoutController() {
         Main.stage.resizable_=(false)
     }
 
+    //Show application description
     def handleAbout(action: ActionEvent) {
         new Alert(AlertType.Information) {
             initOwner(Main.stage)

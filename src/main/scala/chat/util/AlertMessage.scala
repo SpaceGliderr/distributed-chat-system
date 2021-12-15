@@ -8,6 +8,7 @@ import scala.Tuple2
 import scalafx.event.ActionEvent
 
 trait AlertMessage{
+    //Check username and password for login and signup
     def userNamePwdChecking(username: StringProperty, password: StringProperty): String = {
         var errorMessage = ""
         if (username.value.length == 0)
@@ -17,6 +18,7 @@ trait AlertMessage{
         errorMessage
     }
 
+    //Create error alert
     def alertError (_title: String, _headerText: String, _contextText: String): Unit = {
         new Alert(Alert.AlertType.Error){
             initOwner(Main.stage)
@@ -26,6 +28,7 @@ trait AlertMessage{
         }.showAndWait()
     }
 
+    //Create information alert
     def alertInformation(_title: String, _headerText: String, _contextText: String): Unit = {
          new Alert(Alert.AlertType.Information){
             initOwner(Main.stage)
@@ -35,6 +38,7 @@ trait AlertMessage{
         }.showAndWait()
     }
 
+    //Create confirmation alert
     def alertConfirmation(_title: String, _headerText: String, _contextText: String): Boolean = {
         val alert = new Alert(Alert.AlertType.Confirmation){
             initOwner(Main.stage)
@@ -54,6 +58,7 @@ trait AlertMessage{
         }
     }
 
+    //Create text input dialog
     def textInputDialog(_title: String, _headerText: String, _contextText: String): String = {
         val dialog = new TextInputDialog(){
             initOwner(Main.stage)
@@ -68,6 +73,7 @@ trait AlertMessage{
         cancelButton.getStyleClass().clear();   
         cancelButton.getStyleClass().add("secondaryButton");   
         okButton.disable_=(true)
+        
         dialog.editor.text.onChange{(_, _, newValue) => {
             if (!newValue.trim().isEmpty)
                 okButton.disable_=(false)

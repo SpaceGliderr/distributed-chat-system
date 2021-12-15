@@ -21,58 +21,35 @@ import akka.actor.typed.ActorRef
 @sfxml
 class NewChatOrGroupController(
     private val searchBar: TextField,
-    private val imageView: ImageView,
-    private val imageView1: ImageView,
-    private val imageView2: ImageView,
+    private val searchIcon: ImageView,
+    private val plusIcon: ImageView,
+    private val backIcon: ImageView,
     private val createButton: Button,
     private val contactList: ListView[User]   //-- not sure the type
 
 ) extends AlertMessage{
 
+    //Variables
     var clientRef: Option[ActorRef[ClientManager.Command]] = None
-
-    val searchIcon = new Image(getClass().getResourceAsStream("searchIcon.png"))
-    val plusIcon = new Image(getClass().getResourceAsStream("plusIcon.png"))
-    val backIcon = new Image(getClass().getResourceAsStream("backIcon.png"))
-    var isGroup = false
-
-    imageView.image_=(searchIcon)
-    imageView1.image_=(plusIcon)
-    imageView2.image_=(backIcon)
-
-
     var dialogStage: Stage = null
     var title: String = ""
+    var names = new ObservableBuffer[User]()
+
+    //Get images from resources
+    val searchIconImage = new Image(getClass().getResourceAsStream("searchIcon.png"))
+    val plusIconImage = new Image(getClass().getResourceAsStream("plusIcon.png"))
+    val backIconImage = new Image(getClass().getResourceAsStream("backIcon.png"))
+    var isGroup = false
+
+    //Update the imageViews
+    searchIcon.image_=(searchIconImage)
+    plusIcon.image_=(plusIconImage)
+    backIcon.image_=(backIconImage)
 
     //allow multiple selection
     contactList.selectionModel().setSelectionMode(SelectionMode.Multiple)
 
-    var names = new ObservableBuffer[User]()
-
-
-    searchBar.text.onChange {
-        if(searchBar.text.getValue() == ""){
-            contactList.items = names
-        } else{
-            val filtered = names.filter(x => x.username.contains(searchBar.text.getValue()))
-            contactList.items = filtered
-        }
-    }
-
-    ClientManager.users.onChange {
-        Platform.runLater {
-            updateContactList()
-        }
-    }
-
-    ClientManager.pmUsers.onChange {
-        Platform.runLater {
-            updateContactList()
-        }
-    }
-
-
-    // populate the user lists
+    //Populate the user lists
     def updateContactList() = {
         names.clear()
         if (isGroup)
@@ -83,18 +60,19 @@ class NewChatOrGroupController(
         contactList.items = names
     }
 
-    def search(): Unit = {
+    //Show search bar
+    def showSearchBar(): Unit = {
         if (!searchBar.visible.value){
             searchBar.visible_=(true)
             searchBar.requestFocus()
         }
         else{
-            //-- filter contact list
             searchBar.text = ""
             searchBar.visible_=(false)
         }
     }
 
+    //Create chat session
     def addNewChatOrGroup(): Unit = {
         // Private Messages
         if (title == "Add New Chat"){
@@ -114,28 +92,43 @@ class NewChatOrGroupController(
         else {
             if (contactList.selectionModel().getSelectedItems.length <= 1)
                 alertError("Creation Fail", "Fail to create chat", "You must select at least two contacts")
-
             else{
                 var groupName = textInputDialog("Create Group", "Create a group", "Please enter the group name: ")
-
                 if (groupName != ""){
-                    //if grpname = "" means click cancel so wont load the chatroompage
                     val selectedItems = contactList.selectionModel().getSelectedItems()
-
                     var ids: Array[Long] = Array()
                     selectedItems.foreach(i => ids = ids :+ i.id)
-
                     clientRef.get ! ClientManager.CreateSession(ids, groupName)
-
                     dialogStage.close()
-                    Main.showChatRoomPage(true)   //-- pass name to chatroom page
+                    Main.showChatRoomPage(true)
                 }
             }
         }
     }
 
+    //Cancel operation and close window
     def cancel: Unit = dialogStage.close()
 
+    //Perform filter based on search text
+    searchBar.text.onChange {
+        if(searchBar.text.getValue() == ""){
+            contactList.items = names
+        } else{
+            val filtered = names.filter(x => x.username.contains(searchBar.text.getValue()))
+            contactList.items = filtered
+        }
+    }
 
+    //Detect changes and update
+    ClientManager.users.onChange {
+        Platform.runLater {
+            updateContactList()
+        }
+    }
+    ClientManager.pmUsers.onChange {
+        Platform.runLater {
+            updateContactList()
+        }
+    }
 
 }

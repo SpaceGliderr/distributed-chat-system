@@ -1,8 +1,6 @@
 package chat.util
-
 import scalikejdbc._
 import chat.model.{ChatSession, Message, User, UserChatSession, Test}
-
 
 trait Database {
     val derbyDriverClassname = "org.apache.derby.jdbc.EmbeddedDriver"
@@ -24,7 +22,7 @@ object Database extends Database {
 
     // create all tables needed
     def setupDB() = {
-        // initialize the table todo_list
+        // initialize the tables
         if (!hasDBInitialize("users"))
             User.initializeTable()
 
@@ -49,11 +47,8 @@ object Database extends Database {
         }
     }
 
-
+    //Check if  table is initialized in the database
     def hasDBInitialize(name: String) : Boolean = {
-        /**
-        * check if  table is initialized in the database
-        */
         DB getTable name match {
             case Some(x) => true
             case None => false

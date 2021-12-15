@@ -4,8 +4,8 @@ import scalafx.scene.control.TextField
 import chat.ClientManager
 import chat.Main
 import scalafx.application.Platform
-//import chat.model.User    <-- don't know if yall will change the directory for User class
-import chat.util.AlertMessage //-- directory different
+import chat.util.AlertMessage 
+import akka.actor.typed.ActorRef
 
 @sfxml
 class SignUpController(
@@ -13,31 +13,22 @@ class SignUpController(
     private val passwordTextField: TextField
 
 )extends AlertMessage{
+    
+    //Variable
+    var clientRef: Option[ActorRef[ClientManager.Command]] = None
 
+    //Sign up user based on input username and password
     def signup(): Unit = {
         var errorMessage = ""
         errorMessage += userNamePwdChecking(userNameTextField.text, passwordTextField.text)
         if (errorMessage.length() > 0)
             alertError("Invalid Fields", "Please check invalid fields", errorMessage)
         else{
-            //================ uncomment this later
-            //val account = new User(......)
-            //User.users += account
-            //account.saveUser()
-            //================
-            Main.clientMain ! ClientManager.SignUp(userNameTextField.text.getValue(), passwordTextField.text.getValue())
-            // Thread.sleep(100) //Wait for signup result
-
-            // if(ClientManager.signup == true){
-            //     alertInformation("Sign Up Success", null, "Congratulations, your account has been successfully created.")
-            //     Main.showPages("view/Home.fxml")
-            // } else {
-            //     alertError("Sign Up Failed", "Error signing up.","Username already taken.")
-            // }
-            
+            clientRef.get ! ClientManager.SignUp(userNameTextField.text.getValue(), passwordTextField.text.getValue())
         }
     }
 
+     //Detect changes after signup; if successfully signed up, then show success message; else show error alert.
     ClientManager.signup.onChange{ 
         if(ClientManager.signup.getValue() == "true"){
             Platform.runLater {
@@ -52,5 +43,6 @@ class SignUpController(
         ClientManager.signup.value = "handled"
     }
 
+    //Return to home page
     def cancel(): Unit = Main.showPages("view/Home.fxml")
 }

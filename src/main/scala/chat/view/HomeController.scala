@@ -8,12 +8,10 @@ import scalafx.scene.image.{ImageView, Image}
 class HomeController(
     private val imageView: ImageView
 ){
-    // val image = new Image(getClass().getResourceAsStream("peopleOnDevices.png"))
-    // imageView.image_=(image)
-    // imageView.preserveRatio_=(false)
-    // imageView.opacity_=(0.53)
 
-    def login(): Unit = Main.showPages("view/LogIn.fxml")
+    //Open Login page
+    def login(): Unit = Main.showLoginPage()
 
-    def signup(): Unit = Main.showPages("view/SignUp.fxml")
+    //Open Signup page
+    def signup(): Unit = Main.showSignUpPage()
 }
