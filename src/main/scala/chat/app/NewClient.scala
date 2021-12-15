@@ -1,56 +1,49 @@
 package chat
 
 import akka.actor.typed.ActorRef
-// import akka.actor.typed.ActorSystem
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.receptionist.{Receptionist,ServiceKey}
-// import com.typesafe.config.ConfigFactory
 import scalafx.beans.property.StringProperty
-// import ClientManager.Command
 import chat.model.{User, ChatSession}
-import util.Database
 import scalafx.collections.ObservableBuffer
 import scalafx.collections.ObservableHashMap
-import scala.collection.mutable.ListBuffer
 
 
 // Documentation regarding the Actor Receptionist, Listing, etc.
 // https://alvinalexander.com/scala/akka-typed-how-lookup-find-actor-receptionist/
 object ClientManager {
+
     sealed trait Command
+
     final case object FindServer extends Command
     private case class ListingResponse(listing: Receptionist.Listing) extends Command
+
     case class Message(messageId: Long, message: String) extends Command
+    case class UpdateSignUpRequest(value: Boolean, message: String) extends Command
+    case class UpdateChatSessions(sessions: List[ChatSession]) extends Command
+    case class UpdateSessionMessages(messageMap: Map[Long,String]) extends Command
+    case class UpdateUsers(allUsers: List[User], pmUsers: List[User]) extends Command
+    case class UpdateSelectedChat(chatSession: ChatSession, users: List[User]) extends Command
     case class SignUp(username: String, password: String) extends Command
     case class LogIn(username: String, password: String) extends Command
     case class Authenticate(value: Boolean, message: String) extends Command
-    case class SignUpRequest(value: Boolean, message: String) extends Command
+    case class RequestUpdatedUser(user: User) extends Command
+    case class RequestUpdatedChat(chatSession: ChatSession) extends Command
     case class CreateSession(participants: Array[Long], chatName: String) extends Command
     case class JoinSession(sessionId: Long) extends Command
     case class LeaveSession(sessionId: Long) extends Command
     case class DeleteSession(sessionId: Long) extends Command
     case class SendMessage(message: String) extends Command
     case class DeleteMessage(messageId: Long) extends Command
-    case class UpdateUser(user: User) extends Command
-    case class ChatSessions(sessions: List[ChatSession]) extends Command
-    case class AllUsers(allUsers: List[User], pmUsers: List[User]) extends Command
-    case class SelectedChat(chatSession: ChatSession, users: List[User]) extends Command
-    case class UpdateChatInfo(chatSession: ChatSession) extends Command
-    case class GetSessionMessages(messageMap: Map[Long,String]) extends Command
 
-    // case class User(id: String, username: String, password: String) extends Command
-
+    // Class variables
     var user: User = null
     var users: ObservableBuffer[User] = new ObservableBuffer[User]()
     var pmUsers: ObservableBuffer[User] = new ObservableBuffer[User]()
     var chatSessions = new ObservableBuffer[ChatSession]()
     var selectedChatRoom: ChatSession = null
-    // var usersInChatRoom: Set[User] = Set.empty[User]
     var usersInChatRoom: ObservableBuffer[User] = new ObservableBuffer[User]()
-    //var authenticate: Boolean = false
-    //var signup: Boolean = false
-    //var authenticate = ObjectProperty[Boolean](false)
     var authenticate =  new StringProperty("")
     var signup = new StringProperty("")
     var sessionMessages = new ObservableHashMap[Long,String]()
@@ -77,50 +70,100 @@ object ClientManager {
                     case FindServer =>
                         // Send a message to the Receptionist to find any/all listings with ServerKey
                         context.system.receptionist ! Receptionist.Find(ServerManager.ServerKey, listingAdapter)
+
                         Behaviors.same
 
                     case ListingResponse(ServerManager.ServerKey.Listing(listings)) =>
                         // Receptionist sends a ListingResponse message
                         // `listings` variable is a set of ActorRefs of type Server.Command
                         val xs: Set[ActorRef[ServerManager.Command]] = listings
-                        for (x <- xs) {
+                        for (x <- xs)
                             remoteOpt = Some(x)
-                        }
+
                         Behaviors.same
 
                     case Message(messageId, message) =>
                         println(s"Message received on Client ${context.self.path.name}: ${message}")
+
                         sessionMessages += (messageId -> message)
+
+                        Behaviors.same
+
+                    case UpdateSignUpRequest(value, message) =>
+                        this.signup.value = value.toString
+
+                        Behaviors.same
+
+                    case UpdateChatSessions(sessions) =>
+                        chatSessions.clear()
+                        sessions.foreach(s => chatSessions += s)
+
+                        Behaviors.same
+
+                    case UpdateSessionMessages(messageMap) =>
+                        sessionMessages.clear()
+
+                        for ((messageId, message) <- messageMap)
+                           sessionMessages += (messageId -> message)
+
+                        println(s"sessionMessage received from ${context.self.path.name}: ${this.sessionMessages}")
+
+                        Behaviors.same
+
+                    case UpdateUsers(allUsers: List[User], pmUsers: List[User]) =>
+                        this.users ++= allUsers
+                        this.pmUsers ++= pmUsers
+                        this.users = this.users.distinct
+                        this.pmUsers = this.pmUsers.distinct
+
+                        Behaviors.same
+
+                    case UpdateSelectedChat(chatSession, users) =>
+                        this.selectedChatRoom = chatSession
+                        this.usersInChatRoom.clear()
+                        users.foreach(u => this.usersInChatRoom += u)
+
                         Behaviors.same
 
                     case SignUp(username, password) =>
-                        for (remote <- remoteOpt) {
+                        for (remote <- remoteOpt)
                             remote ! ServerManager.CreateUser(context.self, username, password)
-                        }
-                        Behaviors.same
 
-                    case SignUpRequest(value, message) =>
-                        this.signup.value = value.toString
-                        println(signup.getValue())
-                        println(message)
                         Behaviors.same
 
                     case LogIn(username, password) =>
-                        for (remote <- remoteOpt) {
+                        for (remote <- remoteOpt)
                             remote ! ServerManager.AuthenticateUser(context.self, username, password)
-                        }
+
                         Behaviors.same
 
                     case Authenticate(value, message) =>
                         this.authenticate.value = value.toString
                         println(authenticate.getValue())
                         println(message)
+
+                        Behaviors.same
+
+                    case RequestUpdatedUser(u: User) =>
+                        this.user = u
+
+                        for (remote <- remoteOpt) {
+                            remote ! ServerManager.GetChatSession(context.self, this.user.id)
+                            remote ! ServerManager.GetAllUsers(context.self, this.user)
+                        }
+
+                        Behaviors.same
+
+                    case RequestUpdatedChat(chatSession) =>
+                        for (remote <- remoteOpt)
+                            remote ! ServerManager.GetChatInfo(context.self, chatSession)
+
                         Behaviors.same
 
                     case CreateSession(participants, chatName) =>
-                        for (remote <- remoteOpt) {
+                        for (remote <- remoteOpt)
                             remote ! ServerManager.CreateSession(context.self, user.id, participants, chatName)
-                        }
+
                         Behaviors.same
 
                     case JoinSession(sessionId) =>
@@ -128,137 +171,41 @@ object ClientManager {
                             remote ! ServerManager.GetSessionMessages(context.self, sessionId)
                             remote ! ServerManager.JoinSession(sessionId , context.self)
                         }
+
                         Behaviors.same
 
                     case LeaveSession(sessionId) =>
                         sessionMessages.clear()
-                        for (remote <- remoteOpt) {
+
+                        for (remote <- remoteOpt)
                             remote ! ServerManager.LeaveSession(context.self, this.user.id, sessionId)
-                        }
+
                         Behaviors.same
 
                     case DeleteSession(sessionId) =>
                         context.self ! LeaveSession(sessionId)
-                        for (remote <- remoteOpt) {
+
+                        for (remote <- remoteOpt)
                             remote ! ServerManager.DeleteSession(this.user.id, sessionId)
-                        }
-                        context.self ! UpdateUser(user)
-                        // this.chatSessions = this.chatSessions.filter(_.id != sessionId)
-                        Behaviors.same
 
+                        context.self ! RequestUpdatedUser(user)
 
-                    case GetSessionMessages(messageMap) =>{
-                        sessionMessages.clear()
-                        for ((messageId, message) <- messageMap) {
-                           sessionMessages += (messageId -> message)
-                        }
-                        println(s"sessionMessage received from ${context.self.path.name}: ${this.sessionMessages}")
                         Behaviors.same
-                    }
 
                     case SendMessage(message) =>
-                        println(s"Current User >>> ${user}")
-                        for (remote <- remoteOpt) {
+                        for (remote <- remoteOpt)
                             remote ! ServerManager.SendMessage(selectedChatRoom.id, message, user.id)
-                        }
+
                         Behaviors.same
 
                     case DeleteMessage(messageId) =>
-                        println(s"Current User >>> ${user}")
                         sessionMessages.remove(messageId)
-                        for (remote <- remoteOpt) {
+
+                        for (remote <- remoteOpt)
                             remote ! ServerManager.DeleteMessage(messageId)
-                        }
-                        Behaviors.same
 
-                    case UpdateUser(u: User) =>
-                        user = u
-                        println(s"Current User >>> ${user}")
-                        for (remote <- remoteOpt) {
-                            remote ! ServerManager.GetChatSession(context.self, this.user.id)
-                            remote ! ServerManager.GetAllUsers(context.self, user)
-                        }
-                        Behaviors.same
-
-                    case ChatSessions(sessions) =>
-                        chatSessions.clear()
-                        sessions.foreach(s => chatSessions += s)
-                        println(s"ChatSessions received from ${context.self.path.name}: ${chatSessions}")
-                        Behaviors.same
-
-                    case AllUsers(allUsers: List[User], pmUsers: List[User]) =>
-                        this.users ++= allUsers
-                        this.pmUsers ++= pmUsers
-                        this.users = this.users.distinct
-                        this.pmUsers = this.pmUsers.distinct
-
-                        println(s"All Users in the system ${context.self.path.name}: ${this.users}")
-                        println(s"PM User in the system ${context.self.path.name}: ${this.pmUsers}")
-                        Behaviors.same
-
-                    case UpdateChatInfo(chatSession) =>
-                        for (remote <- remoteOpt) {
-                            remote ! ServerManager.UpdateChatInfo(context.self, chatSession)
-                        }
-                        Behaviors.same
-
-                    case SelectedChat(chatSession, users) =>
-                        this.selectedChatRoom = chatSession
-                        println(users)
-                        this.usersInChatRoom.clear()
-                        users.foreach(u => this.usersInChatRoom += u)
-                        // this.usersInChatRoom = users
-                        println(s"Selected > ${this.selectedChatRoom}")
-                        println(s"In sessions: ${this.usersInChatRoom}")
                         Behaviors.same
                 }
             }
         }
 }
-
-// object NewClient extends App {
-
-//     // When a main client is spawned, it will (1) Create the ActorRef for the client and (2) Trigger Client.start
-//     // val greeterMain: ActorSystem[ClientManager.Command] = ActorSystem(ClientManager(), "HelloSystem")
-//     val greeterMain: ActorSystem[ClientManager.Command] = ActorSystem(ClientManager(), "HelloSystem", ConfigFactory.load("client"))
-//     // println("Client started")
-//     // var text = scala.io.StdIn.readLine("command=")
-//     // while (text != "end"){
-//     //     greeterMain ! ClientManager.Start
-//     //     println("Variable text ", text)
-//     //     text = scala.io.StdIn.readLine("command=")
-//     // }
-
-//     val entry = scala.io.StdIn.readLine("Login or Signup")
-//     val username = scala.io.StdIn.readLine("Enter Username: ")
-//     val password = scala.io.StdIn.readLine("Enter Password: ")
-
-//     greeterMain ! ClientManager.FindServer
-
-//     // ! DELETE this part when linking front end and back end
-//     entry match {
-//         case "login" => greeterMain ! ClientManager.LogIn(username, password)
-//         case "signup" => greeterMain ! ClientManager.SignUp(username, password)
-//     }
-
-//     var sessionId: String = null
-//     val session = scala.io.StdIn.readLine("Create or Join")
-//     session match {
-//         case "create" =>
-//         greeterMain ! ClientManager.CreateSession()
-//         sessionId = scala.io.StdIn.readLine("sessionId=")
-
-//         case "join" =>
-//         sessionId = scala.io.StdIn.readLine("sessionId=")
-//         greeterMain ! ClientManager.JoinSession(sessionId.toLong)
-//     }
-
-//     var message = scala.io.StdIn.readLine("message=")
-
-//     while (message != "end"){
-//         greeterMain ! ClientManager.SendMessage(sessionId.toLong, message)
-//         message = scala.io.StdIn.readLine("message=")
-//     }
-
-//     greeterMain.terminate
-// }

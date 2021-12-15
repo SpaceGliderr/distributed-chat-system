@@ -11,11 +11,13 @@ import util.{Database, UserRoles}
 import scala.util.{ Success, Failure }
 import scala.collection.mutable.{ListBuffer, Set}
 
+
 object ServerManager {
+
     sealed trait Command
+
     case class Message(value: String, from: ActorRef[ClientManager.Command]) extends Command
     case class CreateSession(from: ActorRef[ClientManager.Command], creatorId: Long, participants: Array[Long], chatName: String) extends Command
-    // case class JoinSession(sessionId: Long, participants: Array[Long]) extends Command
     case class JoinSession(sessionId: Long, from: ActorRef[ClientManager.Command]) extends Command
     case class LeaveSession(from: ActorRef[ClientManager.Command], userId: Long, sessionId: Long) extends Command
     case class DeleteSession(userId: Long, sessionId: Long) extends Command
@@ -26,14 +28,14 @@ object ServerManager {
     case class GetChatSession(from: ActorRef[ClientManager.Command], userId: Long) extends Command
     case class GetAllUsers(from: ActorRef[ClientManager.Command], user: User) extends Command
     case class GetSessionMessages(from: ActorRef[ClientManager.Command], sessionId: Long) extends Command
-    // case class PopulateChatSessionMap() extends Command
-    case class UpdateChatInfo(from: ActorRef[ClientManager.Command], chatSession: ChatSession) extends Command
+    case class GetChatInfo(from: ActorRef[ClientManager.Command], chatSession: ChatSession) extends Command
 
 
     // var chatSessionMap: Map[Long, ActorRef[ChatRoom.Command]] = Map()
     var chatSessionMap: Map[Long, Set[ActorRef[ClientManager.Command]]] = Map()
     var userMap: Map[Long, ActorRef[ClientManager.Command]] = Map()
 
+    // Server key
     val ServerKey: ServiceKey[ServerManager.Command] = ServiceKey("Server")
 
     def apply(): Behavior[ServerManager.Command] =
@@ -44,86 +46,61 @@ object ServerManager {
                 message match {
                     case Message(value, from) =>
                         println(s"Server received message '${value}'")
+
                         Behaviors.same
 
                     case CreateSession(from, creatorId, participants, chatName) =>
                         println(s"Server received request to create session")
 
+                        // Create a new chat session
                         var chatSession: ChatSession = null
-
                         if (participants.length == 1)
                             chatSession = new ChatSession(chatName, User.findOne(creatorId).get.username, creatorId)
                         else
                             chatSession = new ChatSession(chatName, "group chat", creatorId)
 
-                        chatSession.create()
-                        context.self ! GetChatSession(from, creatorId)
+                        chatSession.create() // save into database
+                        context.self ! GetChatSession(from, creatorId) // update the all chat sessions to client
 
-                        var userChatSession: UserChatSession = null
-
+                        // Create UserChatSession for all participants
                         participants.foreach( participant => {
-                            userChatSession = new UserChatSession(participant, chatSession.id)
+                            var userChatSession = new UserChatSession(participant, chatSession.id)
                             userChatSession.upsert()
-                            //Update new chat session
+
                             userMap.get(participant).foreach(user => {
                                 context.self ! GetChatSession(user,participant)
                                 context.self ! GetAllUsers(user, User.findOne(creatorId).get)
                             })
                         })
 
-
-
-                        from ! ClientManager.SelectedChat(chatSession, UserChatSession.getUsersInChatSession(chatSession.id))
+                        // Update the created chat to client
+                        from ! ClientManager.UpdateSelectedChat(chatSession, UserChatSession.getUsersInChatSession(chatSession.id))
+                        // Join the creator into the the created chat
                         from ! ClientManager.JoinSession(chatSession.id)
 
-                         // Spawn Chat Room actor
-                        //val chatRoom = context.spawn(ChatRoom(), chatSession.id.toString)
-
-                        // Add chat room to chat session map
-                        // chatSessionMap += (chatSession.id -> chatRoom)
-                        val p = Set.empty[ActorRef[ClientManager.Command]]
-                        p += from
-                        chatSessionMap += (chatSession.id -> p)
-                        println("CHAT SESSION MAP >>>>> ", chatSessionMap)
+                        // Add the created chat session into the map
+                        chatSessionMap += (chatSession.id -> Set(from))
 
                         Behaviors.same
 
                     case JoinSession(sessionId, from) =>
-                        println("Server received request to join session")
+                        println(s"Server received request to join session ${sessionId}")
 
-                        println(s"Session ID: ${sessionId}")
-                        println(chatSessionMap)
-
-                        // var p = Array[ActorRef[ClientManager.Command]]()
-
-                        // participants.foreach(participant => {
-                        //     userMap.get(participant).foreach(user => p = p :+ user)
-                        // })
-
-                        // chatSessionMap.get(sessionId).foreach(room => room ! ChatRoom.Subscribe(p))
+                        // Join the users/actors into the chat session
                         chatSessionMap.get(sessionId) match {
-                            case Some(participants) => 
-                                println("participants are:" +  participants) 
+                            case Some(participants) =>
                                 participants += from
                                 chatSessionMap += (sessionId -> participants)
-                            case None => 
-                                println("Session not found")
-                                val p = Set.empty[ActorRef[ClientManager.Command]]
-                                p += from
-                                chatSessionMap += (sessionId -> p)
-                        }
-                        
-                        for ((id, participants) <- chatSessionMap) {
-                            println("participants are:" +  participants) 
+
+                            case None =>
+                                chatSessionMap += (sessionId -> Set(from))
                         }
 
                         Behaviors.same
 
                     case LeaveSession(from, userId, sessionId) =>
-                        println("Server received request to leave session")
-                        println(s"Session ID: ${sessionId}")
+                        println(s"Server received request to leave session ${sessionId}")
 
-                        // chatSessionMap.get(sessionId).foreach(room => room ! ChatRoom.Unsubscribe(from))
                         chatSessionMap.get(sessionId).foreach(participants => {
                             participants -= from
                             chatSessionMap += (sessionId -> participants)
@@ -132,28 +109,30 @@ object ServerManager {
                         Behaviors.same
 
                     case DeleteSession(userId, sessionId) =>
+                        println(s"Server received request to delete session ${sessionId} for user ${userId}")
+
                         UserChatSession.leaveSession(userId, sessionId)
 
                         Behaviors.same
 
                     case GetSessionMessages(from, sessionId) =>
-                        println("Session ID:" + sessionId)
+                        println(s"Server received request to get session messages ${sessionId}")
+
                         val messages = ChatSession.getMessages(sessionId)
                         var messageMap: Map[Long, String] = Map()
+
                         messages.foreach(m => messageMap += (m.id -> m.toString()))
-                        println(messageMap)
-                        from ! ClientManager.GetSessionMessages(messageMap)
-                        
+                        from ! ClientManager.UpdateSessionMessages(messageMap)
+
                         Behaviors.same
 
                     case SendMessage(sessionId, message, senderId) =>
                         println(s"Server received message '${message}'")
+
                         val msg = new model.Message(message, senderId, sessionId)
                         msg.upsert()
-                        // chatSessionMap.get(sessionId).foreach(room => {
-                        //     room ! ChatRoom.Publish(msg.id, msg.toString())
+
                         chatSessionMap.get(sessionId).foreach(participants => {
-                            println("participants are:" +  participants)
                             participants.foreach(participant =>
                                 participant ! ClientManager.Message(msg.id, msg.toString())
                             )
@@ -163,6 +142,7 @@ object ServerManager {
 
                     case DeleteMessage(messageId) =>
                         println(s"Server received delete message '${messageId}'")
+
                         model.Message.deleteMessage(messageId)
 
                         Behaviors.same
@@ -173,25 +153,25 @@ object ServerManager {
                         val user = new User(username, password)
                         user.create() match {
                             case Success(value) =>
-                                from ! ClientManager.SignUpRequest(true, "Successfully Sign Up!")
-
+                                from ! ClientManager.UpdateSignUpRequest(true, "Successfully Sign Up!")
                                 userMap.foreach{
                                     case (u, ref) =>
                                         context.self ! GetAllUsers(ref, User.findOne(u).get)
                                 }
 
                             case Failure(exception) =>
-                                from ! ClientManager.SignUpRequest(false, "Failed to Sign Up!")
+                                from ! ClientManager.UpdateSignUpRequest(false, "Failed to Sign Up!")
                         }
 
                         Behaviors.same
 
                     case AuthenticateUser(from, username, password) =>
                         println(s"Server received request to authenticate user")
+
                         User.login(username, password) match {
                             case Some(user) =>
                                 from ! ClientManager.Authenticate(true, "Successfully Logged In!")
-                                from ! ClientManager.UpdateUser(user)
+                                from ! ClientManager.RequestUpdatedUser(user)
                                 userMap += (user.id -> from)
 
                             case None =>
@@ -201,8 +181,10 @@ object ServerManager {
                         Behaviors.same
 
                     case GetChatSession(from, userId) =>
+                        println(s"Server received request to retrieve all chat sessions for user ${userId}")
+
                         val sessions = UserChatSession.getChatSessions(userId)
-                        from ! ClientManager.ChatSessions(sessions.distinct)
+                        from ! ClientManager.UpdateChatSessions(sessions.distinct)
 
                         Behaviors.same
 
@@ -217,20 +199,15 @@ object ServerManager {
                                     availableUsers = availableUsers.filter(_ != u)
                             })
                         })
+                        from ! ClientManager.UpdateUsers(allUsers, availableUsers)
 
-                        from ! ClientManager.AllUsers(allUsers, availableUsers)
                         Behaviors.same
 
-                    // case PopulateChatSessionMap()=>
-                    //     ChatSession.selectAll.foreach(chatSession => {
-                    //         val chatRoom = context.spawn(ChatRoom(), chatSession.id.toString)
-                    //         chatSessionMap += (chatSession.id -> chatRoom)
-                    //     })
-                    //     Behaviors.same
-
-                    case UpdateChatInfo(from, chatSession) =>
+                    case GetChatInfo(from, chatSession) =>
                         val users = UserChatSession.getUsersInChatSession(chatSession.id)
-                        from ! ClientManager.SelectedChat(chatSession, users)
+
+                        from ! ClientManager.UpdateSelectedChat(chatSession, users)
+
                         Behaviors.same
                 }
             }
@@ -239,42 +216,5 @@ object ServerManager {
 
 object NewServer extends App {
     Database.setupDB()
-
     val greeterMain: ActorSystem[ServerManager.Command] = ActorSystem(ServerManager(), "HelloSystem")
-
-    // greeterMain ! ServerManager.PopulateChatSessionMap()
-
-    var msg = scala.io.StdIn.readLine("see database")
-
-    while (msg != "end"){
-        var a = User.selectAll
-        var b = Message.selectAll
-        var c = UserChatSession.selectAll
-        var d = ChatSession.selectAll
-        println("USER ------>")
-        a.foreach(x => println(x))
-
-        println("\nCHAT SESSION ------>")
-        d.foreach(x => println(x))
-
-        println("\nUSER CHAT SESSION ------>")
-        c.foreach(x => println(x))
-
-        println("\nMESSAGE ------>")
-        b.foreach(x => println(x))
-
-        msg = scala.io.StdIn.readLine("see database")
-    }
-
-
-
-    // greeterMain ! ServerManager.TestCreateSession
-
-    // var sessionId = scala.io.StdIn.readLine("command=")
-    // greeterMain ! ServerManager.TestJoinSession(sessionId)
-
-    // var message = scala.io.StdIn.readLine("command=")
-    // greeterMain ! ServerManager.TestSendMessage(sessionId, message)
-
-    // greeterMain.terminate
 }

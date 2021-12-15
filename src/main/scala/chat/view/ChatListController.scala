@@ -117,7 +117,7 @@ class ChatListController(
             println(conversationList.selectionModel().selectedItem.value)
             // val sessionId = conversationList.selectionModel().selectedItem.value.id
             // val sessionId = this.chatsessions(conversationList.getSelectionModel().getSelectedIndex())
-            Main.clientMain ! ClientManager.UpdateChatInfo(this.chatsessions(conversationList.getSelectionModel().getSelectedIndex()))
+            Main.clientMain ! ClientManager.RequestUpdatedChat(this.chatsessions(conversationList.getSelectionModel().getSelectedIndex()))
             Main.clientMain ! ClientManager.JoinSession(this.chatsessions(conversationList.getSelectionModel().getSelectedIndex()).id.toLong)
             // println(sessionId)
             Main.showChatRoomPage(true)
