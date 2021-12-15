@@ -84,7 +84,7 @@ class ChatListController(
         if (conversationList.selectionModel().selectedItem.value == null)
             alertError("Open Fail", "Fail to open conversation", "You must select a conversation")
         else{
-            clientRef.get ! ClientManager.UpdateChatInfo(this.chatsessions(conversationList.getSelectionModel().getSelectedIndex()))
+            clientRef.get ! ClientManager.RequestUpdatedChat(this.chatsessions(conversationList.getSelectionModel().getSelectedIndex()))
             clientRef.get ! ClientManager.JoinSession(this.chatsessions(conversationList.getSelectionModel().getSelectedIndex()).id.toLong)
             Main.showChatRoomPage(true)
         }
