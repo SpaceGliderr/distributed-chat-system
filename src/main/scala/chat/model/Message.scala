@@ -5,14 +5,18 @@ import chat.util.Database
 import scalikejdbc._
 import java.util.Date
 
+
 case class Message(_content: String, _senderId: Long, _chatSessionId: Long) {
+
+    // Properties
     var id: Long = 0
     var content: String = _content
     var senderId: Long = _senderId
     var chatSessionId: Long = _chatSessionId
     var createdAt: Date = null
-    var updatedAt: Date = new Date() // if we allow messages to be updated
+    var updatedAt: Date = new Date()
 
+    // Check if a message exists in database
     def isExist: Boolean = {
         DB readOnly { implicit session =>
             sql"""
@@ -26,6 +30,7 @@ case class Message(_content: String, _senderId: Long, _chatSessionId: Long) {
         }
     }
 
+    // Update or create a new record for message
     def upsert(): Try[Long] = {
         if (!isExist) {
             Try (DB autoCommit { implicit session =>
@@ -46,6 +51,7 @@ case class Message(_content: String, _senderId: Long, _chatSessionId: Long) {
         }
     }
 
+    // Get the sender's name
     def senderUserName() : String = {
         DB readOnly { implicit session =>
         sql"""
@@ -58,10 +64,12 @@ case class Message(_content: String, _senderId: Long, _chatSessionId: Long) {
         }
     }
 
+    // toString method
     override def toString = s"${senderUserName}: ${content}"
 }
 
 object Message extends Database {
+
     def apply(_id: Long, _content: String, _senderId: Long, _chatSessionId: Long, _createdAt: Date, _updatedAt: Date): Message = {
         new Message(_content, _senderId, _chatSessionId) {
             id = _id
@@ -70,6 +78,7 @@ object Message extends Database {
         }
     }
 
+    // Initialize the table in database
     def initializeTable() = {
         DB autoCommit { implicit session =>
             sql"""
@@ -88,6 +97,7 @@ object Message extends Database {
         }
     }
 
+    // Delete a message with id
     def deleteMessage(messageId: Long): Long = {
         DB autoCommit { implicit session =>
             sql"""
@@ -97,6 +107,7 @@ object Message extends Database {
         messageId
     }
 
+    // Select all messages in the database
     def selectAll: List[Message] = {
         DB readOnly { implicit session =>
             sql"""
@@ -112,6 +123,7 @@ object Message extends Database {
         }
     }
 
+    // Seeding
     def seed() = {
         DB autoCommit { implicit session =>
             sql"""
