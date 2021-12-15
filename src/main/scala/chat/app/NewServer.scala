@@ -195,8 +195,13 @@ object ServerManager {
                         val sessions = ChatSession.selectAll
                         sessions.foreach( s => {
                             availableUsers.foreach( u => {
-                                if (UserChatSession.getPMChatSessions(u.id, user.id, s.id).length == 2)
-                                    availableUsers = availableUsers.filter(_ != u)
+                                val allUsers = UserChatSession.getUsersInChatSession(s.id)
+                                if (allUsers.length == 2) {
+                                    var ids: List[Long] = List()
+                                    allUsers.foreach( x => ids :+= x.id )
+                                    if ((ids.contains(user.id)) && (ids.contains(u.id)))
+                                        availableUsers = availableUsers.filter(_ != u)
+                                }
                             })
                         })
                         from ! ClientManager.UpdateUsers(allUsers, availableUsers)

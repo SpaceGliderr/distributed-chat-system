@@ -166,23 +166,6 @@ object UserChatSession extends Database {
         }
     }
 
-    // Get the UserChatSession with the two users joining a chat session by using id
-    def getPMChatSessions(userId1: Long, userId2: Long, sessionId: Long): List[UserChatSession] = {
-        DB readOnly { implicit session =>
-            sql"""
-                select * from user_chat_sessions
-                where user_id in (${userId1.intValue()}, ${userId2.intValue()})
-                and chat_session_id = ${sessionId.intValue()}
-            """.map(res => UserChatSession(
-                res.int("id"),
-                res.int("user_id"),
-                res.int("chat_session_id"),
-                if (res.string("role") == "ADMIN") UserRoles.ADMIN else UserRoles.MEMBER,
-                res.timestamp("joined_at")
-            )).list.apply()
-        }
-    }
-
     // Leave a chat session by using user's id and chat session's id
     def leaveSession(userId: Long, chatSessionId: Long): Long = {
         DB autoCommit { implicit session =>
