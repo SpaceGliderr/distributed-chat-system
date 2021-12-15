@@ -13,7 +13,7 @@ import akka.actor.typed.ActorSystem
 import com.typesafe.config.ConfigFactory
 
 
-object Main extends JFXApp {
+object Client extends JFXApp {
 
     // Create Client's Actor System
     implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
@@ -95,7 +95,7 @@ object Main extends JFXApp {
             resizable_=(false)
             icons += new Image(getClass.getResourceAsStream("view/chatIcon.png"))
         }
-        
+
         controller.dialogStage = window
         controller.isGroup = _isGroup
         controller.title = _title

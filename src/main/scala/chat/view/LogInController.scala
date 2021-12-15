@@ -3,9 +3,9 @@ import scalafxml.core.macros.sfxml
 import scalafx.scene.control.TextField
 import scalafx.Includes._
 import chat.ClientManager
-import chat.Main
+import chat.Client
 import scalafx.application.Platform
-import chat.util.AlertMessage   
+import chat.util.AlertMessage
 import akka.actor.typed.ActorRef
 
 @sfxml
@@ -16,7 +16,7 @@ class LogInController(
 
     //Variable
     var clientRef: Option[ActorRef[ClientManager.Command]] = None
-    
+
     //Login user based on input username and password
     def login(): Unit = {
         var errorMessage = ""
@@ -32,7 +32,7 @@ class LogInController(
     ClientManager.authenticate.onChange{
         if(ClientManager.authenticate.getValue() == "true"){
             Platform.runLater {
-                Main.showChatListPage()
+                Client.showChatListPage()
             }
         } else if(ClientManager.authenticate.getValue() == "false"){
             Platform.runLater{
@@ -43,5 +43,5 @@ class LogInController(
     }
 
     //Return to home page
-    def cancel(): Unit = Main.showPages("view/Home.fxml")
+    def cancel(): Unit = Client.showPages("view/Home.fxml")
 }

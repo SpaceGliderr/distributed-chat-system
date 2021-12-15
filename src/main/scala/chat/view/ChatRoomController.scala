@@ -5,7 +5,7 @@ import scalafx.Includes._
 import scalafx.scene.image.{ImageView, Image}
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control.SelectionMode
-import chat.{Main, ClientManager}
+import chat.{Client, ClientManager}
 import chat.model.{ChatSession, UserChatSession}
 import chat.util.AlertMessage
 import akka.actor.typed.ActorRef
@@ -20,7 +20,7 @@ class ChatRoomController(
     private val sendButton: Button,
     private val groupOrChatName: Label,
     private val statusOrGrpMemNames: Label,
-    private val messageList: ListView[String]   
+    private val messageList: ListView[String]
 ) extends AlertMessage{
 
     //Variables
@@ -79,7 +79,7 @@ class ChatRoomController(
     //Leave current chat room and return to chat list page
     def returnToChatList(): Unit = {
         clientRef.get ! ClientManager.LeaveSession(chatRoom.id)
-        Main.showChatListPage()
+        Client.showChatListPage()
     }
 
     //Delete select message
@@ -92,7 +92,7 @@ class ChatRoomController(
                 val messageId = messageIds(messageList.getSelectionModel().getSelectedIndex())
                 clientRef.get ! ClientManager.DeleteMessage(messageId)
             }
-                
+
         }
     }
 

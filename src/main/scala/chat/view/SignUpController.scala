@@ -2,9 +2,9 @@ package chat.view
 import scalafxml.core.macros.sfxml
 import scalafx.scene.control.TextField
 import chat.ClientManager
-import chat.Main
+import chat.Client
 import scalafx.application.Platform
-import chat.util.AlertMessage 
+import chat.util.AlertMessage
 import akka.actor.typed.ActorRef
 
 @sfxml
@@ -13,7 +13,7 @@ class SignUpController(
     private val passwordTextField: TextField
 
 )extends AlertMessage{
-    
+
     //Variable
     var clientRef: Option[ActorRef[ClientManager.Command]] = None
 
@@ -29,11 +29,11 @@ class SignUpController(
     }
 
      //Detect changes after signup; if successfully signed up, then show success message; else show error alert.
-    ClientManager.signup.onChange{ 
+    ClientManager.signup.onChange{
         if(ClientManager.signup.getValue() == "true"){
             Platform.runLater {
                 alertInformation("Sign Up Success", null, "Congratulations, your account has been successfully created.")
-                Main.showPages("view/Home.fxml")
+                Client.showPages("view/Home.fxml")
             }
         } else if(ClientManager.signup.getValue() == "false"){
             Platform.runLater{
@@ -44,5 +44,5 @@ class SignUpController(
     }
 
     //Return to home page
-    def cancel(): Unit = Main.showPages("view/Home.fxml")
+    def cancel(): Unit = Client.showPages("view/Home.fxml")
 }

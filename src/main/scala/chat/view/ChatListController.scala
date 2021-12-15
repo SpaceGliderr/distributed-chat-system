@@ -6,7 +6,7 @@ import scalafx.Includes._
 import scalafx.beans.property.ObjectProperty
 import scalafx.scene.image.{ImageView, Image}
 import akka.actor.typed.ActorRef
-import chat.{Main, ClientManager}
+import chat.{Client, ClientManager}
 import chat.util.AlertMessage
 import chat.model.ChatSession
 import scalafx.collections.ObservableBuffer
@@ -47,7 +47,7 @@ class ChatListController(
     clearIcon.image_=(clearIconImage)
 
     //Make the menu bar visible
-    Main.roots.top.value.visible_=(true)
+    Client.roots.top.value.visible_=(true)
 
     //Populate the conversations in the table
     def showConversationList() = {
@@ -71,12 +71,12 @@ class ChatListController(
 
     //Open add new chat page
     def addNewChat: Unit = {
-        Main.showNewChatOrNewGroupPage("Add New Chat", false)
+        Client.showNewChatOrNewGroupPage("Add New Chat", false)
     }
 
     //Open add new group page
     def addNewGroup: Unit = {
-        Main.showNewChatOrNewGroupPage("Add New Group", true)
+        Client.showNewChatOrNewGroupPage("Add New Group", true)
     }
 
     //Open chat room page
@@ -86,7 +86,7 @@ class ChatListController(
         else{
             clientRef.get ! ClientManager.RequestUpdatedChat(this.chatsessions(conversationList.getSelectionModel().getSelectedIndex()))
             clientRef.get ! ClientManager.JoinSession(this.chatsessions(conversationList.getSelectionModel().getSelectedIndex()).id.toLong)
-            Main.showChatRoomPage(true)
+            Client.showChatRoomPage(true)
         }
     }
 

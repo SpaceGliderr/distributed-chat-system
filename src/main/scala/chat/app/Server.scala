@@ -219,7 +219,7 @@ object ServerManager {
         }
 }
 
-object NewServer extends App {
+object Server extends App {
     Database.setupDB()
     val greeterMain: ActorSystem[ServerManager.Command] = ActorSystem(ServerManager(), "HelloSystem")
 }

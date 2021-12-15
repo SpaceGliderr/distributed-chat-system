@@ -5,7 +5,7 @@ import javafx.scene.layout.ColumnConstraints
 import scalafx.scene.control.{TextField, ListView, MenuItem, Dialog, ButtonType, Label, Button}
 import scalafx.Includes._
 import scalafx.scene.image.{ImageView, Image}
-import chat.{Main, ClientManager}
+import chat.{Client, ClientManager}
 import scalafx.stage.Stage
 import chat.util.AlertMessage
 import scalafx.scene.layout.GridPane
@@ -85,7 +85,7 @@ class NewChatOrGroupController(
                 clientRef.get ! ClientManager.CreateSession(Array(selectedItem.id), selectedItem.username)
                 ClientManager.pmUsers = ClientManager.pmUsers.filter(_ != selectedItem)
                 dialogStage.close()
-                Main.showChatRoomPage(false)
+                Client.showChatRoomPage(false)
             }
         }
         // Group Chat
@@ -100,7 +100,7 @@ class NewChatOrGroupController(
                     selectedItems.foreach(i => ids = ids :+ i.id)
                     clientRef.get ! ClientManager.CreateSession(ids, groupName)
                     dialogStage.close()
-                    Main.showChatRoomPage(true)
+                    Client.showChatRoomPage(true)
                 }
             }
         }

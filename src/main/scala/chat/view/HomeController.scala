@@ -1,7 +1,7 @@
 package chat.view
 import scalafxml.core.macros.sfxml
 import scalafx.Includes._
-import chat.Main
+import chat.Client
 import scalafx.scene.image.{ImageView, Image}
 
 @sfxml
@@ -10,8 +10,8 @@ class HomeController(
 ){
 
     //Open Login page
-    def login(): Unit = Main.showLoginPage()
+    def login(): Unit = Client.showLoginPage()
 
     //Open Signup page
-    def signup(): Unit = Main.showSignUpPage()
+    def signup(): Unit = Client.showSignUpPage()
 }
