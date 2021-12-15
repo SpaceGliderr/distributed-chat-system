@@ -85,7 +85,7 @@ class NewChatOrGroupController(
                 clientRef.get ! ClientManager.CreateSession(Array(selectedItem.id), selectedItem.username)
                 ClientManager.pmUsers = ClientManager.pmUsers.filter(_ != selectedItem)
                 dialogStage.close()
-                Client.showChatRoomPage(false)
+                Client.showChatRoomPage()
             }
         }
         // Group Chat
@@ -100,7 +100,7 @@ class NewChatOrGroupController(
                     selectedItems.foreach(i => ids = ids :+ i.id)
                     clientRef.get ! ClientManager.CreateSession(ids, groupName)
                     dialogStage.close()
-                    Client.showChatRoomPage(true)
+                    Client.showChatRoomPage()
                 }
             }
         }

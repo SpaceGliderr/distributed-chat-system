@@ -27,7 +27,6 @@ class ChatRoomController(
     var clientRef: Option[ActorRef[ClientManager.Command]] = None
     var chatRoom: ChatSession = null
     var nameList: Array[String] = Array()
-    var isGroup: Boolean = false
     var messages = new ObservableBuffer[String]()
     var messageIds = new ObservableBuffer[Long]()
 
@@ -65,15 +64,16 @@ class ChatRoomController(
     //Update chat room information
     def updateInfo(): Unit = {
         this.chatRoom = ClientManager.selectedChatRoom
-        groupOrChatName.text = this.chatRoom.name
+        if (this.chatRoom.name == ClientManager.user.username)
+            groupOrChatName.text = this.chatRoom.description
+        else
+            groupOrChatName.text = this.chatRoom.name
+
         this.nameList = Array()
         ClientManager.usersInChatRoom.foreach( user =>
-            nameList = nameList :+ user.username
+            nameList :+= user.username
         )
-        if (isGroup){
-            statusOrGrpMemNames.text = nameList.mkString(", ")
-        }
-
+        statusOrGrpMemNames.text = nameList.mkString(", ")
     }
 
     //Leave current chat room and return to chat list page

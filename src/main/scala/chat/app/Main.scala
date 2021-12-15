@@ -103,7 +103,7 @@ object Client extends JFXApp {
         window.showAndWait()
     }
 
-    def showChatRoomPage(_isGroup: Boolean) = {
+    def showChatRoomPage() = {
         val resource = getClass.getResourceAsStream("view/ChatRoom.fxml")
         val loader = new FXMLLoader(null, NoDependencyResolver)
         loader.load(resource);
@@ -111,7 +111,6 @@ object Client extends JFXApp {
         this.roots.setCenter(roots)
         val controller = loader.getController[ChatRoomController#Controller]
         controller.clientRef = Option(clientMain)
-        controller.isGroup = _isGroup
         controller.updateInfo()
     }
 

@@ -68,8 +68,8 @@ object ServerManager {
                             userChatSession.upsert()
 
                             userMap.get(participant).foreach(user => {
-                                context.self ! GetChatSession(user,participant)
-                                context.self ! GetAllUsers(user, User.findOne(creatorId).get)
+                                context.self ! GetChatSession(user, participant)
+                                context.self ! GetAllUsers(user, User.findOne(participant).get)
                             })
                         })
 
@@ -189,7 +189,7 @@ object ServerManager {
                         Behaviors.same
 
                     case GetAllUsers(from, user) =>
-                        var allUsers = User.selectAll.filter( _ != user)
+                        var all = User.selectAll.filter( _ != user)
                         var availableUsers = User.selectAll.filter( _ != user)
 
                         val sessions = ChatSession.selectAll
@@ -204,7 +204,7 @@ object ServerManager {
                                 }
                             })
                         })
-                        from ! ClientManager.UpdateUsers(allUsers, availableUsers)
+                        from ! ClientManager.UpdateUsers(all, availableUsers)
 
                         Behaviors.same
 

@@ -86,7 +86,7 @@ class ChatListController(
         else{
             clientRef.get ! ClientManager.RequestUpdatedChat(this.chatsessions(conversationList.getSelectionModel().getSelectedIndex()))
             clientRef.get ! ClientManager.JoinSession(this.chatsessions(conversationList.getSelectionModel().getSelectedIndex()).id.toLong)
-            Client.showChatRoomPage(true)
+            Client.showChatRoomPage()
         }
     }
 
