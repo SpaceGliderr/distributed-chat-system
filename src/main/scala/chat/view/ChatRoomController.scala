@@ -4,9 +4,8 @@ import scalafx.scene.control.{TextField, ListView, Label, Button}
 import scalafx.Includes._
 import scalafx.scene.image.{ImageView, Image}
 import scalafx.collections.ObservableBuffer
-import scalafx.scene.control.SelectionMode
 import chat.{Client, ClientManager}
-import chat.model.{ChatSession, UserChatSession}
+import chat.model.ChatSession
 import chat.util.AlertMessage
 import akka.actor.typed.ActorRef
 import scalafx.application.Platform

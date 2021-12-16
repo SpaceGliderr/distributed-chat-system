@@ -1,11 +1,9 @@
 package chat.util
-import scalafx.scene.control.{Alert, TextArea, ButtonType, TextInputDialog, Button}
+import scalafx.scene.control.{Alert, ButtonType, TextInputDialog, Button}
 import scalafx.scene.Node
 import scalafx.Includes._
 import chat.Client
 import scalafx.beans.property.StringProperty
-import scala.Tuple2
-import scalafx.event.ActionEvent
 
 trait AlertMessage{
     //Check username and password for login and signup

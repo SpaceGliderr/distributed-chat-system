@@ -2,12 +2,9 @@ package chat.view
 import scalafxml.core.macros.sfxml
 import scalafx.Includes._
 import chat.Client
-import scalafx.scene.image.{ImageView, Image}
 
 @sfxml
-class HomeController(
-    private val imageView: ImageView
-){
+class HomeController(){
 
     //Open Login page
     def login(): Unit = Client.showLoginPage()

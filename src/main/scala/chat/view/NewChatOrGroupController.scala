@@ -1,17 +1,12 @@
 package chat.view
 
 import scalafxml.core.macros.sfxml
-import javafx.scene.layout.ColumnConstraints
-import scalafx.scene.control.{TextField, ListView, MenuItem, Dialog, ButtonType, Label, Button}
+import scalafx.scene.control.{TextField, ListView, Button}
 import scalafx.Includes._
 import scalafx.scene.image.{ImageView, Image}
 import chat.{Client, ClientManager}
 import scalafx.stage.Stage
 import chat.util.AlertMessage
-import scalafx.scene.layout.GridPane
-import scalafx.scene.control.ButtonBar.ButtonData
-import scalafx.geometry.Insets
-import scalafx.scene.Node
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control.SelectionMode

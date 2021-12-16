@@ -1,7 +1,7 @@
 package chat.view
 
 import scalafxml.core.macros.sfxml
-import scalafx.scene.control.{TextField, TableView, TableColumn, Label}
+import scalafx.scene.control.{TextField, TableView, TableColumn}
 import scalafx.Includes._
 import scalafx.beans.property.ObjectProperty
 import scalafx.scene.image.{ImageView, Image}

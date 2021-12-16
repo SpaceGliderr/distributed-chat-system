@@ -2,8 +2,7 @@ package chat.view
 import scalafxml.core.macros.sfxml
 import scalafx.scene.control.TextField
 import scalafx.Includes._
-import chat.ClientManager
-import chat.Client
+import chat.{Client, ClientManager}
 import scalafx.application.Platform
 import chat.util.AlertMessage
 import akka.actor.typed.ActorRef
