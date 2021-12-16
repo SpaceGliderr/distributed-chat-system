@@ -1,68 +1,77 @@
 package chat.util
-import scalafx.scene.control.{Alert, TextArea, ButtonType, TextInputDialog, Button}
+import scalafx.scene.control.{Alert, ButtonType, TextInputDialog, Button}
 import scalafx.scene.Node
 import scalafx.Includes._
-import chat.Main
+import chat.Client
 import scalafx.beans.property.StringProperty
-import scala.Tuple2
-import scalafx.event.ActionEvent
 
 trait AlertMessage{
-    def phoneNumPwdChecking(phoneNum: StringProperty, password: StringProperty): String = {
+    //Check username and password for login and signup
+    def userNamePwdChecking(username: StringProperty, password: StringProperty): String = {
         var errorMessage = ""
-        if (phoneNum.value.length == 0)
-            errorMessage += "No valid phone number\n"
-        else if(phoneNum.value.length != 10 && phoneNum.value.length != 11)
-            errorMessage += "Incorrect format for phone number\n"
-        else if(phoneNum.value.substring(0,2) != "01")
-            errorMessage += "Incorrect format for phone number\n"
+        if (username.value.length == 0)
+            errorMessage += "No valid username\n"
         if (password.value.length == 0)
             errorMessage += "No valid password"
         errorMessage
     }
 
+    //Create error alert
     def alertError (_title: String, _headerText: String, _contextText: String): Unit = {
         new Alert(Alert.AlertType.Error){
-            initOwner(Main.stage)
+            initOwner(Client.stage)
             title       = _title
             headerText  = _headerText
             contentText = _contextText
         }.showAndWait()
     }
 
+    //Create information alert
     def alertInformation(_title: String, _headerText: String, _contextText: String): Unit = {
          new Alert(Alert.AlertType.Information){
-            initOwner(Main.stage)
+            initOwner(Client.stage)
             title       = _title
             headerText  = _headerText
             contentText = _contextText
         }.showAndWait()
     }
 
+    //Create confirmation alert
     def alertConfirmation(_title: String, _headerText: String, _contextText: String): Boolean = {
         val alert = new Alert(Alert.AlertType.Confirmation){
-            initOwner(Main.stage)
+            initOwner(Client.stage)
             title       = _title
             headerText  = _headerText
             contentText = _contextText
-        }.showAndWait()
+        }
 
-        alert match{
+        val cancelButton = alert.dialogPane().lookupButton(ButtonType.Cancel)
+        cancelButton.getStyleClass().clear();
+        cancelButton.getStyleClass().add("secondaryButton");
+
+        val result = alert.showAndWait()
+        result match{
             case Some(ButtonType.OK) => return true
             case _ => return false
         }
     }
 
+    //Create text input dialog
     def textInputDialog(_title: String, _headerText: String, _contextText: String): String = {
         val dialog = new TextInputDialog(){
-            initOwner(Main.stage)
+            initOwner(Client.stage)
             title       = _title
             headerText  = _headerText
             contentText = _contextText
         }
-             
+
         val okButton: Node = dialog.dialogPane().lookupButton(ButtonType.OK)
+        val cancelButton: Node = dialog.dialogPane().lookupButton(ButtonType.Cancel)
+        okButton.getStyleClass().add("primaryButton");
+        cancelButton.getStyleClass().clear();
+        cancelButton.getStyleClass().add("secondaryButton");
         okButton.disable_=(true)
+
         dialog.editor.text.onChange{(_, _, newValue) => {
             if (!newValue.trim().isEmpty)
                 okButton.disable_=(false)

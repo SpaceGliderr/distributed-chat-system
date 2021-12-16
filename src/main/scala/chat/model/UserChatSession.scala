@@ -1,19 +1,22 @@
-package model
+package chat.model
 
 import scala.util.Try
-import util.Database
+import chat.util.{Database, UserRoles}
 import scalikejdbc._
-import java.util.UUID
 import java.util.Date
-import util.UserRoles
 
+
+// A table connecting User and ChatSession
 case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles.UserRole = UserRoles.MEMBER) {
+
+    // Properties
     var id: Long = 0
     var userId: Long = _userId
     var chatSessionId: Long = _chatSessionId
     var role: UserRoles.UserRole = _role
     var joinedAt: Date = new Date()
 
+    // Check if a userChatSession exists in database
     def isExist: Boolean = {
         DB readOnly { implicit session =>
             sql"""
@@ -27,6 +30,7 @@ case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles
         }
     }
 
+    // Check if a user is in the chat session
     def inChat: Boolean = {
         DB readOnly { implicit session =>
             sql"""
@@ -40,7 +44,7 @@ case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles
         }
     }
 
-    // ! Not sure whether we need upsert for this one or maybe upsert can be updateRole?
+    // Update or create a new record for userChatSession
     def upsert(): Try[Long] = {
         if (!isExist) {
             Try (DB autoCommit { implicit session =>
@@ -61,6 +65,7 @@ case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles
         }
     }
 
+    // Join the user into the chat session
     def joinSession(): Try[Long] = {
         Try (DB autoCommit { implicit session =>
             id = sql"""
@@ -71,6 +76,7 @@ case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles
         })
     }
 
+    // Update a user's role in the chatSession
     def updateRole(): Try[Long] = {
         if (inChat) {
             Try (DB autoCommit { implicit session =>
@@ -87,10 +93,12 @@ case class UserChatSession(_userId: Long, _chatSessionId: Long, _role: UserRoles
         }
     }
 
+    // toString method
     override def toString = s"UserChatSession(${id}, user:${userId}, chatSession:${chatSessionId})"
 }
 
 object UserChatSession extends Database {
+
     def apply(_id: Long, _userId: Long, _chatSessionId: Long, _role: UserRoles.UserRole, _joinedAt: Date): UserChatSession = {
         new UserChatSession(_userId, _chatSessionId, _role) {
             id = _id
@@ -98,39 +106,7 @@ object UserChatSession extends Database {
         }
     }
 
-    // Get Users in ChatSession with ID x
-    def getUsersInChatSession(chatSessionId: Long): List[User] = {
-        DB readOnly { implicit session =>
-            sql"""
-                select u.* from users u
-                join user_chat_sessions ucs on u.id = ucs.user_id
-                where ucs.chat_session_id = ${chatSessionId.intValue()}
-            """.map(res => User(
-                res.int("id"),
-                res.string("username"),
-                res.string("password"),
-                res.timestamp("created_at"),
-                res.timestamp("updated_at")
-            )).list.apply()
-        }
-    }
-
-    // Get Users not in ChatSession with ID x
-    def getUsersNotInChatSession(chatSessionId: Long): List[User] = {
-        val users = User.selectAll
-        val usersInSession = getUsersInChatSession(chatSessionId).toSet
-        users.filterNot(usersInSession)
-    }
-
-    def leaveSession(userId: Long, chatSessionId: Long): Long = {
-        DB autoCommit { implicit session =>
-            sql"""
-                delete from user_chat_sessions where user_id = ${userId.intValue()} and chat_session_id = ${chatSessionId.intValue()}
-            """.update().apply()
-        }
-        userId
-    }
-
+    // Initialize the table in database
     def initializeTable() = {
         DB autoCommit { implicit session =>
             sql"""
@@ -148,7 +124,61 @@ object UserChatSession extends Database {
         }
     }
 
+    // Get all users in the chat session with id
+    def getUsersInChatSession(chatSessionId: Long): List[User] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select u.* from users u
+                join user_chat_sessions ucs on u.id = ucs.user_id
+                where ucs.chat_session_id = ${chatSessionId.intValue()}
+            """.map(res => User(
+                res.int("id"),
+                res.string("username"),
+                res.string("password"),
+                res.timestamp("created_at"),
+                res.timestamp("updated_at")
+            )).list.apply()
+        }
+    }
 
+    // Get all users not in chat session with id
+    def getUsersNotInChatSession(chatSessionId: Long): List[User] = {
+        val users = User.selectAll
+        val usersInSession = getUsersInChatSession(chatSessionId).toSet
+        users.filterNot(usersInSession)
+    }
+
+    // Get chat session with user'id
+    def getChatSessions(userId: Long): List[ChatSession] = {
+        DB readOnly { implicit session =>
+            sql"""
+                select c.* from chat_sessions c
+                join user_chat_sessions ucs on c.id = ucs.chat_session_id
+                where ucs.user_id = ${userId.intValue()}
+            """.map(res => ChatSession(
+                res.long("id"),
+                res.string("name"),
+                res.string("description"),
+                res.long("creator_id"),
+                res.timestamp("created_at"),
+                res.timestamp("updated_at")
+            )).list.apply()
+        }
+    }
+
+    // Leave a chat session by using user's id and chat session's id
+    def leaveSession(userId: Long, chatSessionId: Long): Long = {
+        DB autoCommit { implicit session =>
+            sql"""
+                delete from user_chat_sessions
+                where user_id = ${userId.intValue()}
+                and chat_session_id = ${chatSessionId.intValue()}
+            """.update().apply()
+        }
+        userId
+    }
+
+    // Select and create all UserChatSession in the database
     def selectAll: List[UserChatSession] = {
         DB readOnly { implicit session =>
             sql"""
@@ -163,6 +193,7 @@ object UserChatSession extends Database {
         }
     }
 
+    // Seeding
     def seed() = {
         DB autoCommit { implicit session =>
             sql"""

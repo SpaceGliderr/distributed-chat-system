@@ -1,20 +1,23 @@
-package model
+package chat.model
 
 import scala.util.Try
-import util.Database
+import chat.util.{Database, UserRoles}
 import scalikejdbc._
 import java.util.Date
-import util.UserRoles
+
 
 case class ChatSession(_name: String, _description: String, _creatorId: Long) {
+
+    // Properties
     var id: Long = -1
     var name: String = _name
     var description: String = _description
     var creatorId: Long = _creatorId
     var createdAt: Date = null
     var updatedAt: Date = new Date()
-    var messages: List[Message] = List() // message log
+    var messages: List[Message] = List()
 
+    // Check if a chatSession exists in database
     def isExist: Boolean = {
         DB readOnly { implicit session =>
             sql"""
@@ -28,26 +31,7 @@ case class ChatSession(_name: String, _description: String, _creatorId: Long) {
         }
     }
 
-    def upsert(): Try[Long] = {
-        if (!isExist) {
-            Try (DB autoCommit { implicit session =>
-                id = sql"""
-                    insert into chat_sessions (name, description, created_at)
-                    values (${name}, ${description}, ${createdAt})
-                """.updateAndReturnGeneratedKey.apply()
-                id.intValue
-            })
-        } else {
-            Try (DB autoCommit { implicit session =>
-                sql"""
-                    update chat_sessions
-                    set name = ${name}, description = ${description}, updated_at = ${updatedAt}
-                    where id = ${id.intValue}
-                """.update().apply()
-            })
-        }
-    }
-
+    // Create a new chat session
     def create(): Try[Long] = {
         Try (
             DB autoCommit { implicit session =>
@@ -64,6 +48,7 @@ case class ChatSession(_name: String, _description: String, _creatorId: Long) {
         )
     }
 
+    // Update a chat session in database
     def update(): Try[Long] = {
         Try (
             DB autoCommit { implicit session =>
@@ -77,6 +62,7 @@ case class ChatSession(_name: String, _description: String, _creatorId: Long) {
         )
     }
 
+    // Delete a chat session in database
     def delete(): Try[Long] = {
         Try (
             DB autoCommit { implicit session =>
@@ -88,10 +74,12 @@ case class ChatSession(_name: String, _description: String, _creatorId: Long) {
         )
     }
 
-    override def toString = s"ChatSession(${id}, ${name}, creator:${creatorId})"
+    // toString method
+    override def toString = s"${name}"
 }
 
 object ChatSession extends Database {
+
     def apply(_id: Long, _name: String, _description: String, _creatorId: Long, _createdAt: Date, _updatedAt: Date): ChatSession = {
         new ChatSession(_name, _description, _creatorId) {
             id = _id
@@ -100,11 +88,12 @@ object ChatSession extends Database {
         }
     }
 
+    // Initialize the table in the database
     def initializeTable() = {
         DB autoCommit { implicit session =>
             sql"""
                 create table chat_sessions (
-                    id int GENERATED ALWAYS AS IDENTITY,
+                    id int GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
                     name varchar(255) not null,
                     description varchar(255),
                     creator_id int not null,
@@ -117,6 +106,7 @@ object ChatSession extends Database {
         }
     }
 
+    // Find the chat session with id
     def findOne(id: Long): Option[ChatSession] = {
         DB readOnly { implicit session =>
             sql"""
@@ -133,7 +123,8 @@ object ChatSession extends Database {
         }
     }
 
-    def getMessages(chatSessionId: Int): List[Message] = {
+    // Get the messages in the chat session with id
+    def getMessages(chatSessionId: Long): List[Message] = {
         DB readOnly { implicit session =>
             sql"""
                 select * from messages
@@ -149,6 +140,7 @@ object ChatSession extends Database {
         }
     }
 
+    // Select all chat sessions in database
     def selectAll: List[ChatSession] = {
         DB readOnly { implicit session =>
             sql"""
@@ -164,6 +156,7 @@ object ChatSession extends Database {
         }
     }
 
+    // Seeding
     def seed() = {
         DB autoCommit { implicit session =>
             sql"""

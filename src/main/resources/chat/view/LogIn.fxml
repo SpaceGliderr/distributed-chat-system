@@ -10,16 +10,16 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" styleClass="backgroundColour" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chat.view.LogInController">
+<AnchorPane prefHeight="450.0" prefWidth="600.0" styleClass="backgroundColour" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chat.view.LogInController">
    <children>
-      <Text layoutX="188.0" layoutY="109.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Log In" textAlignment="CENTER" wrappingWidth="224.00000095367432" AnchorPane.leftAnchor="188.0" AnchorPane.topAnchor="62.82400131225586">
+      <Text layoutX="188.0" layoutY="114.796875" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="title" text="Log In" textAlignment="CENTER" wrappingWidth="224.00000095367432" AnchorPane.leftAnchor="188.0" AnchorPane.topAnchor="63.0">
          <font>
             <Font name="Elephant" size="48.0" />
          </font>
       </Text>
-      <HBox layoutX="182.0" layoutY="304.0" spacing="100.0">
+      <HBox layoutX="182.0" layoutY="286.0" prefHeight="30.0" prefWidth="255.0" spacing="100.0" AnchorPane.topAnchor="276.0">
          <children>
-            <Button defaultButton="true" mnemonicParsing="false" onAction="#login" prefHeight="25.0" prefWidth="70.0" text="Log In">
+            <Button defaultButton="true" mnemonicParsing="false" onAction="#login" prefHeight="25.0" prefWidth="70.0" styleClass="primaryButton" text="Log In">
                <font>
                   <Font name="Kristen ITC" size="14.0" />
                </font>
@@ -27,7 +27,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
-            <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" text="Cancel">
+            <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" styleClass="secondaryButton" text="Cancel">
                <font>
                   <Font name="Kristen ITC" size="14.0" />
                </font>
@@ -37,26 +37,26 @@
             </Button>
          </children>
       </HBox>
-      <VBox layoutX="159.0" layoutY="148.0" spacing="15.0">
+      <VBox layoutX="159.0" layoutY="148.0" spacing="15.0" AnchorPane.topAnchor="130.0">
          <children>
             <VBox spacing="5.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Please enter your phone number:">
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Username:">
                      <font>
                         <Font name="Century Gothic" size="14.666666984558105" />
                      </font>
                   </Text>
-                  <TextField fx:id="phoneNumTextField" minWidth="235.0" prefHeight="31.0" prefWidth="283.0" promptText="0123456789 or 01234567890" />
+                  <TextField fx:id="userNameTextField" minWidth="235.0" prefHeight="31.0" prefWidth="280.0" promptText="Please enter your username" />
                </children>
             </VBox>
             <VBox spacing="5.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Please enter your password:">
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Password:">
                      <font>
                         <Font name="Century Gothic" size="14.0" />
                      </font>
                   </Text>
-                  <PasswordField fx:id="passwordTextField" minWidth="235.0" prefHeight="31.0" prefWidth="283.0" />
+                  <PasswordField fx:id="passwordTextField" minWidth="235.0" prefHeight="31.0" prefWidth="280.0" promptText="Please enter your password" />
                </children>
             </VBox>
          </children>

@@ -10,52 +10,43 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" styleClass="backgroundColour" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chat.view.SignUpController">
+<AnchorPane prefHeight="450.0" prefWidth="600.0" styleClass="backgroundColour" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chat.view.SignUpController">
    <children>
-      <Text layoutX="188.0" layoutY="77.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sign Up" textAlignment="CENTER" wrappingWidth="224.34130859375" AnchorPane.leftAnchor="188.0">
+      <Text layoutX="188.0" layoutY="101.68000030517578" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="title" text="Sign Up" textAlignment="CENTER" wrappingWidth="224.34130859375" AnchorPane.leftAnchor="188.0" AnchorPane.topAnchor="62.0">
          <font>
             <Font name="Elephant" size="48.0" />
          </font>
       </Text>
-      <Text fill="#f22121" layoutX="116.0" layoutY="112.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sign up now and chat with people around the globe." textAlignment="CENTER" wrappingWidth="367.0079075098038">
+      <Text fill="#f22121" layoutX="116.0" layoutY="137.107421875" strokeType="OUTSIDE" strokeWidth="0.0" text="Sign up now and chat with people around the globe." textAlignment="CENTER" wrappingWidth="367.0079075098038" AnchorPane.topAnchor="122.0">
          <font>
             <Font size="14.0" />
          </font>
       </Text>
-      <VBox layoutX="188.0" layoutY="139.0" spacing="5.0" AnchorPane.leftAnchor="188.0" AnchorPane.rightAnchor="188.0">
+      <VBox layoutX="160.0" layoutY="160.0" prefHeight="115.0" prefWidth="280.0" spacing="5.0" AnchorPane.leftAnchor="160.0" AnchorPane.rightAnchor="160.0" AnchorPane.topAnchor="155.0">
          <children>
-            <VBox spacing="5.0">
+            <VBox prefWidth="280.0" spacing="5.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Name (How others will see you):">
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Username:">
                      <font>
                         <Font name="Century Gothic" size="14.0" />
                      </font></Text>
-                  <TextField fx:id="nameTextField" prefHeight="24.0" prefWidth="224.0" />
+                  <TextField fx:id="userNameTextField" prefHeight="24.0" prefWidth="280.0" promptText="How others will see you" />
                </children>
             </VBox>
-            <VBox spacing="5.0">
-               <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Phone Number:">
-                     <font>
-                        <Font name="Century Gothic" size="14.0" />
-                     </font></Text>
-                  <TextField fx:id="phoneNumTextField" layoutX="10.0" layoutY="31.0" prefHeight="24.0" prefWidth="224.0" promptText="0123456789 or 01234567890" />
-               </children>
-            </VBox>
-            <VBox spacing="5.0">
+            <VBox prefWidth="280.0" spacing="5.0">
                <children>
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Password:">
                      <font>
                         <Font name="Century Gothic" size="14.0" />
                      </font></Text>
-                  <PasswordField fx:id="passwordTextField" />
+                  <PasswordField fx:id="passwordTextField" prefHeight="31.0" prefWidth="255.0" />
                </children>
             </VBox>
          </children>
       </VBox>
-      <HBox layoutX="174.0" layoutY="337.0" spacing="100.0">
+      <HBox layoutX="172.0" layoutY="304.0" spacing="100.0" AnchorPane.topAnchor="290.0">
          <children>
-            <Button defaultButton="true" mnemonicParsing="false" onAction="#signup" prefHeight="33.0" prefWidth="80.0" text="Sign Up">
+            <Button defaultButton="true" mnemonicParsing="false" onAction="#signup" prefHeight="33.0" prefWidth="80.0" styleClass="primaryButton" text="Sign Up">
                <font>
                   <Font name="Kristen ITC" size="14.0" />
                </font>
@@ -63,7 +54,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
-            <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" prefHeight="33.0" prefWidth="77.0" text="Cancel">
+            <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" prefHeight="33.0" prefWidth="77.0" styleClass="secondaryButton" text="Cancel">
                <font>
                   <Font name="Kristen ITC" size="14.0" />
                </font>

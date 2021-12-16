@@ -1,6 +1,6 @@
-package model
-import model._
-import util.UserRoles
+package chat.model
+
+import chat.util.UserRoles
 import scala.util.Try
 
 object Test {
